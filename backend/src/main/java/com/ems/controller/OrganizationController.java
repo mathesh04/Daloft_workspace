@@ -1,5 +1,7 @@
 package com.ems.controller;
-import com.ems.model.*; import com.ems.dto.*; import com.ems.service.OrganizationService; import org.springframework.http.*; import org.springframework.security.core.Authentication; import org.springframework.web.bind.annotation.*; import java.util.*;
+import com.ems.model.*; 
+import com.ems.dto.*; 
+import com.ems.service.OrganizationService; import org.springframework.http.*; import org.springframework.security.core.Authentication; import org.springframework.web.bind.annotation.*; import java.util.*;
 @RestController @RequestMapping("/api/system-admin/organization")
 public class OrganizationController {
  private final OrganizationService service; public OrganizationController(OrganizationService s){service=s;}

@@ -1,5 +1,5 @@
 /* =========================================================================
-   OrbitDesk design tokens
+  
    Palette: deep indigo ink (#232946), soft slate (#4B5776), warm amber
    accent (#F2A541), success teal (#2FA876), danger coral (#E1584D),
    surface white (#FFFFFF), page background (#F5F6FA).
@@ -60,7 +60,7 @@ a { color: inherit; }
 
 .topbar {
   background: var(--ink);
-  color: #fff;
+  color: #f8f8f8;
   padding: 14px 28px;
   display: flex;
   align-items: center;
@@ -241,7 +241,7 @@ a { color: inherit; }
 .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ---------- Table ---------- */
+
 
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
@@ -264,7 +264,7 @@ tbody td {
 tbody tr:hover { background: #fafbfe; }
 tbody tr:last-child td { border-bottom: none; }
 
-/* ---------- Badges ---------- */
+
 
 .badge {
   display: inline-block;
@@ -845,29 +845,19 @@ html { overflow-x:hidden; }
 .daloft-logo-image { width:108px; height:34px; object-fit:contain; object-position:left center; display:block; }
 .daloft-fallback { display:none; align-items:center; gap:10px; }
 
-/* Premium sign-in */
-.daloft-login { min-height:100vh; display:grid; grid-template-columns:1.12fr .88fr; background:#f5f8f6; }
-.login-visual { position:relative; overflow:hidden; padding:42px 54px; color:#fff; background:radial-gradient(circle at 75% 30%,rgba(47,169,105,.22),transparent 28%),radial-gradient(circle at 30% 85%,rgba(224,52,47,.10),transparent 25%),linear-gradient(145deg,#09161e,#102a24 70%,#0b211b); display:flex; flex-direction:column; }
-.login-visual .daloft-brand-copy strong { color:#fff; }
-.login-visual-top { position:relative; z-index:3; }
-.login-visual-copy { margin:auto 0; max-width:590px; position:relative; z-index:3; }
-.login-visual-copy h1 { margin:12px 0 14px; font-size:52px; line-height:1.02; letter-spacing:-.045em; color:#fff; }
-.login-visual-copy h1 em { color:#8dd0a7; font-style:normal; }
-.login-visual-copy p { max-width:510px; margin:0; color:#a9c0b6; font-size:13px; line-height:1.7; }
-.login-trust-row { display:flex; flex-wrap:wrap; gap:9px; margin-top:24px; }
-.login-trust-row span { padding:8px 10px; border:1px solid rgba(255,255,255,.09); background:rgba(255,255,255,.045); border-radius:9px; color:#b7ccc2; font-size:9px; }
-.login-orbit { position:absolute; width:520px; height:520px; right:-190px; bottom:-200px; border:1px solid rgba(93,196,130,.12); border-radius:50%; box-shadow:0 0 0 55px rgba(93,196,130,.025),0 0 0 110px rgba(93,196,130,.018); }
-.login-orbit span { position:absolute; width:8px; height:8px; background:#59bd7e; border-radius:50%; box-shadow:0 0 0 6px rgba(89,189,126,.09); }
-.login-orbit span:nth-child(1){left:105px;top:95px}.login-orbit span:nth-child(2){right:75px;top:210px}.login-orbit span:nth-child(3){left:240px;bottom:70px}
-.login-visual-foot { position:relative; z-index:3; color:#607b6e; font-size:9px; }
-.login-panel { display:flex; align-items:center; justify-content:center; padding:30px; background:#f7faf8; }
-.login-panel-inner { width:100%; max-width:390px; }
-.login-mobile-brand { display:none; margin-bottom:36px; }
+/* Premium sign-in (Centered layout) */
+.daloft-login { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(circle at 50% 20%,rgba(47,169,105,.08),transparent 55%),#f4f7f5; }
+.login-panel { width:100%; max-width:440px; background:#fff; border:1px solid #e1e9e4; border-radius:20px; padding:36px 32px; box-shadow:0 12px 40px rgba(12,38,27,.08),0 2px 6px rgba(12,38,27,.03); }
+.login-panel-inner { width:100%; }
+.login-brand-header { margin-bottom:24px; display:flex; align-items:center; }
+.login-brand-header .daloft-brand { gap:10px; }
+.login-brand-header .daloft-corporate-copy strong { color:#183226; }
+.login-brand-header .daloft-corporate-copy small { color:#62796e; }
 .login-title { margin:9px 0 7px; font-size:31px; letter-spacing:-.03em; }
 .login-sub { color:#7b8983; font-size:11px; margin:0 0 26px; }
 .login-panel .field { margin-bottom:17px; }
 .login-panel .field label { font-size:9px; text-transform:uppercase; letter-spacing:.1em; color:#66766f; }
-.login-panel .field input { background:#fff; border-color:#dfe8e3; border-radius:11px; padding:13px 13px; font-size:11px; box-shadow:0 3px 10px rgba(24,51,40,.025); }
+.login-panel .field input { background:#fff; border:1px solid #dfe8e3; border-radius:11px; padding:13px 13px; font-size:11px; width:100%; box-shadow:0 3px 10px rgba(24,51,40,.025); }
 .login-panel .field input:focus { border-color:#64b889; box-shadow:0 0 0 3px #e6f5ec; }
 .login-submit { width:100%; border:0; border-radius:11px; padding:13px 16px; background:linear-gradient(135deg,#123e2c,#1d744d); color:#fff; font-size:11px; font-weight:800; cursor:pointer; box-shadow:0 10px 22px rgba(23,101,67,.16); }
 .login-submit:hover { transform:translateY(-1px); }
@@ -875,12 +865,24 @@ html { overflow-x:hidden; }
 .login-help { text-align:right; margin-top:13px; }
 .login-help a { color:#22774c; font-size:9px; text-decoration:none; font-weight:700; }
 .login-help a:hover { text-decoration:underline; }
-.login-security-note { margin-top:34px; padding:13px; border:1px solid #e1e9e5; background:#fff; border-radius:12px; display:flex; gap:10px; align-items:flex-start; }
+.login-security-note { margin-top:34px; padding:13px; border:1px solid #e1e9e5; background:#f9fbf9; border-radius:12px; display:flex; gap:10px; align-items:flex-start; }
 .login-security-note > span { color:#39a76c; font-size:10px; }
 .login-security-note div { display:flex; flex-direction:column; gap:3px; }
 .login-security-note strong { font-size:9px; color:#33443c; }
 .login-security-note small { color:#8a9691; font-size:8px; line-height:1.4; }
-@media(max-width:760px){.daloft-login{grid-template-columns:1fr}.login-visual{display:none}.login-panel{min-height:100vh;padding:24px}.login-mobile-brand{display:block}.login-panel-inner{max-width:440px}}
+
+/* Auth wrap for Forgot/Reset password pages */
+.auth-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:radial-gradient(circle at 50% 20%,rgba(47,169,105,.08),transparent 55%),#f4f7f5; }
+.auth-card { width:100%; max-width:440px; background:#fff; border:1px solid #e1e9e4; border-radius:20px; padding:36px 32px; box-shadow:0 12px 40px rgba(12,38,27,.08),0 2px 6px rgba(12,38,27,.03); display:flex; flex-direction:column; gap:14px; }
+.auth-card h2 { margin:0; font-size:24px; color:#183226; }
+.auth-card p { margin:0; color:#7b8983; font-size:11px; line-height:1.5; }
+.auth-card input { background:#fff; border:1px solid #dfe8e3; border-radius:11px; padding:13px 13px; font-size:11px; width:100%; box-shadow:0 3px 10px rgba(24,51,40,.025); }
+.auth-card input:focus { border-color:#64b889; box-shadow:0 0 0 3px #e6f5ec; outline:none; }
+.auth-card button { border:0; border-radius:11px; padding:13px 16px; background:linear-gradient(135deg,#123e2c,#1d744d); color:#fff; font-size:11px; font-weight:800; cursor:pointer; box-shadow:0 10px 22px rgba(23,101,67,.16); }
+.auth-card button:hover { transform:translateY(-1px); }
+.auth-card a { color:#22774c; font-size:9px; text-decoration:none; font-weight:700; text-align:center; margin-top:4px; }
+.auth-card a:hover { text-decoration:underline; }
+@media(max-width:760px){.daloft-login{padding:16px}.login-panel{padding:28px 20px}}
 
 /* V10 performance + premium workspace polish */
 .enterprise-sidebar{transition:width .18s ease,transform .18s ease}
