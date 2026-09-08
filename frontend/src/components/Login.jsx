@@ -28,15 +28,11 @@ export default function Login() {
 
   return (
     <div className="daloft-login">
-      <section className="login-visual">
-        <div className="login-visual-top"><DaloftBrand/></div>
-        <div className="login-visual-copy"><span className="eyebrow green">DALOFT AEROSPACE PRIVATE LIMITED</span><h1>People operations,<br/><em>built for precision.</em></h1><div className="login-drone-frame"><img src="/assets/daloft-drone.png" alt="Daloft Aerospace unmanned aircraft" /></div><p>Attendance, workforce operations, tasks and organization controls — connected in one secure workspace.</p><div className="login-trust-row"><span>✓ Role-based access</span><span>✓ Secure sessions</span><span>✓ Enterprise audit trail</span></div></div>
-        <div className="login-orbit"><span/><span/><span/></div>
-        <small className="login-visual-foot">DALOFT AEROSPACE PRIVATE LIMITED · Daloft People</small>
-      </section>
       <section className="login-panel">
         <div className="login-panel-inner">
-          <div className="login-mobile-brand"><DaloftBrand/></div>
+          <div className="login-brand-header">
+            <DaloftBrand />
+          </div>
           <span className="eyebrow green">SECURE ACCESS</span>
           <h1 className="login-title">Welcome back</h1>
           <p className="login-sub">Sign in to your Daloft People workspace.</p>
