@@ -1,0 +1,1 @@
+package com.ems.repository; import com.ems.model.StockTransaction; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface StockTransactionRepository extends JpaRepository<StockTransaction,Long>{ List<StockTransaction> findTop10ByOrderByTransactionDateDesc(); List<StockTransaction> findAllByOrderByTransactionDateDesc(); }

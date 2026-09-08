@@ -1,0 +1,2 @@
+package com.ems.repository; import com.ems.model.*; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface InventoryUsageUpdateRepository extends JpaRepository<InventoryUsageUpdate,Long>{ List<InventoryUsageUpdate> findAllByOrderByCreatedAtDesc(); List<InventoryUsageUpdate> findByEmployeeEmployeeIdOrderByCreatedAtDesc(String employeeId);
+ boolean existsByRequestIdAndUsageStatus(Long requestId, UsageStatus status); }

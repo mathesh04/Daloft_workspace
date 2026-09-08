@@ -1,0 +1,1 @@
+package com.ems.repository; import com.ems.model.*; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface DamageReportRepository extends JpaRepository<DamageReport,Long>{ List<DamageReport> findByEmployeeEmployeeIdOrderByCreatedAtDesc(String id); }

@@ -1,0 +1,63 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# D-HRM — Root .gitignore
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# ── Secrets / Environment Variables ─────────
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Keep example templates
+!.env.example
+!**/.env.example
+
+# ── IDE / Editor ─────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.suo
+*.user
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+# ── OS ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Java / Maven ─────────────────────────────
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# ── Node / Frontend ───────────────────────────
+**/node_modules/
+**/dist/
+**/build/
+**/.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Logs ─────────────────────────────────────
+*.log
+logs/
+**/logs/
+
+# ── Test & Coverage ───────────────────────────
+**/coverage/
+**/.nyc_output/
+surefire-reports/
+
+# ── Local Resources (private assets) ─────────
+/resources/

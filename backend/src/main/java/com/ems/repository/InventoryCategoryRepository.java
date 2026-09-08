@@ -1,0 +1,1 @@
+package com.ems.repository; import com.ems.model.InventoryCategory; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface InventoryCategoryRepository extends JpaRepository<InventoryCategory,Long>{ boolean existsByNameIgnoreCase(String name); List<InventoryCategory> findAllByOrderByNameAsc(); }
