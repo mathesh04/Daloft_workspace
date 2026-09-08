@@ -16,11 +16,13 @@ const OfficeLocations = lazy(() => import("./OfficeLocations"));
 const Reports = lazy(() => import("./Reports"));
 const SystemAdminPanel = lazy(() => import("./SystemAdminPanel"));
 const AnalyticsDashboard = lazy(() => import("./AnalyticsDashboard"));
+const DailyWorkReportsAdmin = lazy(() => import("./DailyWorkReportsAdmin"));
 const HolidayModule = (props) => <SystemAdminPanel section="holidays" {...props}/>;
 
 const MODULES = [
   { key:"people", permission:"PEOPLE", label:"People", icon:"people", component:EmployeeList },
   { key:"attendance", permission:"ATTENDANCE", label:"Attendance", icon:"calendar", component:AttendanceTable },
+  { key:"daily-reports", permission:"REPORTS", label:"Daily Work Reports", icon:"report", component:DailyWorkReportsAdmin },
   { key:"announcements", permission:"COMMUNICATION", label:"Announcements", icon:"bell", component:Announcements },
   { key:"tasks", permission:"TASKS", label:"Tasks", icon:"tasks", component:Tasks },
   { key:"inventory", permission:"INVENTORY", label:"Inventory", icon:"box", component:Inventory },
@@ -36,6 +38,7 @@ const SYSTEM_NAV = [
   {key:"employees",label:"HR Administrators",icon:"people"},
   {key:"offices",label:"Offices & Geofences",icon:"location"},
   {key:"organization",label:"Organization",icon:"people"},
+  {key:"daily-reports",label:"Daily Work Reports",icon:"report"},
   {key:"security",label:"Security Center",icon:"shield"},
   {key:"audit",label:"Audit Logs",icon:"audit"},
   {key:"settings",label:"Configuration",icon:"settings"},
@@ -85,6 +88,7 @@ function SystemWorkspace({tab,setTab,navigate,notificationCount,setNotificationC
     {tab==="employees"&&<EmployeeList/>}
     {tab==="offices"&&<SystemAdminPanel section="offices"/>}
     {tab==="organization"&&<SystemAdminPanel section="organization"/>}
+    {tab==="daily-reports"&&<DailyWorkReportsAdmin/>}
     {tab==="security"&&<SystemAdminPanel section="security"/>}
     {tab==="audit"&&<SystemAdminPanel section="audit"/>}
     {tab==="settings"&&<SystemAdminPanel section="settings"/>}

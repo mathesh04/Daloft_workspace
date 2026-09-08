@@ -7,6 +7,7 @@ import LeaveManagement from "./LeaveManagement";
 import Notifications from "./Notifications";
 import DamageReports from "./DamageReports";
 import Profile from "./Profile";
+import DailyWorkReport from "./DailyWorkReport";
 import { StatusBadge, TaskBadge } from "./StatusBadges";
 import WorkspaceShell from "./WorkspaceShell";
 
@@ -151,12 +152,13 @@ export default function EmployeeDashboard() {
 
   return (
     <WorkspaceShell
-      title={tab === "home" ? `Good morning, ${user.name.split(" ")[0]}` : ({tasks:"My Tasks",announcements:"Announcements",inventory:"My Inventory",leave:"Leave",damage:"Damage Reports",profile:"My Profile",corrections:"Attendance Corrections",notifications:"Notifications"}[tab] || "My Workspace")}
+      title={tab === "home" ? `Good morning, ${user.name.split(" ")[0]}` : ({tasks:"My Tasks",announcements:"Announcements",inventory:"My Inventory",leave:"Leave",damage:"Damage Reports",profile:"My Profile",corrections:"Attendance Corrections",notifications:"Notifications","daily-report":"Daily Work Report"}[tab] || "My Workspace")}
       subtitle={tab === "home" ? "Your workday, attendance and priorities at a glance." : "Personal workspace for your Daloft People account."}
       active={tab}
       onNavigate={setTab}
       navItems={[
         {key:"home",label:"Overview",icon:"home"},
+        {key:"daily-report",label:"Daily Work Report",icon:"report"},
         {key:"tasks",label:"My Tasks",icon:"tasks",badge:tasks.length||null},
         {key:"announcements",label:"Announcements",icon:"bell",badge:announcements.length||null},
         {key:"inventory",label:"My Inventory",icon:"box"},
@@ -176,7 +178,8 @@ export default function EmployeeDashboard() {
         <div className="employee-stat"><span>My tasks</span><strong>{tasks.length}</strong><small>Assigned work items</small></div>
         <div className="employee-stat"><span>Updates</span><strong>{announcements.length + notificationCount}</strong><small>Announcements & alerts</small></div>
       </div>}
-      {tab === "home" && <div className="quick-actions"><button className="quick-action primary" onClick={handleCheckIn} disabled={busy || hasCheckedIn || !attendancePolicy.attendanceEnabled || !attendancePolicy.checkInEnabled}><span>✓</span><div><strong>{hasCheckedIn ? "Checked in" : "Start workday"}</strong><small>{hasCheckedIn ? "Attendance is active" : "Check in now"}</small></div></button><button className="quick-action" onClick={()=>setTab("tasks")}><span>↗</span><div><strong>View my tasks</strong><small>{tasks.length} assigned items</small></div></button><button className="quick-action" onClick={()=>setTab("leave")}><span>◷</span><div><strong>Request leave</strong><small>Manage your time off</small></div></button></div>}
+      {tab === "home" && <div className="quick-actions"><button className="quick-action primary" onClick={handleCheckIn} disabled={busy || hasCheckedIn || !attendancePolicy.attendanceEnabled || !attendancePolicy.checkInEnabled}><span>✓</span><div><strong>{hasCheckedIn ? "Checked in" : "Start workday"}</strong><small>{hasCheckedIn ? "Attendance is active" : "Check in now"}</small></div></button><button className="quick-action" onClick={()=>setTab("daily-report")}><span>✎</span><div><strong>Submit Work Report</strong><small>Daily tasks & learnings</small></div></button><button className="quick-action" onClick={()=>setTab("tasks")}><span>↗</span><div><strong>View my tasks</strong><small>{tasks.length} assigned items</small></div></button><button className="quick-action" onClick={()=>setTab("leave")}><span>◷</span><div><strong>Request leave</strong><small>Manage your time off</small></div></button></div>}
+              {tab === "daily-report" && <DailyWorkReport />}
               {tab === "inventory" && <EmployeeInventory />}
               {tab === "leave" && <LeaveManagement />}
               {tab === "damage" && <DamageReports />}

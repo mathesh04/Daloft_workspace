@@ -44,7 +44,7 @@ public class AdminAccessFilter extends OncePerRequestFilter {
         if(p.contains("/announcements")) return "COMMUNICATION";
         if(p.contains("/offices")) return "OFFICE";
         if(p.contains("/tasks")) return "TASKS";
-        if(p.contains("/reports") || p.contains("/analytics")) return "REPORTS";
+        if(p.contains("/reports") || p.contains("/analytics") || p.contains("/daily-reports")) return "REPORTS";
         return null;
     }
 }

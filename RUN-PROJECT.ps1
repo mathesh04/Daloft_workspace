@@ -12,7 +12,7 @@ if (Test-Path $backendEnv) {
     Write-Warning "backend/.env not found. Copy backend/.env.example to backend/.env and fill in your values."
 }
 
-# ── Start backend (Spring Boot) ────────────────────────────────────────────────
+
 $backendCmd = "Set-Location '$root\backend'; " +
     "Get-Content '.env' | Where-Object { `$_ -match '^\s*[^#].*=.*' } | " +
     "ForEach-Object { `$k,`$v = `$_ -split '=',2; [System.Environment]::SetEnvironmentVariable(`$k.Trim(),`$v.Trim(),'Process') }; " +
