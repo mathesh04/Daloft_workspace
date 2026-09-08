@@ -22,7 +22,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneric(Exception ex) {
+        ex.printStackTrace();
+        Throwable root = ex;
+        while (root.getCause() != null && root.getCause() != root) {
+            root = root.getCause();
+        }
+        String msg = (root.getMessage() != null && !root.getMessage().isBlank()) ? root.getMessage() : ex.getMessage();
+        if (msg == null || msg.isBlank()) msg = "An unexpected server error occurred.";
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "Something went wrong. Please try again later."));
+                .body(Map.of("message", msg));
     }
 }

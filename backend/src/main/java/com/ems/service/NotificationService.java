@@ -27,6 +27,11 @@ public class NotificationService {
 
 
     @Transactional
+    public void notifyAdmins(String title, String message) {
+        notifyAdmins(title, message, "INFO");
+    }
+
+    @Transactional
     public void notifyAdmins(String title, String message, String type) {
         List<Employee> admins = new java.util.ArrayList<>();
         admins.addAll(employeeRepository.findByRole(Role.HR_ADMIN));

@@ -253,6 +253,15 @@ const api = {
   reviewInventoryRequest: (id, payload) => post(`/admin/inventory/requests/${id}/review`, payload),
   getInventoryUsageUpdates: () => get("/admin/inventory/usage-updates"),
   reviewInventoryUsage: (id, payload) => post(`/admin/inventory/usage-updates/${id}/review`, payload),
+
+  // Daily Work Reports
+  submitDailyReport: (payload) => post("/daily-reports", payload),
+  myDailyReports: () => get("/daily-reports/me"),
+  myDailyReportToday: () => get("/daily-reports/today"),
+  getAdminDailyReports: (filters={}) => get(`/admin/daily-reports?${new URLSearchParams(Object.entries(filters).filter(([,v])=>v!==""&&v!==undefined&&v!==null))}`),
+  getAdminDailyReportEmployees: () => get("/admin/daily-reports/employees"),
+  downloadEmployeeWiseDailyReportExcel: (employeeId, from, to) => download(`/admin/daily-reports/export/employee-wise?${new URLSearchParams({...(employeeId?{employeeId}:{}),...(from?{from}:{}),...(to?{to}:{})})}`, `employee-work-report-${employeeId||"all"}.xlsx`),
+  downloadDateWiseDailyReportExcel: (date, from, to) => download(`/admin/daily-reports/export/date-wise?${new URLSearchParams({...(date?{date}:{}),...(from?{from}:{}),...(to?{to}:{})})}`, `daily-work-report-${date||"range"}.xlsx`),
 };
 
 export default api;
