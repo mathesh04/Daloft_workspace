@@ -14,14 +14,17 @@ public class InventoryService {
     private final InventoryCategoryRepository categories;
     private final ComponentRepository components;
     private final StockTransactionRepository transactions;
-    private final AuditLogRepository audit; private final SystemSettingsService settings;
+    private final AuditLogRepository audit;
+    private final SystemSettingsService settings;
 
     public InventoryService(InventoryCategoryRepository a, ComponentRepository b, StockTransactionRepository c, AuditLogRepository d, SystemSettingsService s){
         categories=a; components=b; transactions=c; audit=d; settings=s;
     }
 
+    @Transactional(readOnly = true)
     public List<InventoryCategory> categories(){return categories.findAllByOrderByNameAsc();}
 
+    @Transactional
     public InventoryCategory createCategory(Map<String,String> b){
         String n=req(b.get("name"),"Category name");
         if(categories.existsByNameIgnoreCase(n)) throw new IllegalArgumentException("Category already exists");
@@ -29,6 +32,7 @@ public class InventoryService {
         InventoryCategory saved=categories.save(c); log("CREATE_CATEGORY","Created category "+n,"system"); return saved;
     }
 
+    @Transactional
     public InventoryCategory updateCategory(Long id,Map<String,String>b){
         InventoryCategory c=categories.findById(id).orElseThrow(()->new IllegalArgumentException("Category not found"));
         String n=req(b.get("name"),"Category name");
@@ -36,6 +40,7 @@ public class InventoryService {
         c.setName(n); c.setDescription(b.get("description")); return categories.save(c);
     }
 
+    @Transactional
     public void deleteCategory(Long id){
         InventoryCategory c=categories.findById(id).orElseThrow(()->new IllegalArgumentException("Category not found"));
         if(components.findAll().stream().anyMatch(x->x.getCategory()!=null && x.getCategory().getId().equals(id)))
@@ -43,17 +48,21 @@ public class InventoryService {
         categories.delete(c);
     }
 
+    @Transactional(readOnly = true)
     public List<Component> components(){return components.findAllByOrderByNameAsc();}
 
+    @Transactional
     public Component createComponent(Map<String,Object>b){Component c=new Component();apply(c,b,true); Component saved=components.save(c); return saved;}
 
+    @Transactional
     public Component updateComponent(Long id,Map<String,Object>b){
         Component c=component(id); apply(c,b,false); return components.save(c);
     }
 
+    @Transactional
     public void deleteComponent(Long id){
         Component c=component(id);
-        if(transactions.findAllByOrderByTransactionDateDesc().stream().anyMatch(t->t.getComponent().getId().equals(id)))
+        if(transactions.findAllByOrderByTransactionDateDesc().stream().anyMatch(t->t.getComponent()!=null && t.getComponent().getId().equals(id)))
             throw new IllegalArgumentException("Cannot delete a component with transaction history. Archive it instead.");
         components.delete(c);
     }
@@ -90,25 +99,32 @@ public class InventoryService {
         return saved;
     }
 
+    @Transactional(readOnly = true)
     public List<StockTransaction> transactions(){return transactions.findAllByOrderByTransactionDateDesc();}
 
+    @Transactional(readOnly = true)
     public Map<String,Object> dashboard(){
         List<Component> all=components();
-        long low=all.stream().filter(c->c.getCurrentQuantity()<=c.getMinimumQuantity()).count();
-        int stock=all.stream().mapToInt(Component::getCurrentQuantity).sum();
-        long pending=transactions.findAllByOrderByTransactionDateDesc().stream().filter(t->t.getTransactionType()==TransactionType.OUT).count();
+        long low=all.stream().filter(c->(c.getCurrentQuantity()==null?0:c.getCurrentQuantity())<=(c.getMinimumQuantity()==null?0:c.getMinimumQuantity())).count();
+        int stock=all.stream().mapToInt(c->c.getCurrentQuantity()==null?0:c.getCurrentQuantity()).sum();
+        long pending=transactions().stream().filter(t->t.getTransactionType()==TransactionType.OUT).count();
         Map<String,Object> m=new LinkedHashMap<>();
         m.put("totalComponents",all.size()); m.put("totalStock",stock); m.put("lowStockItems",low);
         m.put("outTransactions",pending);
         m.put("recentTransactions",transactions.findTop10ByOrderByTransactionDateDesc());
-        m.put("lowStockComponents",all.stream().filter(c->c.getCurrentQuantity()<=c.getMinimumQuantity()).toList());
+        m.put("lowStockComponents",all.stream().filter(c->(c.getCurrentQuantity()==null?0:c.getCurrentQuantity())<=(c.getMinimumQuantity()==null?0:c.getMinimumQuantity())).toList());
         return m;
     }
 
+    @Transactional(readOnly = true)
     public Map<String,Object> analytics(){
         List<Component> all=components();
         Map<String,Integer> categoryStock=new LinkedHashMap<>();
-        for(Component c:all) categoryStock.merge(c.getCategory().getName(), c.getCurrentQuantity(), Integer::sum);
+        for(Component c:all){
+            String catName=c.getCategory()==null?"Uncategorized":c.getCategory().getName();
+            int qty=c.getCurrentQuantity()==null?0:c.getCurrentQuantity();
+            categoryStock.merge(catName, qty, Integer::sum);
+        }
 
         LocalDate now=settings.today();
         List<Map<String,Object>> monthly=new ArrayList<>();
@@ -116,21 +132,22 @@ public class InventoryService {
             YearMonth ym=YearMonth.from(now.minusMonths(i));
             int in=0,out=0;
             for(StockTransaction t:transactions()){
-                if(YearMonth.from(t.getTransactionDate()).equals(ym)){
-                    if(t.getTransactionType()==TransactionType.IN) in+=t.getQuantity(); else out+=t.getQuantity();
+                if(t.getTransactionDate()!=null && YearMonth.from(t.getTransactionDate()).equals(ym)){
+                    if(t.getTransactionType()==TransactionType.IN) in+=t.getQuantity()==null?0:t.getQuantity(); else out+=t.getQuantity()==null?0:t.getQuantity();
                 }
             }
             monthly.add(Map.of("month",ym.toString(),"in",in,"out",out));
         }
 
         Map<String,Integer> usage=transactions().stream().filter(t->t.getTransactionType()==TransactionType.OUT)
-            .collect(Collectors.groupingBy(t->t.getComponent().getName(),Collectors.summingInt(StockTransaction::getQuantity)));
+            .collect(Collectors.groupingBy(t->t.getComponent()==null?"Unknown":t.getComponent().getName(),Collectors.summingInt(t->t.getQuantity()==null?0:t.getQuantity())));
         List<Map<String,Object>> top=usage.entrySet().stream().sorted(Map.Entry.<String,Integer>comparingByValue().reversed()).limit(5)
             .map(e->Map.<String,Object>of("name",e.getKey(),"quantity",e.getValue())).toList();
 
         return Map.of("categoryStock",categoryStock,"monthlyUsage",monthly,"topUsed",top);
     }
 
+    @Transactional(readOnly = true)
     public List<AuditLog> auditLogs(){return audit.findInventoryAuditLogs();}
 
     private void log(String action,String details,String actor){
