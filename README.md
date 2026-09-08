@@ -38,24 +38,6 @@ A full-stack HR management system with role-based access control, geofence atten
 - Node.js 18+
 - PostgreSQL database (local or [Supabase](https://supabase.com))
 
----
-
-### 1. Clone the repo
-
-```bash
-git clone https://github.com/your-org/D-HRM.git
-cd D-HRM
-```
-
----
-
-### 2. Configure the backend
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-Edit `backend/.env` and fill in **all required values**:
 
 | Variable | Required | Description |
 |---|---|---|
@@ -69,15 +51,7 @@ Edit `backend/.env` and fill in **all required values**:
 | `CORS_ALLOWED_ORIGINS` | ⬜ | Comma-separated frontend origins |
 | `GEOFENCE_ENABLED` | ⬜ | `true` to enable GPS check-in |
 
-> ⚠️ **Never commit `backend/.env`** — it is listed in `.gitignore`.
 
----
-
-### 3. Configure the frontend
-
-```bash
-cp frontend/.env.example frontend/.env
-```
 
 Default values work for local development (Vite proxy forwards `/api` → backend).
 For production, set `VITE_API_BASE_URL` to your deployed backend URL.
@@ -89,17 +63,8 @@ For production, set `VITE_API_BASE_URL` to your deployed backend URL.
 
 ---
 
-### 4. Start the application
 
-**Windows (recommended):**
 
-```powershell
-.\RUN-PROJECT.ps1
-```
-
-This automatically loads `backend/.env`, starts Spring Boot, waits 10 seconds, then starts the Vite dev server.
-
-**Manual:**
 
 ```bash
 # Terminal 1 — Backend
@@ -121,7 +86,7 @@ npm run dev
 
 ---
 
-### 5. First login
+ First login
 
 On first startup the bootstrap SYSTEM_ADMIN account is created using the values in `.env`:
 
@@ -170,37 +135,8 @@ D-HRM/
 
 ---
 
-## Environment Variables Reference
 
-See [`.env.example`](.env.example) for the full list with descriptions.
 
-### Backend (`backend/.env`)
-
-```
-DB_URL              PostgreSQL JDBC URL
-DB_USERNAME         Database user
-DB_PASSWORD         Database password
-JWT_SECRET          ≥64-char random secret (openssl rand -hex 64)
-JWT_EXPIRATION_MS   Token TTL in ms (default: 86400000 = 24 h)
-BREVO_API_KEY       Brevo API key for transactional email
-BREVO_SENDER_EMAIL  From address for system emails
-APP_FRONTEND_URL    Frontend origin for email links
-CORS_ALLOWED_ORIGINS Comma-separated allowed CORS origins
-ADMIN_EMPLOYEE_ID   Bootstrap admin ID (default: SYS001)
-ADMIN_PASSWORD      Bootstrap admin password
-GEOFENCE_ENABLED    true/false — GPS check-in enforcement
-FLYWAY_ENABLED      true/false — run DB migrations on startup
-```
-
-### Frontend (`frontend/.env`)
-
-```
-VITE_API_BASE_URL      API base path (/api in dev, full URL in prod)
-VITE_BACKEND_ORIGIN    Vite proxy target (local dev only)
-VITE_APP_NAME          App display name
-```
-
----
 
 ## Security Notes
 
@@ -222,7 +158,7 @@ To disable migrations (e.g. for a read-only replica), set `FLYWAY_ENABLED=false`
 
 ---
 
-## GitHub Actions (CI) — Recommended Secrets
+## GitHub Actions (CI) 
 
 Add these in **GitHub → Settings → Secrets and variables → Actions**:
 
