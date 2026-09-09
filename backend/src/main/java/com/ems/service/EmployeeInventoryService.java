@@ -21,6 +21,7 @@ public class EmployeeInventoryService {
         components=c; employees=e; requests=r; updates=u; transactions=t; audit=a; notifications=n;
     }
 
+    @Transactional(readOnly = true)
     public List<Map<String,Object>> available(){return components.findAllByOrderByNameAsc().stream().map(this::componentDto).toList();}
 
     @Transactional
@@ -33,7 +34,10 @@ public class EmployeeInventoryService {
         log(user,"REQUEST_ITEM","Requested "+q+" "+c.getUnit()+" of "+c.getName()); return requestDto(r);
     }
 
+    @Transactional(readOnly = true)
     public List<Map<String,Object>> myRequests(String user){return requests.findByEmployeeEmployeeIdOrderByRequestedAtDesc(user).stream().map(this::requestDto).toList();}
+
+    @Transactional(readOnly = true)
     public List<Map<String,Object>> allRequests(){return requests.findAllByOrderByRequestedAtDesc().stream().map(this::requestDto).toList();}
 
     @Transactional
@@ -52,6 +56,7 @@ public class EmployeeInventoryService {
         log(admin,"APPROVE_REQUEST","Approved request #"+id+" for "+c.getName()); return requestDto(r);
     }
 
+    @Transactional(readOnly = true)
     public List<Map<String,Object>> myInventory(String user){
         return requests.findByEmployeeEmployeeIdOrderByRequestedAtDesc(user).stream()
             .filter(r->r.getStatus()==RequestStatus.APPROVED)
@@ -72,7 +77,10 @@ public class EmployeeInventoryService {
         log(user,"USAGE_UPDATE","Updated "+r.getComponent().getName()+" as "+u.getUsageStatus()); return usageDto(u);
     }
 
+    @Transactional(readOnly = true)
     public List<Map<String,Object>> myUsage(String user){return updates.findByEmployeeEmployeeIdOrderByCreatedAtDesc(user).stream().map(this::usageDto).toList();}
+
+    @Transactional(readOnly = true)
     public List<Map<String,Object>> allUsage(){return updates.findAllByOrderByCreatedAtDesc().stream().map(this::usageDto).toList();}
 
     @Transactional
@@ -95,7 +103,57 @@ public class EmployeeInventoryService {
     private Long num(Object v){try{return Long.valueOf(String.valueOf(v));}catch(Exception e){throw new IllegalArgumentException("Invalid component/request id");}}
     private int qty(Object v){try{int q=Integer.parseInt(String.valueOf(v));if(q<=0)throw new Exception();return q;}catch(Exception e){throw new IllegalArgumentException("Quantity must be greater than zero");}}
     private String text(Object v){return v==null?null:String.valueOf(v).trim();}
-    private Map<String,Object> componentDto(Component c){Map<String,Object>m=new LinkedHashMap<>();m.put("id",c.getId());m.put("name",c.getName());m.put("componentCode",c.getComponentCode());m.put("category",c.getCategory()==null?"":c.getCategory().getName());m.put("availableQuantity",c.getCurrentQuantity());m.put("minimumQuantity",c.getMinimumQuantity());m.put("storageLocation",c.getStorageLocation()==null?"":c.getStorageLocation());return m;}
-    private Map<String,Object> requestDto(InventoryRequest r){Map<String,Object>m=new LinkedHashMap<>();m.put("id",r.getId());m.put("component",componentDto(r.getComponent()));m.put("employee",Map.of("id",r.getEmployee().getId(),"employeeId",r.getEmployee().getEmployeeId(),"name",r.getEmployee().getName(),"department",r.getEmployee().getDepartment()));m.put("quantity",r.getQuantity());m.put("purpose",r.getPurpose());m.put("status",r.getStatus().name());m.put("requestedAt",r.getRequestedAt());m.put("reviewedAt",r.getReviewedAt());m.put("reviewedBy",r.getReviewedBy());m.put("adminRemark",r.getAdminRemark());return m;}
-    private Map<String,Object> usageDto(InventoryUsageUpdate u){Map<String,Object>m=new LinkedHashMap<>();m.put("id",u.getId());m.put("requestId",u.getRequest().getId());m.put("component",componentDto(u.getComponent()));m.put("employee",Map.of("employeeId",u.getEmployee().getEmployeeId(),"name",u.getEmployee().getName()));m.put("quantity",u.getQuantity());m.put("usageStatus",u.getUsageStatus().name());m.put("projectName",u.getProjectName());m.put("notes",u.getNotes());m.put("createdAt",u.getCreatedAt());return m;}
+    private Map<String,Object> componentDto(Component c){
+        if(c==null) return new LinkedHashMap<>();
+        Map<String,Object>m=new LinkedHashMap<>();
+        m.put("id",c.getId());
+        m.put("name",c.getName()==null?"":c.getName());
+        m.put("componentCode",c.getComponentCode()==null?"":c.getComponentCode());
+        m.put("category",c.getCategory()==null?"":c.getCategory().getName());
+        m.put("availableQuantity",c.getCurrentQuantity()==null?0:c.getCurrentQuantity());
+        m.put("minimumQuantity",c.getMinimumQuantity()==null?0:c.getMinimumQuantity());
+        m.put("storageLocation",c.getStorageLocation()==null?"":c.getStorageLocation());
+        return m;
+    }
+    private Map<String,Object> requestDto(InventoryRequest r){
+        if(r==null) return new LinkedHashMap<>();
+        Map<String,Object>m=new LinkedHashMap<>();
+        m.put("id",r.getId());
+        m.put("component",r.getComponent()!=null?componentDto(r.getComponent()):new LinkedHashMap<>());
+        Map<String,Object> empMap=new LinkedHashMap<>();
+        if(r.getEmployee()!=null){
+            empMap.put("id",r.getEmployee().getId());
+            empMap.put("employeeId",r.getEmployee().getEmployeeId()==null?"":r.getEmployee().getEmployeeId());
+            empMap.put("name",r.getEmployee().getName()==null?"":r.getEmployee().getName());
+            empMap.put("department",r.getEmployee().getDepartment()==null?"":r.getEmployee().getDepartment());
+        }
+        m.put("employee",empMap);
+        m.put("quantity",r.getQuantity()==null?0:r.getQuantity());
+        m.put("purpose",r.getPurpose()==null?"":r.getPurpose());
+        m.put("status",r.getStatus()==null?"":r.getStatus().name());
+        m.put("requestedAt",r.getRequestedAt());
+        m.put("reviewedAt",r.getReviewedAt());
+        m.put("reviewedBy",r.getReviewedBy()==null?"":r.getReviewedBy());
+        m.put("adminRemark",r.getAdminRemark()==null?"":r.getAdminRemark());
+        return m;
+    }
+    private Map<String,Object> usageDto(InventoryUsageUpdate u){
+        if(u==null) return new LinkedHashMap<>();
+        Map<String,Object>m=new LinkedHashMap<>();
+        m.put("id",u.getId());
+        m.put("requestId",u.getRequest()!=null?u.getRequest().getId():null);
+        m.put("component",u.getComponent()!=null?componentDto(u.getComponent()):new LinkedHashMap<>());
+        Map<String,Object> empMap=new LinkedHashMap<>();
+        if(u.getEmployee()!=null){
+            empMap.put("employeeId",u.getEmployee().getEmployeeId()==null?"":u.getEmployee().getEmployeeId());
+            empMap.put("name",u.getEmployee().getName()==null?"":u.getEmployee().getName());
+        }
+        m.put("employee",empMap);
+        m.put("quantity",u.getQuantity()==null?0:u.getQuantity());
+        m.put("usageStatus",u.getUsageStatus()==null?"":u.getUsageStatus().name());
+        m.put("projectName",u.getProjectName()==null?"":u.getProjectName());
+        m.put("notes",u.getNotes()==null?"":u.getNotes());
+        m.put("createdAt",u.getCreatedAt());
+        return m;
+    }
 }

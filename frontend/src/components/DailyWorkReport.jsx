@@ -97,10 +97,10 @@ export default function DailyWorkReport() {
             Submitted at {todayReport.createdAt ? new Date(todayReport.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "16px", background: "#fff", padding: "18px", borderRadius: "14px", border: "1px solid #dbebe2" }}>
-            <div><strong style={{ display: "block", fontSize: "10px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tasks & Learnings</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55" }}>{todayReport.tasksCompleted}</p></div>
-            <div><strong style={{ display: "block", fontSize: "10px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Blockers / Issues</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: todayReport.blockers !== "None" ? "#c62828" : "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55", fontWeight: todayReport.blockers !== "None" ? "600" : "normal" }}>{todayReport.blockers}</p></div>
-            <div><strong style={{ display: "block", fontSize: "10px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Plan for Tomorrow</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55" }}>{todayReport.planForTomorrow}</p></div>
-            <div><strong style={{ display: "block", fontSize: "10px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Equipment Used</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55" }}>{todayReport.equipmentsUsed || "N/A"}</p></div>
+            <div><strong style={{ display: "block", fontSize: "12px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Tasks & Learnings</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55" }}>{todayReport.tasksCompleted}</p></div>
+            <div><strong style={{ display: "block", fontSize: "12px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Blockers / Issues</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: todayReport.blockers !== "None" ? "#c62828" : "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55", fontWeight: todayReport.blockers !== "None" ? "600" : "normal" }}>{todayReport.blockers}</p></div>
+            <div><strong style={{ display: "block", fontSize: "12px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Plan for Tomorrow</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55" }}>{todayReport.planForTomorrow}</p></div>
+            <div><strong style={{ display: "block", fontSize: "12px", color: "#6a7d74", textTransform: "uppercase", letterSpacing: "0.06em" }}>Equipment Used</strong><p style={{ margin: "6px 0 0", fontSize: "12px", color: "#1b2c24", whiteSpace: "pre-wrap", lineHeight: "1.55" }}>{todayReport.equipmentsUsed || "N/A"}</p></div>
           </div>
         </div>
       ) : null}
@@ -108,69 +108,69 @@ export default function DailyWorkReport() {
       {/* Submission Form */}
       <div className="card" style={{ padding: "24px" }}>
         <h3 style={{ fontSize: "18px", margin: "0 0 6px" }}>Submit New Work Report</h3>
-        <p className="section-sub" style={{ marginBottom: "20px", fontSize: "12px" }}>Fill in your daily activities according to the company work report policy.</p>
+        <p className="section-sub" style={{ marginBottom: "20px", fontSize: "14px" }}>Fill in your daily activities according to the company work report policy.</p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
             <div className="field">
-              <label style={{ fontSize: "11px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Employee Name & ID</label>
-              <input type="text" value={(user?.name || "Employee") + " (" + (user?.employeeId || "—") + ")"} disabled style={{ background: "#f5f7f6", color: "#45544e", fontSize: "13px", padding: "12px" }} />
+              <label style={{ fontSize: "14px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Employee Name & ID</label>
+              <input type="text" value={(user?.name || "Employee") + " (" + (user?.employeeId || "—") + ")"} disabled style={{ background: "#f5f7f6", color: "#45544e", fontSize: "14px", padding: "12px" }} />
             </div>
             <div className="field">
-              <label style={{ fontSize: "11px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Report Date *</label>
-              <input type="date" value={reportDate} onChange={(e) => setReportDate(e.target.value)} required style={{ fontSize: "13px", padding: "12px" }} />
+              <label style={{ fontSize: "14px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Report Date *</label>
+              <input type="date" value={reportDate} onChange={(e) => setReportDate(e.target.value)} required style={{ fontSize: "14px", padding: "12px" }} />
             </div>
           </div>
 
           <div className="field">
-            <label style={{ fontSize: "11px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Tasks Completed or Today's Learnings *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Tasks Completed or Today's Learnings *</label>
             <textarea
               rows={4}
               placeholder="Describe in detail the tasks completed today, project updates, or technical learnings..."
               value={tasksCompleted}
               onChange={(e) => setTasksCompleted(e.target.value)}
               required
-              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "13px", lineHeight: "1.55" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "14px", lineHeight: "1.55" }}
             />
           </div>
 
           <div className="field">
-            <label style={{ fontSize: "11px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Blockers / Issues Faced *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Blockers / Issues Faced *</label>
             <textarea
               rows={2}
               placeholder="Mention any impediments, hardware issues, or support required (Enter 'None' if no issues)..."
               value={blockers}
               onChange={(e) => setBlockers(e.target.value)}
               required
-              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "13px", lineHeight: "1.55" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "14px", lineHeight: "1.55" }}
             />
           </div>
 
           <div className="field">
-            <label style={{ fontSize: "11px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Plan for Tomorrow *</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Plan for Tomorrow *</label>
             <textarea
               rows={3}
               placeholder="Outline key deliverables, targets, or scheduled activities for tomorrow..."
               value={planForTomorrow}
               onChange={(e) => setPlanForTomorrow(e.target.value)}
               required
-              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "13px", lineHeight: "1.55" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "14px", lineHeight: "1.55" }}
             />
           </div>
 
           <div className="field">
-            <label style={{ fontSize: "11px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Company Equipment Used (Optional)</label>
+            <label style={{ fontSize: "14px", fontWeight: "600", textTransform: "uppercase", color: "#54665f" }}>Company Equipment Used (Optional)</label>
             <input
               type="text"
               placeholder="e.g. Daloft Drone Alpha-1, Oscilloscope, Workstation #3..."
               value={equipmentsUsed}
               onChange={(e) => setEquipmentsUsed(e.target.value)}
-              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "13px" }}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: "10px", border: "1px solid #d0dad5", fontSize: "14px" }}
             />
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button type="submit" className="btn btn-primary" disabled={submitting} style={{ fontSize: "13px", padding: "12px 20px" }}>
+            <button type="submit" className="btn btn-primary" disabled={submitting} style={{ fontSize: "14px", padding: "12px 20px" }}>
               {submitting ? "Submitting Report…" : "Submit Daily Work Report →"}
             </button>
           </div>
@@ -181,50 +181,50 @@ export default function DailyWorkReport() {
       <div className="card" style={{ padding: "24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <h3 style={{ fontSize: "18px", margin: 0 }}>My Submission History</h3>
-          <span style={{ fontSize: "12px", color: "#7b8983" }}>Total Reports: <strong style={{ color: "#143a2b" }}>{history.length}</strong></span>
+          <span style={{ fontSize: "14px", color: "#7b8983" }}>Total Reports: <strong style={{ color: "#143a2b" }}>{history.length}</strong></span>
         </div>
 
         {loading ? (
-          <div className="empty-state" style={{ padding: "40px", fontSize: "13px" }}>Loading your submission history…</div>
+          <div className="empty-state" style={{ padding: "40px", fontSize: "14px" }}>Loading your submission history…</div>
         ) : (
           <div className="table-wrap">
-            <table style={{ width: "100%", fontSize: "12px" }}>
+            <table style={{ width: "100%", fontSize: "14px" }}>
               <thead>
                 <tr>
-                  <th style={{ fontSize: "11px", padding: "12px 10px" }}>Date</th>
-                  <th style={{ fontSize: "11px", padding: "12px 10px" }}>Tasks Completed & Learnings</th>
-                  <th style={{ fontSize: "11px", padding: "12px 10px" }}>Blockers</th>
-                  <th style={{ fontSize: "11px", padding: "12px 10px" }}>Plan for Tomorrow</th>
-                  <th style={{ fontSize: "11px", padding: "12px 10px" }}>Equipment Used</th>
-                  <th style={{ fontSize: "11px", padding: "12px 10px" }}>Submitted At</th>
+                  <th style={{ fontSize: "14px", padding: "12px 10px" }}>Date</th>
+                  <th style={{ fontSize: "14px", padding: "12px 10px" }}>Tasks Completed & Learnings</th>
+                  <th style={{ fontSize: "14px", padding: "12px 10px" }}>Blockers</th>
+                  <th style={{ fontSize: "14px", padding: "12px 10px" }}>Plan for Tomorrow</th>
+                  <th style={{ fontSize: "14px", padding: "12px 10px" }}>Equipment Used</th>
+                  <th style={{ fontSize: "14px", padding: "12px 10px" }}>Submitted At</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((item) => (
                   <tr key={item.id}>
-                    <td style={{ fontSize: "13px", fontWeight: "600", whiteSpace: "nowrap", padding: "12px 10px" }}>
+                    <td style={{ fontSize: "14px", fontWeight: "600", whiteSpace: "nowrap", padding: "12px 10px" }}>
                       {item.reportDate}
                     </td>
-                    <td style={{ maxWidth: "300px", whiteSpace: "pre-wrap", fontSize: "12px", lineHeight: "1.55", padding: "12px 10px" }}>
+                    <td style={{ maxWidth: "300px", whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.55", padding: "12px 10px" }}>
                       {item.tasksCompleted}
                     </td>
-                    <td style={{ maxWidth: "180px", whiteSpace: "pre-wrap", fontSize: "12px", lineHeight: "1.55", padding: "12px 10px", color: item.blockers !== "None" ? "#c62828" : "#3b4d45", fontWeight: item.blockers !== "None" ? "600" : "normal" }}>
+                    <td style={{ maxWidth: "180px", whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.55", padding: "12px 10px", color: item.blockers !== "None" ? "#c62828" : "#3b4d45", fontWeight: item.blockers !== "None" ? "600" : "normal" }}>
                       {item.blockers}
                     </td>
-                    <td style={{ maxWidth: "220px", whiteSpace: "pre-wrap", fontSize: "12px", lineHeight: "1.55", padding: "12px 10px" }}>
+                    <td style={{ maxWidth: "220px", whiteSpace: "pre-wrap", fontSize: "14px", lineHeight: "1.55", padding: "12px 10px" }}>
                       {item.planForTomorrow}
                     </td>
-                    <td style={{ fontSize: "12px", padding: "12px 10px" }}>
+                    <td style={{ fontSize: "14px", padding: "12px 10px" }}>
                       {item.equipmentsUsed || "N/A"}
                     </td>
-                    <td style={{ fontSize: "11px", color: "#75857f", whiteSpace: "nowrap", padding: "12px 10px" }}>
+                    <td style={{ fontSize: "14px", color: "#75857f", whiteSpace: "nowrap", padding: "12px 10px" }}>
                       {item.createdAt ? new Date(item.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" }) : "—"}
                     </td>
                   </tr>
                 ))}
                 {!history.length && (
                   <tr>
-                    <td colSpan="6" className="empty-state" style={{ padding: "40px", fontSize: "13px" }}>No daily work reports submitted yet.</td>
+                    <td colSpan="6" className="empty-state" style={{ padding: "40px", fontSize: "14px" }}>No daily work reports submitted yet.</td>
                   </tr>
                 )}
               </tbody>
