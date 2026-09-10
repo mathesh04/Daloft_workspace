@@ -1,0 +1,48 @@
+# ════════════════════════════════════════════════════════════
+#  D-HRM  –  Docker Compose
+#  Usage:
+#    1. Copy .env.docker.example → .env.docker and set your LAN IP
+#    2. docker compose up --build
+#    3. Open http://<your-pc-ip> from any device on the WiFi
+# ════════════════════════════════════════════════════════════
+
+services:
+
+  # ── Spring Boot API ──────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hrm-backend
+    restart: unless-stopped
+    # Inject all secrets from the root .env, then override
+    # the LAN-specific URLs from .env.docker (create from example).
+    env_file:
+      - .env
+      - .env.docker
+    networks:
+      - hrm-net
+    # Backend port is intentionally NOT exposed to the host.
+    # Only the frontend Nginx container talks to it (internal DNS).
+
+  # ── React / Nginx Frontend ───────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # These VITE_ vars are baked into the static JS bundle at build time.
+        VITE_API_BASE_URL: /api
+        VITE_APP_NAME: Daloft People
+    container_name: hrm-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"       # Accessible on the LAN at http://<your-pc-ip>
+    depends_on:
+      - backend
+    networks:
+      - hrm-net
+
+networks:
+  hrm-net:
+    driver: bridge

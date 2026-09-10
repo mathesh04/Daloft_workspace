@@ -43,7 +43,7 @@ export default function Login() {
             <button className="login-submit" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in to workspace →"}</button>
             <div className="login-help"><Link to="/forgot-password">Forgot password?</Link></div>
           </form>
-          <div className="login-security-note"><span>●</span><div><strong>Protected workspace</strong><small>Your role determines the tools and data you can access.</small></div></div>
+          
         </div>
       </section>
     </div>
