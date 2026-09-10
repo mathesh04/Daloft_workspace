@@ -1,0 +1,21 @@
+# Maven build cache & output
+target/
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+
+*.log
+logs/
+
+
+.env
+.env.*
+
+
+.DS_Store
+Thumbs.db

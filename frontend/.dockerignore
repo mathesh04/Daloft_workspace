@@ -1,0 +1,16 @@
+# Dependencies (reinstalled inside the build stage)
+node_modules/
+
+# Build output (rebuilt inside the build stage)
+dist/
+
+# Env files (secrets never go into the image)
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
