@@ -1,4 +1,8 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+
+const rawBase = (import.meta.env.VITE_API_BASE_URL || "/api").trim().replace(/\/+$/, "");
+const BASE_URL = rawBase.endsWith("/api")
+  ? rawBase
+  : (rawBase === "" || rawBase === "/" ? "/api" : (rawBase.startsWith("http") ? `${rawBase}/api` : rawBase));
 
 function authHeaders() {
   const token = localStorage.getItem("ems_token");
