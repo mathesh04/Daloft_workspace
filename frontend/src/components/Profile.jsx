@@ -1,1 +1,31 @@
-import React,{useEffect,useState}from "react";import api from "../api/api";export default function Profile(){const [p,setP]=useState(null),[form,setForm]=useState({}),[msg,setMsg]=useState("");useEffect(()=>{api.myProfile().then(x=>{setP(x);setForm(x)}).catch(()=>{})},[]);const change=(k,v)=>setForm(f=>({...f,[k]:v}));async function save(e){e.preventDefault();const r=await api.updateMyProfile(form);setP(r);setForm(r);setMsg("Profile saved successfully")}if(!p)return <div className="card">Loading profile…</div>;return <div className="profile-layout"><section className="profile-hero"><div className="profile-avatar">{form.profilePictureUrl?<img src={form.profilePictureUrl} alt="Profile"/>:p.name?.[0]}</div><div><h2>{p.name}</h2><p>{p.designation||"Employee"} · {p.department}</p><small>{p.employeeId} · Joined {p.joiningDate||"—"}</small></div></section><form className="prod-panel" onSubmit={save}><h3>Personal & contact details</h3>{msg&&<div className="success-banner">{msg}</div>}<div className="form-grid"><label>Employee ID<input value={p.employeeId} disabled/></label><label>Department<input value={p.department||""} disabled/></label><label>Designation<input value={p.designation||""} disabled/></label><label>Email<input value={form.email||""} onChange={e=>change("email",e.target.value)}/></label><label>Phone number<input value={form.phoneNumber||""} onChange={e=>change("phoneNumber",e.target.value)}/></label><label>Emergency contact<input value={form.emergencyContact||""} onChange={e=>change("emergencyContact",e.target.value)}/></label><label className="full">Profile picture URL<input value={form.profilePictureUrl||""} onChange={e=>change("profilePictureUrl",e.target.value)} placeholder="https://..."/></label><label className="full">Address<textarea value={form.address||""} onChange={e=>change("address",e.target.value)} placeholder="House / Street / City / State / PIN"/></label></div><button className="btn btn-primary">Save profile</button></form></div>}
+import React,{useEffect,useState}from "react";
+import api from "../api/api";
+export default function Profile(){
+    const [p,setP]=useState(null),[form,setForm]=useState({}),[msg,setMsg]=useState("");
+    useEffect(()=>{api.myProfile().then(x=>{setP(x);setForm(x)}).catch(()=>{})},[]);
+    const change=(k,v)=>setForm(f=>({...f,[k]:v}));
+    async function save(e){e.preventDefault();
+        const r=await api.updateMyProfile(form);
+        setP(r);setForm(r);setMsg("Profile saved successfully")}
+        if(!p)return <div className="card">Loading profile…</div>;
+        return <div className="profile-layout"><section className="profile-hero">
+            <div className="profile-avatar">{
+            form.profilePictureUrl?<img src={form.profilePictureUrl} alt="Profile"/>:p.name?.[0]}</div><div>
+                <h2>{p.name}</h2><p>{p.designation||"Employee"} · {p.department}</p>
+                <small>{p.employeeId} · Joined {p.joiningDate||"—"}</small>
+                </div></section><form className="prod-panel" onSubmit={save}>
+                    <h3>Personal & contact details</h3>{
+                    msg&&<div className="success-banner">{msg}
+                    </div>}<div className="form-grid">
+                        <label>Employee ID<input value={p.employeeId} disabled/>
+                        </label><label>Department<input value={p.department||""} 
+                        disabled/></label><label>Designation<input value={p.designation||""} 
+                        disabled/></label><label>Email<input value={form.email||""} 
+                        onChange={e=>change("email",e.target.value)}/></label>
+                        <label>Phone number<input value={form.phoneNumber||""} 
+                        onChange={e=>change("phoneNumber",e.target.value)}/>
+                        </label><label>Emergency contact<input value={form.emergencyContact||""} 
+                        onChange={e=>change("emergencyContact",e.target.value)}/>
+                        </label><label className="full">Profile picture URL<input value={form.profilePictureUrl||""} 
+                        onChange={e=>change("profilePictureUrl",e.target.value)} 
+                        placeholder="https://..."/></label><label className="full">Address<textarea value={form.address||""} onChange={e=>change("address",e.target.value)} placeholder="House / Street / City / State / PIN"/></label></div><button className="btn btn-primary">Save profile</button></form></div>}

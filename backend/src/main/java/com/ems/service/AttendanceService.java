@@ -18,9 +18,54 @@ public class AttendanceService {
     public boolean isAttendanceEnabled(){return settings.getBoolean("ATTENDANCE_ENABLED",true);}
     public boolean isCheckInEnabled(){return settings.getBoolean("CHECK_IN_ENABLED",true);}
     public boolean isCheckOutEnabled(){return settings.getBoolean("CHECK_OUT_ENABLED",true);}
-    public Attendance checkIn(String employeeId,AttendanceLocationRequest location){Employee emp=employee(employeeId);ensureAttendanceAvailable();ensureCheckInAvailable();LocalDate today=settings.today();if(holidays.isHoliday(today))throw new IllegalStateException("Today is an organization holiday. Attendance check-in is not required.");Attendance row=attendanceRepository.findByEmployeeAndWorkDate(emp,today).orElse(null);if(row!=null&&row.getCheckInTime()!=null)throw new IllegalStateException("Already checked in today at "+row.getCheckInTime());boolean approvedWfh=isApprovedWorkFromHome(emp,today);LocationVerification v=(isGeofenceEnabled()&&!approvedWfh)?verifyLocation(location):new LocationVerification(0);if(row==null)row=new Attendance();row.setEmployee(emp);row.setWorkDate(today);LocalDateTime now=settings.now();row.setCheckInTime(now);if(isGeofenceEnabled()&&!approvedWfh){row.setCheckInLatitude(location.getLatitude());row.setCheckInLongitude(location.getLongitude());row.setCheckInAccuracy(location.getAccuracy());row.setCheckInDistanceMeters(v.distanceMeters());row.setCheckInLocationVerified(true);}LocalTime start=LocalTime.parse(settings.getString("WORK_START_TIME","09:00")); LocalTime cutoff=start.plusMinutes(settings.getInt("LATE_GRACE_MINUTES",10));row.setStatus(approvedWfh?Attendance.AttendanceStatus.WORK_FROM_HOME:(now.toLocalTime().isAfter(cutoff)?Attendance.AttendanceStatus.LATE:Attendance.AttendanceStatus.PRESENT));return attendanceRepository.save(row);}
-    public Attendance checkOut(String employeeId,AttendanceLocationRequest location){Employee emp=employee(employeeId);ensureAttendanceAvailable();ensureCheckOutAvailable();Attendance row=attendanceRepository.findByEmployeeAndWorkDate(emp,settings.today()).orElseThrow(()->new IllegalStateException("You must check in before checking out"));if(row.getCheckOutTime()!=null)throw new IllegalStateException("Already checked out today at "+row.getCheckOutTime());boolean approvedWfh=isApprovedWorkFromHome(emp,settings.today());LocationVerification v=(isGeofenceEnabled()&&!approvedWfh)?verifyLocation(location):new LocationVerification(0);LocalDateTime now=settings.now();row.setCheckOutTime(now);long mins=Duration.between(row.getCheckInTime(),now).toMinutes();row.setWorkingMinutes(mins);row.setWorkingHours(Math.round(mins/60.0*100.0)/100.0);row.setOvertimeMinutes(Math.max(0,mins-settings.getInt("MIN_WORK_MINUTES",480)));if(!approvedWfh&&mins<Math.max(1,settings.getInt("MIN_WORK_MINUTES",480)/2))row.setStatus(Attendance.AttendanceStatus.HALF_DAY);if(isGeofenceEnabled()&&!approvedWfh){row.setCheckOutLatitude(location.getLatitude());row.setCheckOutLongitude(location.getLongitude());row.setCheckOutAccuracy(location.getAccuracy());row.setCheckOutDistanceMeters(v.distanceMeters());row.setCheckOutLocationVerified(true);}return attendanceRepository.save(row);}
-    public Attendance markWorkFromHome(String employeeId){Employee emp=employee(employeeId);ensureAttendanceAvailable();ensureCheckInAvailable();LocalDate d=settings.today();if(holidays.isHoliday(d))throw new IllegalStateException("Today is an organization holiday. Work-from-home attendance is not required.");if(!isApprovedWorkFromHome(emp,d))throw new IllegalStateException("Work from home must be approved through Leave Management before attendance can be marked without geofencing");Attendance row=attendanceRepository.findByEmployeeAndWorkDate(emp,d).orElse(new Attendance());if(row.getCheckInTime()!=null)throw new IllegalStateException("Attendance already started today");row.setEmployee(emp);row.setWorkDate(d);row.setCheckInTime(settings.now());row.setStatus(Attendance.AttendanceStatus.WORK_FROM_HOME);return attendanceRepository.save(row);}
+    public Attendance checkIn(String employeeId,AttendanceLocationRequest location){
+        Employee emp=employee(employeeId);
+        ensureAttendanceAvailable();ensureCheckInAvailable();
+        LocalDate today=settings.today();
+        if(holidays.isHoliday(today))throw new IllegalStateException("Today is an organization holiday. Attendance check-in is not required.");
+        Attendance row=attendanceRepository.findByEmployeeAndWorkDate(emp,today).orElse(null);
+        if(row!=null&&row.getCheckInTime()!=null)throw new IllegalStateException("Already checked in today at "+row.getCheckInTime());
+        boolean approvedWfh=isApprovedWorkFromHome(emp,today);
+        LocationVerification v=(isGeofenceEnabled()&&!approvedWfh)?verifyLocation(location):new LocationVerification(0);
+        if(row==null)row=new Attendance();
+        row.setEmployee(emp);
+        row.setWorkDate(today);
+        LocalDateTime now=settings.now();
+        row.setCheckInTime(now);
+        if(isGeofenceEnabled()&&!approvedWfh){row.setCheckInLatitude(location.getLatitude());
+            row.setCheckInLongitude(location.getLongitude());
+            row.setCheckInAccuracy(location.getAccuracy());
+            row.setCheckInDistanceMeters(v.distanceMeters());
+            row.setCheckInLocationVerified(true);
+        }
+        LocalTime start=LocalTime.parse(settings.getString("WORK_START_TIME","09:00")); 
+        LocalTime cutoff=start.plusMinutes(settings.getInt("LATE_GRACE_MINUTES",10));
+        row.setStatus(approvedWfh?Attendance.AttendanceStatus.WORK_FROM_HOME:(now.toLocalTime().isAfter(cutoff)?Attendance.AttendanceStatus.LATE:Attendance.AttendanceStatus.PRESENT));
+    return attendanceRepository.save(row);}
+    public Attendance checkOut(String employeeId,AttendanceLocationRequest location){
+        Employee emp=employee(employeeId);
+        ensureAttendanceAvailable();
+        ensureCheckOutAvailable();
+        Attendance row=attendanceRepository.findByEmployeeAndWorkDate(emp,settings.today()).orElseThrow(()->new IllegalStateException("You must check in before checking out"));
+        if(row.getCheckOutTime()!=null)throw new IllegalStateException("Already checked out today at "+row.getCheckOutTime());
+        boolean approvedWfh=isApprovedWorkFromHome(emp,settings.today());
+        LocationVerification v=(isGeofenceEnabled()&&!approvedWfh)?verifyLocation(location):new LocationVerification(0);
+        LocalDateTime now=settings.now();
+        row.setCheckOutTime(now);
+        long mins=Duration.between(row.getCheckInTime(),now).toMinutes();row.setWorkingMinutes(mins);
+        row.setWorkingHours(Math.round(mins/60.0*100.0)/100.0);
+        row.setOvertimeMinutes(Math.max(0,mins-settings.getInt("MIN_WORK_MINUTES",480)));
+        if(!approvedWfh&&mins<Math.max(1,settings.getInt("MIN_WORK_MINUTES",480)/2))row.setStatus(Attendance.AttendanceStatus.HALF_DAY);
+        if(isGeofenceEnabled()&&!approvedWfh){
+            row.setCheckOutLatitude(location.getLatitude());
+            row.setCheckOutLongitude(location.getLongitude());
+            row.setCheckOutAccuracy(location.getAccuracy());
+            row.setCheckOutDistanceMeters(v.distanceMeters());
+            row.setCheckOutLocationVerified(true);
+        }
+        return attendanceRepository.save(row);}
+    public Attendance markWorkFromHome(String employeeId){
+        Employee emp=employee(employeeId);ensureAttendanceAvailable();ensureCheckInAvailable();LocalDate d=settings.today();if(holidays.isHoliday(d))throw new IllegalStateException("Today is an organization holiday. Work-from-home attendance is not required.");if(!isApprovedWorkFromHome(emp,d))throw new IllegalStateException("Work from home must be approved through Leave Management before attendance can be marked without geofencing");Attendance row=attendanceRepository.findByEmployeeAndWorkDate(emp,d).orElse(new Attendance());if(row.getCheckInTime()!=null)throw new IllegalStateException("Attendance already started today");row.setEmployee(emp);row.setWorkDate(d);row.setCheckInTime(settings.now());row.setStatus(Attendance.AttendanceStatus.WORK_FROM_HOME);return attendanceRepository.save(row);}
     public Attendance markWorkFromHomeCheckout(String employeeId){return checkOut(employeeId,null);}
     private void ensureAttendanceAvailable(){if(!settings.getBoolean("ATTENDANCE_ENABLED",true))throw new IllegalStateException("Attendance has been disabled by your organization administrator.");}
     private void ensureCheckInAvailable(){if(!settings.getBoolean("CHECK_IN_ENABLED",true))throw new IllegalStateException("Check-in is currently disabled by your organization administrator.");}

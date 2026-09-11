@@ -75,10 +75,26 @@ public class EmployeeService {
         if(employeeRepository.existsByEmployeeId(req.getEmployeeId().trim())) throw new IllegalArgumentException("Employee ID already exists: "+req.getEmployeeId());
         if(req.getPassword()==null||req.getPassword().isBlank()) throw new IllegalArgumentException("Password is required for a new account");
         Employee e=new Employee();
-        e.setEmployeeId(req.getEmployeeId().trim()); e.setName(req.getName().trim()); e.setPassword(passwordEncoder.encode(req.getPassword()));
-        e.setRole(role); copyEditableFields(e,req); validateDepartment(e.getDepartment()); e.setReportingManager(null); e.setActive(true);
+        e.setEmployeeId(req.getEmployeeId().trim()); 
+        e.setName(req.getName().trim()); 
+        e.setPassword(passwordEncoder.encode(req.getPassword()));
+        e.setRole(role); 
+        copyEditableFields(e,req); 
+        validateDepartment(e.getDepartment());
+         e.setReportingManager(null);
+          e.setActive(true);
+        
         Employee saved=employeeRepository.save(e);
-        try { emailService.send(saved,"Welcome to EMS Management","Welcome "+saved.getName()+". Your employee ID is "+saved.getEmployeeId()+"."); } catch(Exception ignored){}
+        try { 
+        emailService.send(
+            saved,
+            "Welcome to EMS Management",
+            "Welcome " + saved.getName() + ".\n" +
+            "Your Employee ID: " + saved.getEmployeeId() + "\n" +
+            "Your Password: " + req.getPassword() + "\n" +
+            "Login here: " +  "https://daloft-workspace.vercel.app"+ "/login"
+        ); 
+    } catch(Exception ignored){}
         return new EmployeeResponse(saved);
     }
 
