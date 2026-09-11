@@ -1,25 +1,24 @@
-# ── Secrets ──────────────────────────────────
+
 .env
 .env.local
 .env.*.local
 !.env.example
 
-# ── Build output ──────────────────────────────
+
 target/
 
-# ── IDE ───────────────────────────────────────
+
 .idea/
 .vscode/
 *.iml
 
-# ── OS ────────────────────────────────────────
+
 .DS_Store
 Thumbs.db
 
-# ── Logs ──────────────────────────────────────
+
 *.log
 logs/
 
-# ── Spring Boot config with real secrets ──────
 src/main/resources/application-local.properties
 src/main/resources/application.properties
