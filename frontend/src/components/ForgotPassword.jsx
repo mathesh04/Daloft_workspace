@@ -1,1 +1,24 @@
-import React,{useState}from "react"; import {Link}from "react-router-dom"; import api from "../api/api"; export default function ForgotPassword(){const [identity,setIdentity]=useState("");const [msg,setMsg]=useState("");const [err,setErr]=useState("");async function submit(e){e.preventDefault();setErr("");try{const r=await api.forgotPassword(identity);setMsg(r.message)}catch(x){setErr(x.message)}}return <div className="auth-wrap"><form className="auth-card" onSubmit={submit}><h2>Reset your password</h2><p>Enter your employee ID or email. We'll send a secure reset link.</p>{err&&<div className="error-banner">{err}</div>}{msg&&<div className="success-banner">{msg}</div>}<input value={identity} onChange={e=>setIdentity(e.target.value)} placeholder="Employee ID or email" required/><button className="btn btn-primary">Send reset link</button><Link to="/login">Back to sign in</Link></form></div>}
+import React,{useState}from "react"; 
+import {Link}from "react-router-dom"; 
+import api from "../api/api"; 
+export default function ForgotPassword(){
+    const [identity,setIdentity]=useState("");
+    const [msg,setMsg]=useState("");
+    const [err,setErr]=useState("");
+    async function submit(e){e.preventDefault();
+        setErr("");
+        try{const r=await api.forgotPassword(identity);
+            setMsg(r.message)}catch(x){setErr(x.message)}
+        }
+        return <div className="auth-wrap">
+            <form className="auth-card" onSubmit={submit}>
+                <h2>Reset your password</h2>
+                <p>Enter your employee ID or email. We'll send a secure reset link.</p>
+                {err&&<div className="error-banner">{err}</div>}
+                {msg&&<div className="success-banner">{msg}</div>}
+                <input value={identity} onChange={e=>setIdentity(e.target.value)} placeholder="Employee ID or email" required/>
+                <button className="btn btn-primary">Send reset link</button>
+                <Link to="/login">Back to sign in</Link>
+            </form>
+        </div>
+    }

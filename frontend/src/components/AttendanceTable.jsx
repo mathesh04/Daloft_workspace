@@ -15,9 +15,39 @@ export default function AttendanceTable() {
   const [loading, setLoading] = useState(true);
   const [correctionLoading, setCorrectionLoading] = useState(false);
 
-  const loadToday = async () => { setLoading(true); setError(""); try { setTodayRows(await api.todayAttendance()); } catch(e){ setError(e.message || "Unable to load today's attendance"); } finally { setLoading(false); } };
-  const loadHistory = async () => { setLoading(true); setError(""); try { setAllRows(await api.allAttendance()); } catch(e){ setError(e.message || "Unable to load attendance history"); } finally { setLoading(false); } };
-  const loadCorrections = async () => { setCorrectionLoading(true); setError(""); try { setCorrections(await api.adminAttendanceCorrections() || []); } catch(e){ setError(e.message || "Unable to load attendance corrections"); } finally { setCorrectionLoading(false); } };
+  const loadToday = async () => { setLoading(true); setError(""); 
+    try { setTodayRows(await api.todayAttendance()); 
+
+    } 
+    catch(e){ 
+      setError(e.message || "Unable to load today's attendance"); 
+    } 
+    finally { 
+      setLoading(false); 
+    } 
+  };
+  const loadHistory = async () => { setLoading(true); setError(""); 
+    try { 
+      setAllRows(await api.allAttendance()); 
+    } 
+    catch(e){ setError(e.message || "Unable to load attendance history"); 
+
+    } 
+    finally { setLoading(false); 
+
+    } 
+  };
+  const loadCorrections = async () => { setCorrectionLoading(true); setError(""); 
+    try { setCorrections(await api.adminAttendanceCorrections() || []); 
+
+    } 
+    catch(e){ setError(e.message || "Unable to load attendance corrections"); 
+
+    } 
+    finally { setCorrectionLoading(false); 
+
+    } 
+  };
   useEffect(() => { loadToday(); }, []);
   useEffect(() => { if(view === "all" && !allRows.length) loadHistory(); if(view === "corrections") loadCorrections(); }, [view]);
 
@@ -40,5 +70,40 @@ function CorrectionQueue({rows,loading,reload}) {
  const [busyId,setBusyId]=useState(null),[modal,setModal]=useState(null);
  const pending=useMemo(()=>rows.filter(r=>String(r.status||"").toUpperCase()==="PENDING"),[rows]);
  const review=async(status)=>{if(!modal)return; if(status==="REJECTED"&&!modal.reason.trim())return setModal({...modal,error:"A rejection reason is required."}); setBusyId(modal.id); try{await api.reviewAdminAttendanceCorrection(modal.id,status,modal.reason.trim());setModal(null);await reload();}catch(e){setModal({...modal,error:e.message||"Unable to process correction"});}finally{setBusyId(null)}};
- return <div className="correction-workspace"><div className="correction-summary"><div><span>Approval queue</span><strong>{pending.length}</strong><small>pending requests</small></div><div><span>Review standard</span><strong>2-step</strong><small>validate time + reason</small></div><div><span>Audit trail</span><strong>ON</strong><small>decision is logged</small></div></div><div className="card"><div className="card-head"><div><h3>Attendance correction requests</h3><p className="section-sub">Review the requested time against the original attendance record before approving.</p></div></div>{loading?<div className="table-loading">Loading correction queue…</div>:!rows.length?<div className="empty-state">No attendance correction requests.</div>:<div className="correction-list">{rows.map(r=>{const a=r.attendance||{};const status=String(r.status||"PENDING").toUpperCase();return <article className={`correction-card correction-${status.toLowerCase()}`} key={r.id}><div className="correction-main"><div className="correction-person"><div className="avatar correction-avatar">{employeeName(r).split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase()}</div><div><b>{employeeName(r)}</b><small>{r.employee?.employeeId || ""} · {r.employee?.department || "No department"}</small></div></div><div className="correction-date"><span>Attendance date</span><b>{fmtDate(a.workDate)}</b></div><div className="correction-times"><div><span>Current</span><b>{fmtTime(a.checkInTime)} → {fmtTime(a.checkOutTime)}</b></div><div><span>Requested</span><b>{fmtTime(r.requestedCheckIn || a.checkInTime)} → {fmtTime(r.requestedCheckOut || a.checkOutTime)}</b></div></div><div className="correction-reason"><span>Employee reason</span><p>{r.reason || "No reason provided"}</p></div></div><div className="correction-footer"><StatusBadge status={status}/><small>{r.createdAt ? `Submitted ${new Date(r.createdAt).toLocaleString()}` : ""}{r.reviewedBy ? ` · Reviewed by ${r.reviewedBy}` : ""}</small>{status === "PENDING" ? <div className="correction-actions"><button className="btn btn-danger" disabled={busyId===r.id} onClick={()=>setModal({id:r.id,status:"REJECTED",reason:"",error:""})}>Reject</button><button className="btn btn-accent" disabled={busyId===r.id} onClick={()=>setModal({id:r.id,status:"APPROVED",reason:"",error:""})}>Approve correction</button></div>:<span className="muted">{r.reviewReason || "Decision recorded"}</span>}</div></article>})}</div>}</div>{modal&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setModal(null)}><div className="modal correction-modal"><div className="modal-header"><div><h3>{modal.status === "APPROVED" ? "Approve attendance correction" : "Reject attendance correction"}</h3><p className="section-sub">{modal.status === "APPROVED" ? "The requested times will replace the attendance record." : "Give the employee a clear reason for the rejection."}</p></div><button className="modal-close" onClick={()=>setModal(null)}>×</button></div>{modal.status === "REJECTED" && <div className="field"><label>Rejection reason *</label><textarea autoFocus value={modal.reason} onChange={e=>setModal({...modal,reason:e.target.value,error:""})} placeholder="Example: Requested time conflicts with approved leave."/></div>}{modal.error&&<div className="error-banner">{modal.error}</div>}<div className="modal-actions"><button className="btn btn-ghost" onClick={()=>setModal(null)}>Cancel</button><button className={`btn ${modal.status === "APPROVED" ? "btn-accent" : "btn-danger-solid"}`} disabled={busyId===modal.id} onClick={()=>review(modal.status)}>{busyId===modal.id?"Processing…":modal.status === "APPROVED"?"Approve & update":"Reject request"}</button></div></div></div>}</div>;
+ return <div className="correction-workspace">
+  <div className="correction-summary">
+    <div><span>Approval queue</span><strong>{pending.length}</strong>
+    <small>pending requests</small></div>
+    <div><span>Review standard</span>
+    <strong>2-step</strong><small>validate time + reason</small>
+    </div><div><span>Audit trail</span><strong>ON</strong><small>decision is logged</small></div>
+    </div><div className="card"><div className="card-head"><div>
+      <h3>Attendance correction requests</h3><p className="section-sub">Review the requested time against the original attendance record before approving.</p></div>
+      </div>{loading?<div className="table-loading">Loading correction queue…</div>:!rows.length?<div className="empty-state">No attendance correction requests.</div>:<div className="correction-list">{rows.map(r=>{const a=r.attendance||{};
+      const status=String(r.status||"PENDING").toUpperCase();
+      return <article className={`correction-card correction-${status.toLowerCase()}`} key={r.id}>
+        <div className="correction-main"><div className="correction-person">
+          <div className="avatar correction-avatar">{employeeName(r).split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase()}
+            </div>
+            <div><b>{employeeName(r)}</b><small>{r.employee?.employeeId || ""} · {r.employee?.department || "No department"}</small>
+            </div></div><div className="correction-date"><span>Attendance date</span><b>{fmtDate(a.workDate)}</b></div>
+            <div className="correction-times"><div>
+              <span>Current</span><b>{fmtTime(a.checkInTime)} → {fmtTime(a.checkOutTime)}</b></div>
+              <div><span>Requested</span><b>{fmtTime(r.requestedCheckIn || a.checkInTime)} → {fmtTime(r.requestedCheckOut || a.checkOutTime)}</b></div>
+              </div>
+              <div className="correction-reason"><span>Employee reason</span><p>{r.reason || "No reason provided"}</p></div>
+              </div><div className="correction-footer"><StatusBadge status={status}/><small>{r.createdAt ? `Submitted ${new Date(r.createdAt).toLocaleString()}` : ""}{r.reviewedBy ? ` · Reviewed by ${r.reviewedBy}` : ""}</small>{status === "PENDING" ? <div className="correction-actions">
+                <button className="btn btn-danger" disabled={busyId===r.id} 
+              onClick={()=>setModal({id:r.id,status:"REJECTED",reason:"",error:""})}>Reject</button><button className="btn btn-accent" disabled={busyId===r.id} onClick={()=>setModal({id:r.id,status:"APPROVED",reason:"",error:""})}>Approve correction</button>
+              </div>:<span className="muted">{r.reviewReason || "Decision recorded"}</span>}</div></article>})}</div>}</div>{modal&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setModal(null)}>
+                <div className="modal correction-modal"><div className="modal-header"><div>
+                <h3>{modal.status === "APPROVED" ? "Approve attendance correction" : "Reject attendance correction"}
+                </h3><p className="section-sub">{modal.status === "APPROVED" ? "The requested times will replace the attendance record." : "Give the employee a clear reason for the rejection."}</p></div>
+                <button className="modal-close" onClick={()=>setModal(null)}>×</button></div>{modal.status === "REJECTED" && <div className="field">
+                  <label>Rejection reason *</label><textarea autoFocus value={modal.reason} onChange={e=>setModal({...modal,reason:e.target.value,error:""})} 
+                  placeholder="Example: Requested time conflicts with approved leave."/></div>}
+                  {modal.error&&<div className="error-banner">{modal.error}</div>}<div className="modal-actions"><button className="btn btn-ghost" onClick={()=>setModal(null)}>Cancel</button>
+                  <button className={`btn ${modal.status === "APPROVED" ? "btn-accent" : "btn-danger-solid"}`} 
+                  disabled={busyId===modal.id} 
+                  onClick={()=>review(modal.status)}>{busyId===modal.id?"Processing…":modal.status === "APPROVED"?"Approve & update":"Reject request"}</button></div></div></div>}</div>;
 }
