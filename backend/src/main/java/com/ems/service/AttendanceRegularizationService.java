@@ -1,12 +1,24 @@
 package com.ems.service;
 
-import com.ems.model.*;
-import com.ems.repository.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Locale;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.*;
-import java.util.*;
+
+import com.ems.model.Attendance;
+import com.ems.model.AttendanceRegularizationRequest;
+import com.ems.model.Department;
+import com.ems.model.Employee;
+import com.ems.model.Role;
+import com.ems.repository.AttendanceRegularizationRepository;
+import com.ems.repository.AttendanceRepository;
+import com.ems.repository.DepartmentRepository;
+import com.ems.repository.EmployeeRepository;
 
 @Service
 public class AttendanceRegularizationService {
@@ -48,7 +60,7 @@ public class AttendanceRegularizationService {
 
     public List<AttendanceRegularizationRequest> my(String employeeId){return requests.findByEmployeeEmployeeIdOrderByCreatedAtDesc(employeeId);}
 
-    public List<AttendanceRegularizationRequest> all(){ return requests.findAll(); }
+    public List<AttendanceRegularizationRequest> all(){ return requests.findAllWithDetails(); }
 
     @Transactional
     public AttendanceRegularizationRequest adminReview(Long id,String status,String reason,Authentication auth){

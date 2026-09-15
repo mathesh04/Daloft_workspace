@@ -1,11 +1,28 @@
 package com.ems.service;
 
-import com.ems.model.*;
-import com.ems.repository.*;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
-import java.util.*;
+
+import com.ems.model.AuditLog;
+import com.ems.model.Component;
+import com.ems.model.Employee;
+import com.ems.model.InventoryRequest;
+import com.ems.model.InventoryUsageUpdate;
+import com.ems.model.RequestStatus;
+import com.ems.model.StockTransaction;
+import com.ems.model.TransactionType;
+import com.ems.model.UsageStatus;
+import com.ems.repository.AuditLogRepository;
+import com.ems.repository.ComponentRepository;
+import com.ems.repository.EmployeeRepository;
+import com.ems.repository.InventoryRequestRepository;
+import com.ems.repository.InventoryUsageUpdateRepository;
+import com.ems.repository.StockTransactionRepository;
 
 @Service
 public class EmployeeInventoryService {
@@ -60,6 +77,7 @@ public class EmployeeInventoryService {
     public List<Map<String,Object>> myInventory(String user){
         return requests.findByEmployeeEmployeeIdOrderByRequestedAtDesc(user).stream()
             .filter(r->r.getStatus()==RequestStatus.APPROVED)
+            .filter(r->!updates.existsByRequestIdAndUsageStatus(r.getId(),UsageStatus.RETURNED))
             .map(this::requestDto).toList();
     }
 

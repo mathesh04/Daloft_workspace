@@ -1,5 +1,16 @@
 package com.ems.controller;
 
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.ems.dto.EmployeeResponse;
 import com.ems.dto.LoginRequest;
 import com.ems.dto.LoginResponse;
@@ -9,14 +20,9 @@ import com.ems.repository.EmployeeRepository;
 import com.ems.security.JwtUtil;
 import com.ems.service.AuditService;
 import com.ems.service.SystemSettingsService;
-import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpServletRequest;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -65,6 +71,7 @@ public class AuthController {
     private boolean loginEnabled(Role role){
         if (role == Role.SYSTEM_ADMIN) return true;
         if (role == Role.EMPLOYEE) return settings.getBoolean("EMPLOYEE_LOGIN_ENABLED", true);
+        if (role == Role.INTERN) return settings.getBoolean("INTERN_LOGIN_ENABLED", true);
         if (role == Role.MANAGER) return settings.getBoolean("MANAGER_LOGIN_ENABLED", true);
         if (role == Role.HR_ADMIN) return settings.getBoolean("HR_ADMIN_LOGIN_ENABLED", true);
         return false;
@@ -72,6 +79,7 @@ public class AuthController {
 
     private String roleLabel(Role role){
         if (role == Role.EMPLOYEE) return "Employee";
+        if (role == Role.INTERN) return "Intern";
         if (role == Role.MANAGER) return "Manager";
         if (role == Role.HR_ADMIN) return "Administrator";
         if (role == Role.SYSTEM_ADMIN) return "Organization Admin";

@@ -6,10 +6,10 @@ function Toast({toast,onClose}){if(!toast)return null;return <div className="toa
 function Badge({v}){const c=v==="APPROVED"||v==="IN_USE"||v==="RETURNED"?"badge-success":v==="REJECTED"||v==="DAMAGED"?"badge-danger":"badge-warning";return <span className={`badge ${c}`}>{String(v).replaceAll("_"," ")}</span>}
 
 export default function EmployeeInventory(){
-  const [tab,setTab]=useState("available"),[items,setItems]=useState([]),[reqs,setReqs]=useState([]),[usage,setUsage]=useState([]);
+  const [tab,setTab]=useState("available"),[items,setItems]=useState([]),[reqs,setReqs]=useState([]),[usage,setUsage]=useState([]),[mine,setMine]=useState([]);
   const [err,setErr]=useState(""),[toast,setToast]=useState(null),[modal,setModal]=useState(null),[busy,setBusy]=useState(false),[search,setSearch]=useState("");
   const notify=(title,message)=>{setToast({title,message});setTimeout(()=>setToast(null),3500)};
-  const load=async()=>{try{setErr("");const[a,b,c]=await Promise.all([api.getAvailableInventory(),api.myInventoryRequests(),api.myUsageUpdates()]);setItems(a);setReqs(b);setUsage(c)}catch(e){setErr(e.message)}};
+  const load=async()=>{try{setErr("");const[a,b,c,d]=await Promise.all([api.getAvailableInventory(),api.myInventoryRequests(),api.myUsageUpdates(),api.myInventoryItems()]);setItems(a);setReqs(b);setUsage(c);setMine(d)}catch(e){setErr(e.message)}};
   useEffect(()=>{load()},[]);
 
   const filtered=useMemo(()=>items.filter(i=>!search||[i.name,i.componentCode,i.category,i.storageLocation].some(v=>String(v||"").toLowerCase().includes(search.toLowerCase()))),[items,search]);
@@ -18,7 +18,7 @@ export default function EmployeeInventory(){
 
   return <div className="inventory-workspace"><Toast toast={toast} onClose={()=>setToast(null)}/>{err&&<div className="error-banner"><span>{err}</span><button onClick={()=>setErr("")}>×</button></div>}
     <div className="inventory-head"><div><h2 className="section-title">My Hardware</h2><p className="section-sub">Request equipment, track assigned assets and report how you use them.</p></div><button className="btn btn-ghost" onClick={load}>↻ Refresh</button></div>
-    <div className="grid grid-3" style={{marginBottom:18}}><div className="stat-card"><div className="stat-label">My assets</div><div className="stat-value">{reqs.filter(r=>r.status==="APPROVED").length}</div></div><div className="stat-card"><div className="stat-label">Pending requests</div><div className="stat-value">{reqs.filter(r=>r.status==="PENDING").length}</div></div><div className="stat-card"><div className="stat-label">Return requests</div><div className="stat-value">{usage.filter(u=>u.usageStatus==="RETURN_REQUESTED").length}</div></div></div>
+    <div className="grid grid-3" style={{marginBottom:18}}><div className="stat-card"><div className="stat-label">My assets</div><div className="stat-value">{mine.length}</div></div><div className="stat-card"><div className="stat-label">Pending requests</div><div className="stat-value">{reqs.filter(r=>r.status==="PENDING").length}</div></div><div className="stat-card"><div className="stat-label">Return requests</div><div className="stat-value">{usage.filter(u=>u.usageStatus==="RETURN_REQUESTED").length}</div></div></div>
     <div className="tabs">{[["available","Available Inventory"],["requests","My Requests"],["mine","My Assets"],["usage","Usage Updates"]].map(([k,l])=><button key={k} className={`tab-btn ${tab===k?"active":""}`} onClick={()=>setTab(k)}>{l}</button>)}</div>
 
     {tab==="available"&&<div className="card"><div className="card-title-row"><div><h3>Available hardware</h3><p>Items currently available to request.</p></div><div className="search-box"><span>⌕</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search hardware…" /></div></div>
