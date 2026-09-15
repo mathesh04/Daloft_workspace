@@ -12,7 +12,7 @@ A full-stack HR management system with role-based access control, geofence atten
 |---|---|
 | Frontend | React 18 + Vite, React Router |
 | Backend | Spring Boot 3.3, Java 17, Spring Security + JWT |
-| Database | PostgreSQL (Supabase or self-hosted) + Flyway migrations |
+| Database | PostgreSQL (Supabase) + Flyway migrations |
 | Email | Brevo (Sendinblue) transactional email |
 
 ---
@@ -35,7 +35,7 @@ A full-stack HR management system with role-based access control, geofence atten
 - Java 17+
 - Maven 3.8+
 - Node.js 18+
-- PostgreSQL database (local or [Supabase](https://supabase.com))
+- PostgreSQL database ( [Supabase](https://supabase.com))
 
 ---
 
@@ -43,10 +43,9 @@ A full-stack HR management system with role-based access control, geofence atten
 ## Project Structure
 
 ```
-D-HRM/
+Daloft-workspace/
 ├── .env.example                 Root reference for all variables
 ├── .gitignore
-├── RUN-PROJECT.ps1              Windows one-click start script
 │
 ├── backend/                     Spring Boot API (Java 17 / Maven)
 │   ├── .env                     ← your secrets (gitignored)
@@ -118,25 +117,3 @@ VITE_APP_NAME          App display name
 - Audit logging records every mutating API call with actor, method, path, and timestamp.
 
 ---
-
-## Database Migrations
-
-Flyway manages schema versioning. Migrations live in `backend/src/main/resources/db/migration/`.
-On startup, Flyway applies any pending migrations automatically.
-
-To disable migrations (e.g. for a read-only replica), set `FLYWAY_ENABLED=false`.
-
----
-
-## GitHub Actions (CI) — Recommended Secrets
-
-Add these in **GitHub → Settings → Secrets and variables → Actions**:
-
-| Secret name | Value |
-|---|---|
-| `DB_URL` | Production JDBC URL |
-| `DB_USERNAME` | Production DB user |
-| `DB_PASSWORD` | Production DB password |
-| `JWT_SECRET` | Production JWT secret |
-| `BREVO_API_KEY` | Brevo API key |
-| `ADMIN_PASSWORD` | Initial admin password |
