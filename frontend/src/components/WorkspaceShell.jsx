@@ -47,7 +47,9 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
   const drawerWasOpen = useRef(false);
+  
   useEffect(() => { localStorage.setItem("daloft_sidebar_collapsed", collapsed ? "1" : "0"); }, [collapsed]);
+  
   useEffect(() => {
     if (!open) {
       if (drawerWasOpen.current) menuButtonRef.current?.focus();
@@ -70,6 +72,7 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
     document.addEventListener("keydown", handleKeyDown);
     return () => { document.body.style.overflow = previousOverflow; document.removeEventListener("keydown", handleKeyDown); };
   }, [open]);
+
   const initials = (user?.name || "User").split(" ").map(x => x[0]).slice(0, 2).join("").toUpperCase();
 
   const go = (item) => { onNavigate?.(item.key); setOpen(false); };
@@ -117,7 +120,14 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
         </header>
         <main className="enterprise-content">{children}</main>
       </div>
-      <div className="sidebar-overlay sidebar-overlay-persistent" aria-hidden="true" />
+
+      {open && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setOpen(false)} 
+          aria-hidden="true" 
+        />
+      )}
     </div>
   );
 }
