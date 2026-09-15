@@ -51,4 +51,6 @@ logs/
 **/.nyc_output/
 surefire-reports/
 resources/
+!**/src/main/resources/
+!**/src/main/resources/**
 D-HRM_Application_Diagram.md
