@@ -1,5 +1,4 @@
-﻿# Daloft People — D-HRM
-
+﻿# Daloft People
 > **Enterprise HR & Workforce Operations Platform**
 > Built for Daloft Aerospace Private Limited.
 
