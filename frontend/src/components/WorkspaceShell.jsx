@@ -13,7 +13,7 @@ export function DaloftBrand({ compact = false }) {
   return (
     <div className={`daloft-brand ${compact ? "compact" : ""}`} aria-label="Daloft Aerospace Private Limited — Daloft People">
       <img className="daloft-logo-image" src="/assets/daloft-aerospace-logo.png" alt="Daloft Aerospace" />
-      {!compact && <div className="daloft-corporate-copy"><strong>DALOFT AEROSPACE PRIVATE LIMITED</strong><small>Daloft People · Workforce Operations</small></div>}
+      {!compact && <div className="daloft-corporate-copy"><strong></strong><small></small></div>}
     </div>
   );
 }
@@ -78,20 +78,32 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
   return (
     <div className={`enterprise-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
       <aside id="primary-navigation" className={`enterprise-sidebar ${open ? "open" : ""}`} aria-label="Primary navigation">
-        <div className="sidebar-head"><DaloftBrand compact={collapsed} /><button className="sidebar-collapse" onClick={() => setCollapsed(v => !v)} title={collapsed ? "Expand sidebar" : "Minimize sidebar"} aria-label={collapsed ? "Expand sidebar" : "Minimize sidebar"} aria-expanded={!collapsed}><Icon name="collapse" /></button><button ref={closeButtonRef} className="sidebar-close" onClick={() => setOpen(false)} aria-label="Close navigation">×</button></div>
+        
+        <div className="sidebar-head">
+          <DaloftBrand compact={collapsed} />
+          <button ref={closeButtonRef} className="sidebar-close" onClick={() => setOpen(false)} aria-label="Close navigation">×</button>
+        </div>
+
+        <button className="sidebar-collapse" onClick={() => setCollapsed(v => !v)} title={collapsed ? "Expand sidebar" : "Minimize sidebar"} aria-label={collapsed ? "Expand sidebar" : "Minimize sidebar"} aria-expanded={!collapsed}>
+          <Icon name="collapse" />
+        </button>
+
         <div className="sidebar-context">
           <span className="context-dot" />
           <div><strong>{roleLabel[user?.role] || "Workspace"}</strong><small>Secure workspace</small></div>
         </div>
+
         <nav className="sidebar-nav">
           <span className="nav-section">WORKSPACE</span>
           {navItems.map(item => <button key={item.key} className={`side-nav-item ${active === item.key ? "active" : ""}`} onClick={() => go(item)} title={collapsed ? item.label : undefined} aria-label={item.label} aria-current={active === item.key ? "page" : undefined}><Icon name={item.icon} /><span className="nav-label">{item.label}</span>{item.badge ? <em>{item.badge}</em> : null}</button>)}
         </nav>
+
         <div className="sidebar-bottom">
           {workspaceActions.map(action => <button key={action.label} className="side-nav-item workspace-action" onClick={action.onClick} title={collapsed ? action.label : undefined} aria-label={action.label}><Icon name={action.icon || "home"}/><span className="nav-label">{action.label}</span></button>)}
           <button className="side-nav-item workspace-action" onClick={signOut} title={collapsed ? "Sign out" : undefined} aria-label="Sign out"><Icon name="logout"/><span className="nav-label">Sign out</span></button>
           <div className="sidebar-footer"><span>DAL·PEOPLE</span><small>Enterprise HR platform</small></div>
         </div>
+
       </aside>
       <div className="shell-main">
         <header className="enterprise-topbar">
@@ -105,7 +117,7 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
         </header>
         <main className="enterprise-content">{children}</main>
       </div>
-      {open && <button className="sidebar-overlay" aria-label="Close menu" onClick={() => setOpen(false)} />}
+      <div className="sidebar-overlay sidebar-overlay-persistent" aria-hidden="true" />
     </div>
   );
 }

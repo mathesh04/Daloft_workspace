@@ -602,7 +602,7 @@ body { background: var(--page); color: #17231f; }
 button { -webkit-tap-highlight-color: transparent; }
 
 .enterprise-shell { min-height: 100vh; display:flex; background:var(--page); }
-.enterprise-sidebar { width:256px; flex:0 0 256px; background:linear-gradient(180deg,#0a171f 0%,#0e1d26 100%); color:#dce8e3; display:flex; flex-direction:column; position:fixed; inset:0 auto 0 0; z-index:40; padding:20px 14px 14px; box-shadow:12px 0 40px rgba(7,20,27,.10); }
+.enterprise-sidebar { overflow:visible; width:256px; flex:0 0 256px; background:linear-gradient(180deg,#0a171f 0%,#0e1d26 100%); color:#dce8e3; display:flex; flex-direction:column; position:fixed; inset:0 auto 0 0; z-index:40; padding:20px 14px 14px; box-shadow:12px 0 40px rgba(7,20,27,.10); }
 .sidebar-head { display:flex; align-items:center; justify-content:space-between; padding:2px 8px 18px; }
 .sidebar-close { display:none; border:0; background:transparent; color:#fff; font-size:28px; cursor:pointer; }
 .daloft-brand { display:flex; align-items:center; gap:10px; min-width:0; }
@@ -627,7 +627,6 @@ button { -webkit-tap-highlight-color: transparent; }
 .nav-icon { width:17px; height:17px; flex:0 0 17px; }
 .side-nav-item em { margin-left:auto; min-width:20px; padding:2px 6px; border-radius:20px; background:#e3342f; color:#fff; font-size:9px; font-style:normal; text-align:center; }
 .sidebar-bottom { margin-top:auto; }
-.enterprise-sidebar { overflow:hidden; }
 .workspace-action { color:#83978f; margin-top:3px; }
 .sidebar-footer { margin:14px 8px 2px; padding-top:13px; border-top:1px solid rgba(255,255,255,.07); display:flex; flex-direction:column; gap:3px; }
 .sidebar-footer span { font-size:9px; letter-spacing:.16em; font-weight:800; color:#5e8d70; }
@@ -887,8 +886,8 @@ html { overflow-x:hidden; }
 /* V10 performance + premium workspace polish */
 .enterprise-sidebar{transition:width .18s ease,transform .18s ease}
 .shell-main{transition:margin-left .18s ease,width .18s ease}
-.sidebar-collapse{width:30px;height:30px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.05);color:#b7c8c1;border-radius:9px;display:grid;place-items:center;cursor:pointer}
-.sidebar-collapse:hover{background:rgba(255,255,255,.1);color:#fff}
+.sidebar-collapse{position:absolute;top:50%;right:-15px;transform:translateY(-50%);z-index:50;width:30px;height:30px;border:1px solid rgba(255,255,255,.12);background:#0e1d26;color:#b7c8c1;border-radius:50%;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.sidebar-collapse:hover{background:#162a35;color:#fff}
 .sidebar-collapse .nav-icon{width:15px;height:15px;transition:transform .18s ease}
 .sidebar-collapsed .sidebar-collapse .nav-icon{transform:rotate(180deg)}
 .sidebar-collapsed .enterprise-sidebar{width:78px;flex-basis:78px;padding-left:10px;padding-right:10px}
@@ -934,8 +933,7 @@ button:disabled { transform: none !important; }
   .enterprise-content { animation: none; }
   .enterprise-topbar { gap: 11px; }
   .topbar-title h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .top-icon { flex: 0 0 38px; }
-  .avatar { flex: 0 0 35px; }
+  .topbar-title p { display: none; }
   .login-panel { align-items: flex-start; padding-top: 42px; }
   .login-security-note { margin-top: 26px; }
 }
@@ -949,3 +947,272 @@ button:disabled { transform: none !important; }
 
 /* Daloft Aerospace corporate identity */
 .daloft-brand{gap:12px;min-width:0}.daloft-logo-image{width:118px;height:48px;object-fit:contain;object-position:left center;background:#fff;border-radius:8px;padding:2px 6px}.daloft-corporate-copy{display:flex;flex-direction:column;gap:4px;min-width:0}.daloft-corporate-copy strong{font-size:10px;letter-spacing:.045em;color:#fff;white-space:nowrap}.daloft-corporate-copy small{font-size:8px;color:#8fa99d;white-space:nowrap}.sidebar-collapsed .daloft-logo-image{width:52px;height:42px;padding:2px}.sidebar-collapsed .daloft-corporate-copy{display:none}.login-visual{background:radial-gradient(circle at 78% 30%,rgba(47,169,105,.20),transparent 28%),linear-gradient(145deg,#08141c,#102a24 72%,#0b211b)}.login-drone-frame{margin-top:24px;max-width:560px;border:1px solid rgba(255,255,255,.12);border-radius:18px;overflow:hidden;background:rgba(255,255,255,.06);box-shadow:0 18px 50px rgba(0,0,0,.25)}.login-drone-frame img{width:100%;height:150px;object-fit:cover;display:block;opacity:.92}.leave-page{display:flex;flex-direction:column;gap:16px}.leave-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding:20px 22px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,#fff,#f4faf7);box-shadow:var(--shadow-premium)}.leave-balance-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.leave-balance-card{padding:16px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 6px 18px rgba(20,42,34,.04)}.leave-balance-card span{font-size:8px;text-transform:uppercase;letter-spacing:.1em;color:#7b8a83;font-weight:800}.leave-balance-card strong{display:block;margin-top:8px;font-size:24px;color:#143b2c}.leave-balance-card small{color:#8b9892;font-size:9px}.leave-form-card{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.leave-form-card .field{margin:0}.leave-range-preview{padding:13px 14px;border:1px dashed #cfe3d7;border-radius:12px;background:#f7fbf8;color:#385449;font-size:10px}.leave-range-preview b{display:block;font-size:18px;margin-top:4px;color:#143b2c}.access-editor{border:1px solid var(--line);border-radius:14px;padding:15px;margin-top:12px;background:#fff}.access-permissions{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:8px;margin-top:12px}.access-permission{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid #e5ece8;border-radius:10px;background:#fafcfb;font-size:9px;color:#31433a}.access-permission.selected{border-color:#9dceb0;background:#eef8f1;color:#145f3c}.access-permission input{accent-color:#1c8a56}.access-scope-note{margin-top:10px;font-size:9px;color:#7b8984}.access-editor-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.access-admin-meta{display:flex;flex-direction:column;gap:3px}.access-admin-meta strong{font-size:11px}.access-admin-meta small{font-size:8px;color:#8b9892}.access-summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.access-chip{font-size:8px;font-weight:800;padding:5px 8px;border-radius:999px;background:#eef8f1;color:#17623f}.access-chip.none{background:#f4f5f5;color:#7b8581}.access-editor .error-banner,.access-editor .success-banner{font-size:9px}.leave-table .badge{white-space:nowrap}@media(max-width:900px){.leave-form-card{grid-template-columns:1fr}.leave-balance-grid{grid-template-columns:1fr 1fr}.access-permissions{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.leave-balance-grid{grid-template-columns:1fr}.access-permissions{grid-template-columns:1fr}.daloft-corporate-copy{display:none}.daloft-logo-image{width:104px}.login-drone-frame img{height:120px}}
+
+/* ============================================================
+   DALOFT PEOPLE  Comprehensive Mobile Responsiveness Layer
+   Breakpoints: 1100px | 900px | 760px | 640px | 480px | 360px
+   All rules are additive  desktop layout is fully preserved.
+   ============================================================ */
+
+/* Global mobile base */
+* { -webkit-tap-highlight-color: transparent; }
+html, body { overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+
+button, [role="button"], .side-nav-item, .tab-btn, .btn, .top-icon,
+.quick-action, .primary-btn, .secondary-btn, .login-submit { min-height: 44px; }
+.btn-sm { min-height: 36px; }
+.tabs, .table-wrap, .sidebar-nav { -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 1100px) {
+  .metric-grid, .employee-summary-strip, .manager-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .prod-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .sys-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sys-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .analytics-grid, .second-grid, .dashboard-grid-main { grid-template-columns: 1fr; }
+  .enterprise-content { padding: 22px 20px 36px; }
+}
+
+@media (max-width: 900px) {
+  .leave-balance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .leave-form-card { grid-template-columns: 1fr; }
+  .leave-hero { flex-direction: column; align-items: flex-start; }
+  .settings-card-group { grid-template-columns: 1fr; }
+  .settings-field-grid { grid-template-columns: 1fr; }
+  .module-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sys-hero { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .quick-actions { grid-template-columns: 1fr 1fr; }
+  .manager-hero-grid { grid-template-columns: 1fr; }
+  .report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .enterprise-content { padding: 16px 14px 30px; }
+  .enterprise-topbar { gap: 10px; padding: 0 14px; min-height: 64px; height: auto; }
+  .topbar-title h1 { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+  .topbar-title p { display: none; }
+  .topbar-title .eyebrow { display: none; }
+  .topbar-tools { gap: 8px; flex-shrink: 0; }
+  .topbar-divider { display: none; }
+  .user-chip > div { display: none; }
+  .metric-grid, .employee-summary-strip, .manager-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .quick-actions { grid-template-columns: 1fr; }
+  .manager-hero-grid { grid-template-columns: 1fr; }
+  .prod-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sys-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sys-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .analytics-grid, .second-grid, .dashboard-grid-main { grid-template-columns: 1fr; }
+  .analytics-heading { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .prod-grid.two { grid-template-columns: 1fr !important; }
+  .welcome-banner { flex-direction: column; align-items: flex-start; padding: 18px; }
+  .welcome-banner h2 { font-size: 18px; }
+  .today-pill { width: 100%; }
+  .workspace-intro { padding: 16px; margin-bottom: 16px; }
+  .workspace-intro h1 { font-size: 1.4rem; }
+  .card-head { flex-wrap: wrap; gap: 10px; }
+  .inventory-head { flex-direction: column; gap: 12px; }
+  .head-actions { width: 100%; flex-wrap: wrap; }
+  .head-actions .btn { flex: 1; min-width: 120px; }
+  .action-row { flex-wrap: wrap; width: 100%; }
+  .action-row .btn { flex: 1; min-width: 100px; }
+  .search-box { width: 100%; min-width: 0; }
+  .filter-panel { flex-direction: column; }
+  .filter-panel select { width: 100%; }
+  .attendance-hero { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .attendance-stats .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .correction-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .correction-main { grid-template-columns: 1fr; }
+  .correction-reason { grid-column: auto; }
+  .correction-footer { flex-wrap: wrap; align-items: flex-start; }
+  .correction-actions { width: 100%; }
+  .correction-actions .btn { flex: 1; }
+  .leave-page { gap: 14px; }
+  .leave-balance-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .leave-hero { flex-direction: column; align-items: flex-start; }
+  .form-row { flex-direction: column; gap: 0; }
+  .form-row > .field { min-width: 0; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .sys-form, .sys-filters, .settings-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sys-table-row { grid-template-columns: 1fr 1fr; }
+  .sys-table-row.audit { grid-template-columns: 1fr 1fr; }
+  .sys-mini { grid-template-columns: repeat(2, 1fr); }
+  .settings-card-group { grid-template-columns: 1fr; }
+  .holiday-layout { grid-template-columns: 1fr; }
+  .holiday-toolbar { flex-wrap: wrap; }
+  .holiday-toolbar select { flex: 1; min-width: 120px; }
+  .module-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .manager-mini-grid { grid-template-columns: repeat(2, 1fr); }
+  .donut-wrap { flex-direction: column; gap: 16px; min-height: auto; }
+  .chart-summary { gap: 15px; flex-wrap: wrap; }
+  .activity-item { grid-template-columns: 16px 1fr; }
+  .activity-item time { grid-column: 2; }
+  .leave-summary { grid-template-columns: repeat(2, 1fr); }
+  .access-permissions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .timing-grid { grid-template-columns: 1fr; }
+  .timing-preview { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .timing-preview small { margin-left: 0; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 0; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { flex: 0 0 auto; }
+  .report-grid { grid-template-columns: 1fr; }
+  .report-filters { flex-direction: column; align-items: stretch; }
+  .report-filters select, .report-filters input { width: 100%; }
+  .pagination { flex-direction: column; gap: 8px; text-align: center; }
+  .profile-hero { flex-direction: column; align-items: center; text-align: center; padding: 20px 16px; }
+  .notification-item { flex-wrap: wrap; }
+  .notification-actions { width: 100%; justify-content: flex-end; }
+  .task-workspace-grid { grid-template-columns: 1fr; }
+  .selection-summary { padding: 10px 12px; }
+  .daloft-login { padding: 16px; }
+  .login-panel { padding: 26px 18px; }
+  .login-title { font-size: 26px; }
+  .enterprise-shell .table-wrap::after { display: block; }
+  .table-wrap { scrollbar-width: thin; scrollbar-color: #cdd9d4 transparent; }
+  .table-wrap::-webkit-scrollbar { height: 4px; }
+  .table-wrap::-webkit-scrollbar-thumb { background: #cdd9d4; border-radius: 4px; }
+  .sidebar-overlay { position: fixed; inset: 0; z-index: 35; background: rgba(0,0,0,0.45); backdrop-filter: blur(2px); pointer-events: none; }
+  .enterprise-sidebar { z-index: 40; }
+  .avatar { flex: 0 0 34px; width: 34px; height: 34px; border-radius: 9px; }
+  .sys-filters .search-box, .inventory-head .search-box { width: 100%; }
+  .sys-hero > div:last-child { width: 100%; display: flex; gap: 8px; flex-wrap: wrap; }
+  .sys-hero .primary-btn, .sys-hero .secondary-btn { flex: 1; justify-content: center; }
+  .modal > form .form-grid { grid-template-columns: 1fr !important; }
+  .empty-state { padding: 24px 16px; min-height: 100px; }
+}
+
+@media (max-width: 640px) {
+  .page { padding: 14px; }
+  .enterprise-content { padding: 14px 12px 28px; }
+  .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-3 { grid-template-columns: 1fr; }
+  .stat-value { font-size: 1.5rem; }
+  .card, .premium-card, .sys-card, .metric-card, .employee-stat, .prod-kpi, .leave-balance-card { padding: 16px; }
+  .inventory-head { flex-direction: column; gap: 12px; }
+  .search-box { min-width: 0; width: 100%; }
+  tbody td { padding: 10px 8px; font-size: 0.82rem; }
+  thead th { padding: 8px; font-size: 0.7rem; }
+  .monthly-chart { gap: 6px; }
+  .movement-summary { grid-column: 1; flex-wrap: wrap; margin-left: 0; }
+  .toast { right: 12px; left: 12px; min-width: 0; bottom: 16px; top: auto; }
+  .head-actions { width: 100%; }
+  .head-actions .btn { flex: 1; }
+  .filter-panel select { flex: 1; min-width: 130px; }
+  .correction-summary { grid-template-columns: 1fr; }
+  .leave-balance-grid { grid-template-columns: 1fr; }
+  .access-permissions { grid-template-columns: 1fr; }
+  .mini-bars { gap: 6px; }
+  .mini-bar span { width: 80%; }
+  .bar-row { grid-template-columns: 75px 1fr 36px; }
+  .analytics-heading { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .profile-hero { flex-direction: column; align-items: center; text-align: center; padding: 18px; gap: 14px; }
+  .profile-avatar { width: 64px; height: 64px; font-size: 1.5rem; }
+  .sys-table-row, .sys-table-row.audit { grid-template-columns: 1fr; gap: 6px; }
+  .clock-time { font-size: 2rem; }
+  .clock-status-row { gap: 8px; }
+  .login-panel { padding: 24px 16px; }
+  .tab-btn { padding: 10px 12px; font-size: 0.82rem; }
+}
+
+@media (max-width: 480px) {
+  .enterprise-content { padding: 12px 10px 24px; }
+  .enterprise-topbar { padding: 0 12px; min-height: 60px; }
+  .topbar-title h1 { font-size: 14px; max-width: 140px; }
+  .topbar-title { max-width: calc(100vw - 120px); }
+  .metric-grid, .employee-summary-strip, .manager-metrics { grid-template-columns: 1fr; }
+  .quick-actions { grid-template-columns: 1fr; }
+  .prod-kpi-grid { grid-template-columns: 1fr !important; }
+  .sys-grid, .sys-grid.two { grid-template-columns: 1fr; }
+  .grid-4, .grid-3 { grid-template-columns: 1fr; }
+  .sys-mini, .sys-form, .sys-filters, .settings-grid { grid-template-columns: 1fr; }
+  .correction-summary, .attendance-stats .grid-4, .manager-mini-grid, .module-cards, .leave-summary { grid-template-columns: 1fr; }
+  .card, .premium-card, .sys-card, .metric-card, .employee-stat, .prod-kpi { padding: 14px; border-radius: 12px; }
+  .workspace-intro { padding: 14px; border-radius: 14px; }
+  .workspace-intro h1 { font-size: 1.2rem; }
+  .stat-value { font-size: 1.4rem; }
+  .employee-stat strong { font-size: 17px; }
+  .page { padding: 12px; }
+  .modal-backdrop { align-items: flex-end; padding: 0; }
+  .modal { width: 100% !important; max-width: 100% !important; border-radius: 20px 20px 0 0; max-height: 92dvh; animation: modal-slide-up 0.22s ease-out both; }
+  .modal-header { padding: 18px 16px 12px; }
+  .modal > form { padding: 0 16px 20px; }
+  .modal .form-row { flex-direction: column; gap: 0; }
+  tbody td { padding: 9px 6px; font-size: 0.8rem; }
+  thead th { padding: 7px 6px; font-size: 0.68rem; }
+  .tab-btn { padding: 9px 11px; font-size: 0.8rem; }
+  .btn { padding: 9px 14px; font-size: 0.85rem; }
+  .btn-sm { padding: 7px 10px; font-size: 0.76rem; }
+  .field input, .field select, .field textarea { font-size: 16px; }
+  .search-box input { font-size: 16px; }
+  .daloft-login { padding: 12px; }
+  .login-panel { padding: 22px 14px; border-radius: 16px; }
+  .login-title { font-size: 24px; }
+  .login-security-note { margin-top: 20px; }
+  .auth-wrap { padding: 12px; }
+  .auth-card { padding: 24px 14px; border-radius: 16px; }
+  .welcome-banner { padding: 16px; border-radius: 14px; }
+  .welcome-banner h2 { font-size: 16px; }
+  .today-pill { padding: 9px 11px; }
+  .manager-focus h2 { font-size: 18px; }
+  .manager-mini-grid div { padding: 9px 10px; }
+  .manager-mini-grid strong { font-size: 15px; }
+  .card-title-row { flex-direction: column; gap: 10px; }
+  .sys-hero { padding: 16px; border-radius: 14px; }
+  .correction-card { padding: 13px; border-radius: 12px; }
+  .leave-hero { padding: 16px 18px; border-radius: 14px; }
+  .leave-balance-card { padding: 14px; border-radius: 12px; }
+  .leave-balance-card strong { font-size: 20px; }
+  .inventory-workspace .movement-summary { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .enterprise-sidebar.open .nav-label { display: inline; }
+  .notification-body p { font-size: 0.78rem; }
+  .notification-item { padding: 11px; border-radius: 10px; gap: 9px; }
+  .profile-layout { gap: 14px; }
+  .prod-kpi { min-height: auto; }
+  .prod-kpi-value { font-size: 1.5rem; }
+  .chart-head, .card-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .donut-wrap { gap: 12px; }
+  .donut { width: 130px; height: 130px; }
+  .attendance-hero { padding: 16px 18px; border-radius: 14px; }
+  .report-card { padding: 14px; }
+  .modal-actions { flex-direction: column; }
+  .modal-actions .btn { width: 100%; justify-content: center; }
+  .pagination { flex-direction: column; gap: 8px; }
+}
+
+@keyframes modal-slide-up {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@media (max-width: 360px) {
+  .enterprise-content { padding: 10px 8px 20px; }
+  .enterprise-topbar { padding: 0 10px; }
+  .topbar-title h1 { font-size: 13px; max-width: 110px; }
+  .page { padding: 10px; }
+  .card, .premium-card, .sys-card { padding: 12px; border-radius: 10px; }
+  .login-panel { padding: 18px 12px; }
+  .login-title { font-size: 22px; }
+  .tab-btn { padding: 8px 10px; font-size: 0.78rem; }
+  .btn { padding: 8px 12px; font-size: 0.82rem; }
+  .daloft-corporate-copy { display: none; }
+  .daloft-logo-image { width: 90px; }
+  .metric-grid, .employee-summary-strip, .manager-metrics, .quick-actions, .prod-kpi-grid, .sys-grid, .sys-grid.two, .grid-4, .grid-3, .grid-2, .correction-summary, .leave-balance-grid, .sys-mini, .sys-form, .sys-filters, .settings-grid, .module-cards { grid-template-columns: 1fr !important; }
+  .stat-value { font-size: 1.3rem; }
+  h1, .section-title { font-size: 1.1rem; }
+  .workspace-intro h1 { font-size: 1.1rem; }
+  .donut { width: 110px; height: 110px; }
+  .donut strong { font-size: 16px; }
+  .toast { right: 8px; left: 8px; }
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .enterprise-topbar { padding-left: max(14px, env(safe-area-inset-left)); padding-right: max(14px, env(safe-area-inset-right)); }
+  .enterprise-sidebar { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+  .enterprise-content { padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 16px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal, .enterprise-sidebar, .shell-main, .prod-kpi { transition: none !important; animation: none !important; }
+}
