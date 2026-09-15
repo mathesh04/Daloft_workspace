@@ -10,9 +10,23 @@ import java.util.List;
 @Service
 public class AttendanceService {
     private static final double EARTH_RADIUS_METERS=6_371_000.0;
-    private final AttendanceRepository attendanceRepository; private final EmployeeRepository employeeRepository; private final OfficeLocationRepository officeLocationRepository; private final LeaveRequestRepository leaveRequestRepository; private final SystemSettingsService settings; private final HolidayService holidays;
-    public AttendanceService(AttendanceRepository a,EmployeeRepository e,OfficeLocationRepository o,LeaveRequestRepository l,SystemSettingsService s,HolidayService h){attendanceRepository=a;employeeRepository=e;officeLocationRepository=o;leaveRequestRepository=l;settings=s;holidays=h;}
-    private Employee employee(String id){Employee e=employeeRepository.findByEmployeeId(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));if(e.getRole()==Role.SYSTEM_ADMIN)throw new IllegalStateException("Organization Admin accounts do not participate in employee attendance.");return e;}
+    private final AttendanceRepository attendanceRepository; 
+    private final EmployeeRepository employeeRepository; 
+    private final OfficeLocationRepository officeLocationRepository; 
+    private final LeaveRequestRepository leaveRequestRepository; 
+    private final SystemSettingsService settings; 
+    private final HolidayService holidays;
+    public AttendanceService(AttendanceRepository a,EmployeeRepository e,OfficeLocationRepository o,LeaveRequestRepository l,SystemSettingsService s,HolidayService h){
+        attendanceRepository=a;
+        employeeRepository=e;
+        officeLocationRepository=o;
+        leaveRequestRepository=l;
+        settings=s;holidays=h;
+    }
+    private Employee employee(String id){
+        Employee e=employeeRepository.findByEmployeeId(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));
+        if(e.getRole()==Role.SYSTEM_ADMIN)throw new IllegalStateException("Organization Admin accounts do not participate in employee attendance.");
+        return e;}
     public boolean isGeofenceEnabled(){return settings.getBoolean("GEOFENCE_ENABLED",false);}
     public double getAllowedRadiusMeters(){return settings.getInt("GEOFENCE_RADIUS",100);}
     public boolean isAttendanceEnabled(){return settings.getBoolean("ATTENDANCE_ENABLED",true);}

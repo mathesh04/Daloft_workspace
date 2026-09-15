@@ -25,9 +25,18 @@ public class AdminAnalyticsController {
 
     public AdminAnalyticsController(EmployeeRepository employees, AttendanceRepository attendance,
                                     LeaveRequestRepository leaves, ComponentRepository components,
-                                    DamageReportRepository damageReports, InventoryRequestRepository inventoryRequests, AuditLogRepository auditLogs, com.ems.service.HolidayService holidays, SystemSettingsService settings) {
-        this.employees = employees; this.attendance = attendance; this.leaves = leaves;
-        this.components = components; this.damageReports = damageReports; this.inventoryRequests = inventoryRequests; this.auditLogs = auditLogs; this.holidays = holidays; this.settings=settings;
+                                    DamageReportRepository damageReports, InventoryRequestRepository inventoryRequests, 
+                                    AuditLogRepository auditLogs, com.ems.service.HolidayService holidays, 
+                                    SystemSettingsService settings) {
+        this.employees = employees; 
+        this.attendance = attendance; 
+        this.leaves = leaves;
+        this.components = components; 
+        this.damageReports = damageReports;
+        this.inventoryRequests = inventoryRequests; 
+        this.auditLogs = auditLogs; 
+        this.holidays = holidays; 
+        this.settings=settings;
     }
 
     @GetMapping("/summary")

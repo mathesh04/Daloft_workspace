@@ -84,7 +84,7 @@ public class TaskService {
         List<TaskResponse.EmployeeSummary> people = employees.findAll()
                 .stream()
                 .filter(Employee::isActive)
-                .filter(e -> e.getRole() == Role.EMPLOYEE)
+                .filter(e -> e.getRole() == Role.EMPLOYEE || e.getRole() == Role.INTERN)
                 .filter(e -> {
                     if (e.getReportingManager() != null
                             && Objects.equals(e.getReportingManager().getId(), manager.getId())) {
@@ -161,7 +161,8 @@ public class TaskService {
             return true;
         }
 
-        if (manager.getRole() != Role.MANAGER || target.getRole() != Role.EMPLOYEE) {
+        if (manager.getRole() != Role.MANAGER
+                || (target.getRole() != Role.EMPLOYEE && target.getRole() != Role.INTERN)) {
             return false;
         }
 
@@ -230,8 +231,10 @@ public class TaskService {
                 throw new IllegalArgumentException("Assignee is inactive");
             }
 
-            if (assignedBy.getRole() == Role.MANAGER && target.getRole() != Role.EMPLOYEE) {
-                throw new SecurityException("Managers can assign tasks only to employees");
+            if (assignedBy.getRole() == Role.MANAGER
+                    && target.getRole() != Role.EMPLOYEE
+                    && target.getRole() != Role.INTERN) {
+                throw new SecurityException("Managers can assign tasks only to employees or interns");
             }
 
             if (!canManage(assignedBy, target)) {
@@ -256,7 +259,7 @@ public class TaskService {
 
             targets.addAll(employees.findByDepartmentIgnoreCaseAndActiveTrue(requestedDepartment)
                     .stream()
-                    .filter(e -> e.getRole() == Role.EMPLOYEE)
+                    .filter(e -> e.getRole() == Role.EMPLOYEE || e.getRole() == Role.INTERN)
                     .filter(e -> !Objects.equals(e.getId(), assignedBy.getId()))
                     .toList());
 
@@ -272,7 +275,7 @@ public class TaskService {
                 if (matchingDepartment != null && matchingDepartment.getCode() != null) {
                     targets.addAll(employees.findByDepartmentIgnoreCaseAndActiveTrue(matchingDepartment.getCode())
                             .stream()
-                            .filter(e -> e.getRole() == Role.EMPLOYEE)
+                            .filter(e -> e.getRole() == Role.EMPLOYEE || e.getRole() == Role.INTERN)
                             .filter(e -> !Objects.equals(e.getId(), assignedBy.getId()))
                             .toList());
                 }
@@ -292,7 +295,7 @@ public class TaskService {
                 assignmentType = "ROLE_GROUP";
                 normalizedRole = "ALL_NON_SYSTEM_USERS";
                 targets.addAll(employees.findByRoleIn(List.of(
-                                Role.HR_ADMIN, Role.MANAGER, Role.EMPLOYEE))
+                                Role.HR_ADMIN, Role.MANAGER, Role.EMPLOYEE, Role.INTERN))
                         .stream()
                         .filter(Employee::isActive)
                         .filter(e -> !Objects.equals(e.getId(), assignedBy.getId()))

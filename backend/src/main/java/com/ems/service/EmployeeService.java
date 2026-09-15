@@ -42,7 +42,7 @@ public class EmployeeService {
     }
 
     public List<EmployeeResponse> getEmployeesForHrAdmin() {
-        return employeeRepository.findByRoleIn(List.of(Role.EMPLOYEE,Role.MANAGER)).stream().map(EmployeeResponse::new).toList();
+        return employeeRepository.findByRoleIn(List.of(Role.EMPLOYEE,Role.MANAGER,Role.INTERN)).stream().map(EmployeeResponse::new).toList();
     }
 
     public List<EmployeeResponse> getHrAdminsForSystemAdmin() {
@@ -61,8 +61,9 @@ public class EmployeeService {
 
     public EmployeeResponse createEmployee(EmployeeRequest req) {
         if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can create employees through this operation.");
-        if(requestedRole(req)!=Role.EMPLOYEE) throw new IllegalArgumentException("HR_ADMIN can create EMPLOYEE accounts only.");
-        return create(req,Role.EMPLOYEE);
+        Role requested=requestedRole(req);
+        if(requested!=Role.EMPLOYEE && requested!=Role.INTERN) throw new IllegalArgumentException("HR_ADMIN can create EMPLOYEE or INTERN accounts only.");
+        return create(req,requested);
     }
 
     public EmployeeResponse createHrAdmin(EmployeeRequest req) {
@@ -101,7 +102,7 @@ public class EmployeeService {
     public EmployeeResponse updateEmployee(Long id,EmployeeRequest req) {
         if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can update employee records.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));
-        if(e.getRole()!=Role.EMPLOYEE && e.getRole()!=Role.MANAGER) throw new IllegalArgumentException("HR_ADMIN cannot modify administrator accounts.");
+        if(e.getRole()!=Role.EMPLOYEE && e.getRole()!=Role.MANAGER && e.getRole()!=Role.INTERN) throw new IllegalArgumentException("HR_ADMIN cannot modify administrator accounts.");
         if(requestedRole(req)!=e.getRole()) throw new IllegalArgumentException("HR_ADMIN cannot change roles.");
         copyEditableFields(e,req); validateDepartment(e.getDepartment());
         if(req.getPassword()!=null&&!req.getPassword().isBlank()) e.setPassword(passwordEncoder.encode(req.getPassword()));
@@ -133,7 +134,7 @@ public class EmployeeService {
     public void setEmployeeActive(Long id,boolean active) {
         if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can activate or deactivate employees.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));
-        if(e.getRole()!=Role.EMPLOYEE&&e.getRole()!=Role.MANAGER) throw new IllegalArgumentException("Administrator accounts cannot be changed here.");
+        if(e.getRole()!=Role.EMPLOYEE&&e.getRole()!=Role.MANAGER&&e.getRole()!=Role.INTERN) throw new IllegalArgumentException("Administrator accounts cannot be changed here.");
         if(!active&&e.getRole()==Role.MANAGER) throw new IllegalArgumentException("Manager lifecycle is controlled by Organization Admin. Reassign departments and direct reports first.");
         e.setActive(active); employeeRepository.save(e);
     }
@@ -148,7 +149,7 @@ public class EmployeeService {
     public void archiveEmployee(Long id) {
         if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can archive employees.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));
-        if(e.getRole()!=Role.EMPLOYEE) throw new IllegalArgumentException("Managers must be retired by Organization Admin after hierarchy is reassigned.");
+        if(e.getRole()!=Role.EMPLOYEE && e.getRole()!=Role.INTERN) throw new IllegalArgumentException("Managers must be retired by Organization Admin after hierarchy is reassigned.");
         e.setActive(false); employeeRepository.save(e);
     }
 }

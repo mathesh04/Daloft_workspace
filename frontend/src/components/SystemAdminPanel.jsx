@@ -72,7 +72,7 @@ function Organization(){
  return <div className="sys-page">{error&&<div className="error-banner">{error}</div>}
   <div className="sys-hero"><div><span>ORGANIZATION GOVERNANCE</span><h2>Departments, Managers & Delegated Access</h2><p>Organization Admin controls the structure, manager hierarchy, delegated HR access and organization reporting.</p></div><button className="primary-btn" onClick={load}>Refresh</button></div>
   <div className="sys-grid">
-   <Stat label="Departments" value={deps.length}/><Stat label="Managers" value={managers.length}/><Stat label="People" value={people.filter(p=>p.role==='EMPLOYEE'||p.role==='MANAGER').length}/><Stat label="HR Admins" value={admins.length}/>
+   <Stat label="Departments" value={deps.length}/><Stat label="Managers" value={managers.length}/><Stat label="People" value={people.filter(p=>p.role==='EMPLOYEE'||p.role==='MANAGER'||p.role==='INTERN').length}/><Stat label="HR Admins" value={admins.length}/>
   </div>
   <div className="sys-card" style={{marginTop:20}}><div className="sys-card-head"><div><h3>Organization reports</h3><small>Download the current hierarchy and workforce state.</small></div><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button className="secondary-btn" onClick={()=>api.downloadOrganizationPeopleCsv()}>People CSV</button><button className="secondary-btn" onClick={()=>api.downloadOrganizationDepartmentsCsv()}>Departments CSV</button><button className="secondary-btn" onClick={()=>api.downloadOrganizationManagersCsv()}>Managers CSV</button></div></div></div>
   <div className="grid" style={{gridTemplateColumns:'1fr 1fr',gap:20,alignItems:'start'}}>
