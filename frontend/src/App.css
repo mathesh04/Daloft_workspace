@@ -279,7 +279,7 @@ tbody tr:last-child td { border-bottom: none; }
 .badge-danger { background: var(--danger-bg); color: var(--danger); }
 .badge-warning { background: var(--warning-bg); color: var(--accent-dark); }
 .badge-neutral { background: #eef0f8; color: var(--slate); }
-.badge-admin { background: #eae7ff; color: #5b4fd6; }
+.badge-admin { background: #ffd7e3; color: #ff4e83; }
 
 /* ---------- Misc ---------- */
 

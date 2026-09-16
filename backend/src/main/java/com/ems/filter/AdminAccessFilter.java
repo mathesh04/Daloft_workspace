@@ -37,7 +37,7 @@ public class AdminAccessFilter extends OncePerRequestFilter {
      */
     private String permission(String p){
         if(p.contains("/inventory")) return "INVENTORY";
-        if(p.contains("/holidays")) return "HOLIDAY_CALENDAR";
+        if(p.contains("/holidays") || p.contains("/office-calendar")) return "HOLIDAY_CALENDAR";
         if(p.contains("/attendance")) return "ATTENDANCE";
         if(p.contains("/leave")) return "LEAVE";
         if(p.contains("/employees") || p.contains("/damage")) return "PEOPLE";

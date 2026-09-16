@@ -163,6 +163,7 @@ const api = {
   systemSettings: () => get("/system-admin/settings"),
   adminAccessMe: () => get("/admin/access/me"),
   holidays: (year, includeInactive=false) => get(`/admin/holidays?year=${year}&includeInactive=${includeInactive}`),
+  officeCalendar: (year, month) => get(`/admin/office-calendar?year=${year}&month=${month}`),
   createHoliday: (payload) => post("/admin/holidays", payload),
   updateHoliday: (id,payload) => put(`/admin/holidays/${id}`, payload),
   setHolidayActive: (id,active) => patch(`/admin/holidays/${id}/status`, {active}),
