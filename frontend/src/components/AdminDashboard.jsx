@@ -17,7 +17,7 @@ const Reports = lazy(() => import("./Reports"));
 const SystemAdminPanel = lazy(() => import("./SystemAdminPanel"));
 const AnalyticsDashboard = lazy(() => import("./AnalyticsDashboard"));
 const DailyWorkReportsAdmin = lazy(() => import("./DailyWorkReportsAdmin"));
-const HolidayModule = (props) => <SystemAdminPanel section="holidays" {...props}/>;
+const OfficeCalendar = lazy(() => import("./OfficeCalendar"));
 
 const MODULES = [
   { key:"people", permission:"PEOPLE", label:"People", icon:"people", component:EmployeeList },
@@ -30,7 +30,7 @@ const MODULES = [
   { key:"offices", permission:"OFFICE", label:"Office Locations", icon:"location", component:OfficeLocations },
   { key:"damage", permission:"PEOPLE", label:"Damage Reports", icon:"report", component:DamageReports },
   { key:"reports", permission:"REPORTS", label:"Reports & Analytics", icon:"report", component:Reports },
-  { key:"holidays", permission:"HOLIDAY_CALENDAR", label:"Holiday Calendar", icon:"calendar", component:HolidayModule },
+  { key:"office-calendar", permission:"HOLIDAY_CALENDAR", label:"Office Calendar", icon:"calendar", component:OfficeCalendar },
 ];
 
 const SYSTEM_NAV = [
@@ -42,7 +42,7 @@ const SYSTEM_NAV = [
   {key:"security",label:"Security Center",icon:"shield"},
   {key:"audit",label:"Audit Logs",icon:"audit"},
   {key:"settings",label:"Configuration",icon:"settings"},
-  {key:"holidays",label:"Holiday Calendar",icon:"calendar"},
+  {key:"office-calendar",label:"Office Calendar",icon:"calendar"},
   {key:"health",label:"System Health",icon:"report"},
   {key:"tasks",label:"Tasks",icon:"tasks"},
   {key:"notifications",label:"Notifications",icon:"bell"},
@@ -67,9 +67,11 @@ export default function AdminDashboard(){
   const title = system ? (SYSTEM_NAV.find(x=>x.key===tab)?.label || "Control Center") : (tab==="dashboard"?"HR Operations":allowed.find(x=>x.key===tab)?.label || "HR Operations");
   const subtitle = tab === "daily-reports"
     ? "Review daily work submissions, track team activities, and export records."
-    : system
-      ? "Govern organization policy, security, people and platform health."
-      : "A focused, data-first workspace for people operations.";
+    : tab === "office-calendar"
+      ? "Govern organization working schedules, active public holidays, employee leaves, and remote days."
+      : system
+        ? "Govern organization policy, security, people and platform health."
+        : "A focused, data-first workspace for people operations.";
   const nav = system ? SYSTEM_NAV : [{key:"dashboard",label:"Overview",icon:"home"},...allowed.map(m=>({key:m.key,label:m.label,icon:m.icon})),{key:"notifications",label:"Notifications",icon:"bell",badge:notificationCount||null}];
   const actions = !system ? [{label:"My Workspace",icon:"home",onClick:()=>navigate("/employee")}]:[];
 
@@ -96,7 +98,7 @@ function SystemWorkspace({tab,setTab,navigate,notificationCount,setNotificationC
     {tab==="security"&&<SystemAdminPanel section="security"/>}
     {tab==="audit"&&<SystemAdminPanel section="audit"/>}
     {tab==="settings"&&<SystemAdminPanel section="settings"/>}
-    {tab==="holidays"&&<SystemAdminPanel section="holidays"/>}
+    {(tab==="office-calendar"||tab==="holidays")&&<OfficeCalendar/>}
     {tab==="health"&&<SystemAdminPanel section="health"/>}
     {tab==="tasks"&&<Tasks adminMode systemAdminMode canBroadcastRoles/>}
     {tab==="notifications"&&<Notifications onCount={setNotificationCount}/>} 
@@ -104,7 +106,7 @@ function SystemWorkspace({tab,setTab,navigate,notificationCount,setNotificationC
 }
 
 function DelegatedOverview({permissions}){
- const names={PEOPLE:'People',ATTENDANCE:'Attendance',LEAVE:'Leave Management',INVENTORY:'Inventory',TASKS:'Tasks',COMMUNICATION:'Announcements',REPORTS:'Reports & Analytics',OFFICE:'Office Locations',HOLIDAY_CALENDAR:'Holiday Calendar'};
+ const names={PEOPLE:'People',ATTENDANCE:'Attendance',LEAVE:'Leave Management',INVENTORY:'Inventory',TASKS:'Tasks',COMMUNICATION:'Announcements',REPORTS:'Reports & Analytics',OFFICE:'Office Locations',HOLIDAY_CALENDAR:'Office Calendar'};
  return <div className="premium-card access-home"><span className="eyebrow green">DELEGATED WORKSPACE</span><h2>Welcome to Daloft People</h2><p className="section-sub">Your Organization Admin has granted access only to the functions shown below. Analytics and reporting are available when the Reports & Analytics permission is granted.</p><div className="module-cards">{permissions.length?permissions.filter(p=>names[p]).map(p=><div className="module-card" key={p}><strong>{names[p]}</strong><span>Organization-wide access</span></div>):<div className="empty-state" style={{gridColumn:'1/-1'}}>No functional permissions are currently assigned. Contact the Organization Admin to request access.</div>}</div></div>}
 function LoadingCard({text}){return <div className="premium-card loading-card"><div className="loading-spinner"/><strong>{text}</strong><span>Secure workspace access is being synchronized.</span></div>}
 function AccessDenied({onBack}){return <div className="premium-card access-denied"><span className="eyebrow">SECURITY POLICY</span><h2>403 — Access denied</h2><p>You do not have permission to access this workspace module.</p><button className="btn btn-primary" onClick={onBack}>Back to overview</button></div>}
