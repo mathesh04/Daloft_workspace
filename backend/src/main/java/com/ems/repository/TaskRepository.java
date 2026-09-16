@@ -1,11 +1,13 @@
 package com.ems.repository;
 
-import com.ems.model.Employee;
-import com.ems.model.Task;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import com.ems.model.Employee;
+import com.ems.model.Task;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     @EntityGraph(attributePaths = {"assignedTo", "assignedBy"})
@@ -13,4 +15,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @EntityGraph(attributePaths = {"assignedTo", "assignedBy"})
     List<Task> findAllByOrderByCreatedAtDesc();
+
+    @Override
+    @EntityGraph(attributePaths = {"assignedTo", "assignedBy"})
+    Optional<Task> findById(Long id);
 }
