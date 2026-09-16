@@ -104,7 +104,7 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
         <div className="sidebar-bottom">
           {workspaceActions.map(action => <button key={action.label} className="side-nav-item workspace-action" onClick={action.onClick} title={collapsed ? action.label : undefined} aria-label={action.label}><Icon name={action.icon || "home"}/><span className="nav-label">{action.label}</span></button>)}
           <button className="side-nav-item workspace-action" onClick={signOut} title={collapsed ? "Sign out" : undefined} aria-label="Sign out"><Icon name="logout"/><span className="nav-label">Sign out</span></button>
-          <div className="sidebar-footer"><span>DAL·PEOPLE</span><small>Enterprise HR platform</small></div>
+          <div className="sidebar-footer"><span>DALOFT PEOPLE</span><small>Enterprise HR platform</small></div>
         </div>
 
       </aside>
@@ -114,6 +114,7 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
           <div className="topbar-title"><span className="eyebrow">DALOFT PEOPLE</span><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
           <div className="topbar-tools">
             <button className="top-icon" onClick={() => onNavigate?.("notifications")} title="Notifications" aria-label="Open notifications"><Icon name="bell"/></button>
+            <div id="topbar-actions" className="topbar-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }} />
             <div className="topbar-divider" />
             <div className="user-chip"><span className="avatar">{initials}</span><div><strong>{user?.name || "User"}</strong><small>{user?.employeeId || roleLabel[user?.role] || ""}</small></div></div>
           </div>

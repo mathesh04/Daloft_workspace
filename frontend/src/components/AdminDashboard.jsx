@@ -65,7 +65,11 @@ export default function AdminDashboard(){
 
   const select=(key)=>{setTab(key); if(!system && key!=="dashboard" && key!=="notifications") navigate(`/admin/${key}`); if(!system && key==="dashboard") navigate("/admin");};
   const title = system ? (SYSTEM_NAV.find(x=>x.key===tab)?.label || "Control Center") : (tab==="dashboard"?"HR Operations":allowed.find(x=>x.key===tab)?.label || "HR Operations");
-  const subtitle = system ? "Govern organization policy, security, people and platform health." : "A focused, data-first workspace for people operations.";
+  const subtitle = tab === "daily-reports"
+    ? "Review daily work submissions, track team activities, and export records."
+    : system
+      ? "Govern organization policy, security, people and platform health."
+      : "A focused, data-first workspace for people operations.";
   const nav = system ? SYSTEM_NAV : [{key:"dashboard",label:"Overview",icon:"home"},...allowed.map(m=>({key:m.key,label:m.label,icon:m.icon})),{key:"notifications",label:"Notifications",icon:"bell",badge:notificationCount||null}];
   const actions = !system ? [{label:"My Workspace",icon:"home",onClick:()=>navigate("/employee")}]:[];
 
