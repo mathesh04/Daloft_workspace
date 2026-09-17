@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
 
@@ -16,6 +16,12 @@ export default function DailyWorkReport() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const PAGE_SIZE = 10;
+  const [historyPage, setHistoryPage] = useState(0);
+  useEffect(() => { setHistoryPage(0); }, [history.length]);
+  const historyPages = Math.ceil(history.length / PAGE_SIZE);
+  const currentHistory = history.slice(historyPage * PAGE_SIZE, (historyPage + 1) * PAGE_SIZE);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -200,7 +206,7 @@ export default function DailyWorkReport() {
                 </tr>
               </thead>
               <tbody>
-                {history.map((item) => (
+                {currentHistory.map((item) => (
                   <tr key={item.id}>
                     <td style={{ fontSize: "14px", fontWeight: "600", whiteSpace: "nowrap", padding: "12px 10px" }}>
                       {item.reportDate}
@@ -229,6 +235,22 @@ export default function DailyWorkReport() {
                 )}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {historyPages > 1 && (
+          <div className="pagination" style={{ padding: "14px 4px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #edf2ee", marginTop: "12px" }}>
+            <span style={{ fontSize: "13px", color: "#687a72" }}>
+              Showing {historyPage * PAGE_SIZE + 1}–{Math.min((historyPage + 1) * PAGE_SIZE, history.length)} of {history.length} submissions (Page {historyPage + 1} of {historyPages})
+            </span>
+            <div style={{ display: "flex", gap: "6px" }}>
+              <button className="btn btn-ghost btn-sm" disabled={historyPage === 0} onClick={() => setHistoryPage(p => Math.max(0, p - 1))}>
+                ← Previous
+              </button>
+              <button className="btn btn-ghost btn-sm" disabled={historyPage >= historyPages - 1} onClick={() => setHistoryPage(p => Math.min(historyPages - 1, p + 1))}>
+                Next →
+              </button>
+            </div>
           </div>
         )}
       </div>
