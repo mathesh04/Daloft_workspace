@@ -1218,3 +1218,421 @@ button, [role="button"], .side-nav-item, .tab-btn, .btn, .top-icon,
 @media (prefers-reduced-motion: reduce) {
   .modal, .enterprise-sidebar, .shell-main, .prod-kpi { transition: none !important; animation: none !important; }
 }
+
+/* ==========================================================================
+   Daily Work Reports Admin Workspace (Responsive & Mobile Optimized)
+   ========================================================================== */
+
+.daily-reports-admin-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.dwr-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dwr-title-area h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #142820;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.dwr-title-area p {
+  font-size: 12.5px;
+  color: #62746c;
+  margin: 3px 0 0;
+}
+
+/* KPI metric strip */
+.dwr-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dwr-kpi-card {
+  background: #ffffff;
+  border: 1px solid #dce5e0;
+  border-radius: 12px;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(18, 45, 30, 0.03);
+}
+
+.dwr-kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.dwr-kpi-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.dwr-kpi-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #63756d;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dwr-kpi-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: #142c21;
+  line-height: 1.2;
+}
+
+/* Mobile Tab Switcher */
+.dwr-mobile-tabs {
+  display: none;
+  background: #ebf2ee;
+  padding: 4px;
+  border-radius: 10px;
+  gap: 4px;
+}
+
+.dwr-mobile-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #556960;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.dwr-mobile-tab-btn.active {
+  background: #ffffff;
+  color: #154530;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Main Split Layout */
+.dwr-main-layout {
+  display: grid;
+  grid-template-columns: 290px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* Filter controls card */
+.dwr-filter-card {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 14px;
+  border: 1px solid #dce5e0;
+  background: #ffffff;
+}
+
+.dwr-date-inputs-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dwr-date-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dwr-date-label {
+  font-size: 10.5px;
+  color: #596c64;
+  font-weight: 700;
+}
+
+.dwr-date-field {
+  padding: 6px 9px;
+  border-radius: 7px;
+  border: 1px solid #ccd8d2;
+  font-size: 12px;
+  background: #fafcfb;
+  color: #172922;
+  outline: none;
+  min-width: 130px;
+}
+
+.dwr-preset-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.dwr-preset-btn {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #d3ded8;
+  background: #ffffff;
+  color: #3e5249;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.dwr-preset-btn.active {
+  border-color: #2fa876;
+  background: #eaf5ef;
+  color: #185038;
+  font-weight: 700;
+}
+
+/* Mobile Active Filter Banner */
+.dwr-active-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: #f0f7f3;
+  border: 1px solid #cce3d6;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+/* Report Cards for Mobile View */
+.dwr-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dwr-report-card {
+  background: #ffffff;
+  border: 1px solid #dbe5e0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(18, 45, 30, 0.04);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.dwr-report-card.has-blocker {
+  border-color: #f7c6c4;
+  box-shadow: 0 2px 6px rgba(211, 47, 47, 0.06);
+}
+
+.dwr-report-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef3f0;
+}
+
+.dwr-card-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dwr-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #e6f3ec;
+  color: #1b6343;
+  font-weight: 700;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.dwr-card-person-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dwr-card-person-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #142820;
+}
+
+.dwr-card-person-meta {
+  font-size: 11px;
+  color: #697b73;
+}
+
+.dwr-card-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #1c573c;
+  background: #eef6f2;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Card Sections */
+.dwr-card-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dwr-section-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #667870;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dwr-tasks-box {
+  background: #fcfdfc;
+  border: 1px solid #ebf1ee;
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  color: #21332b;
+}
+
+.dwr-blocker-alert-box {
+  background: #fdf2f2;
+  border: 1px solid #f9d3d3;
+  border-left: 3px solid #d32f2f;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #8c1d1d;
+  font-size: 12.5px;
+}
+
+.dwr-tomorrow-box {
+  background: #f5f8fc;
+  border: 1px solid #e1e9f4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #1e3a5f;
+  font-size: 12.5px;
+}
+
+.dwr-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f4f1;
+  font-size: 11px;
+  color: #74867e;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 860px) {
+  .dwr-main-layout {
+    grid-template-columns: 1fr;
+  }
+  .dwr-mobile-tabs {
+    display: flex;
+  }
+  .dwr-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .dwr-sidebar-panel {
+    max-height: none !important;
+  }
+  .dwr-filter-card {
+    padding: 12px 14px;
+  }
+  .dwr-date-inputs-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .dwr-date-input-wrap {
+    flex: 1;
+    min-width: 130px;
+  }
+  .dwr-date-field {
+    width: 100%;
+    min-width: 0;
+  }
+  .dwr-preset-chips {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .dwr-preset-btn {
+    flex: 1;
+    text-align: center;
+    padding: 7px 8px;
+  }
+  .dwr-view-toggle {
+    display: flex !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .dwr-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .dwr-kpi-card {
+    padding: 10px;
+    gap: 8px;
+  }
+  .dwr-kpi-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+  .dwr-kpi-val {
+    font-size: 16px;
+  }
+  .dwr-kpi-label {
+    font-size: 9.5px;
+  }
+  .dwr-title-area h2 {
+    font-size: 17px;
+  }
+  .dwr-title-area p {
+    font-size: 11.5px;
+  }
+  .dwr-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
