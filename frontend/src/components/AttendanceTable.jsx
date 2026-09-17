@@ -64,11 +64,66 @@ export default function AttendanceTable() {
   </div>;
 }
 
-function AttendanceRows({rows,loading,today}) { return <div className="card attendance-table-card"><div className="table-wrap"><table><thead><tr><th>Employee</th><th>Department</th><th>Date</th><th>Check-in</th><th>Check-out</th><th>Status</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}><td><b>{employeeName(row)}</b><span className="muted"> {row.employee?.employeeId ? `(${row.employee.employeeId})` : ""}</span></td><td>{row.employee?.department || "—"}</td><td>{fmtDate(row.workDate)}</td><td>{fmtTime(row.checkInTime)}</td><td>{fmtTime(row.checkOutTime)}</td><td><StatusBadge status={row.status}/></td></tr>)}{!loading && !rows.length && <tr><td colSpan="6" className="empty-state">No attendance records for {today ? "today" : "this history view"}.</td></tr>}{loading && <tr><td colSpan="6" className="table-loading">Loading attendance…</td></tr>}</tbody></table></div></div>; }
+function AttendanceRows({rows,loading,today}) {
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(0);
+
+  useEffect(() => { setPage(0); }, [rows, today]);
+
+  const pages = Math.ceil(rows.length / PAGE_SIZE);
+  const currentRows = (!today || rows.length > PAGE_SIZE) 
+    ? rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+    : rows;
+
+  return (
+    <div className="card attendance-table-card">
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Employee</th><th>Department</th><th>Date</th><th>Check-in</th><th>Check-out</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentRows.map(row => (
+              <tr key={row.id}>
+                <td><b>{employeeName(row)}</b><span className="muted"> {row.employee?.employeeId ? `(${row.employee.employeeId})` : ""}</span></td>
+                <td>{row.employee?.department || "—"}</td>
+                <td>{fmtDate(row.workDate)}</td>
+                <td>{fmtTime(row.checkInTime)}</td>
+                <td>{fmtTime(row.checkOutTime)}</td>
+                <td><StatusBadge status={row.status}/></td>
+              </tr>
+            ))}
+            {!loading && !rows.length && <tr><td colSpan="6" className="empty-state">No attendance records for {today ? "today" : "this history view"}.</td></tr>}
+            {loading && <tr><td colSpan="6" className="table-loading">Loading attendance…</td></tr>}
+          </tbody>
+        </table>
+      </div>
+      {pages > 1 && (
+        <div className="pagination" style={{ padding: "14px 18px", borderTop: "1px solid var(--border, #edf2ee)" }}>
+          <span>Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} of {rows.length} records (Page {page + 1} of {pages})</span>
+          <div style={{ display: "flex", gap: "6px" }}>
+            <button className="btn btn-ghost btn-sm" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>← Previous</button>
+            <button className="btn btn-ghost btn-sm" disabled={page >= pages - 1} onClick={() => setPage(p => Math.min(pages - 1, p + 1))}>Next →</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function CorrectionQueue({rows,loading,reload}) {
  const [busyId,setBusyId]=useState(null),[modal,setModal]=useState(null);
  const pending=useMemo(()=>rows.filter(r=>String(r.status||"").toUpperCase()==="PENDING"),[rows]);
+ const PAGE_SIZE = 10;
+ const [page, setPage] = useState(0);
+
+ useEffect(() => { setPage(0); }, [rows.length]);
+
+ const pages = Math.ceil(rows.length / PAGE_SIZE);
+ const currentRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+
  const review=async(status)=>{if(!modal)return; if(status==="REJECTED"&&!modal.reason.trim())return setModal({...modal,error:"A rejection reason is required."}); setBusyId(modal.id); try{await api.reviewAdminAttendanceCorrection(modal.id,status,modal.reason.trim());setModal(null);await reload();}catch(e){setModal({...modal,error:e.message||"Unable to process correction"});}finally{setBusyId(null)}};
  return <div className="correction-workspace">
   <div className="correction-summary">
@@ -79,7 +134,7 @@ function CorrectionQueue({rows,loading,reload}) {
     </div><div><span>Audit trail</span><strong>ON</strong><small>decision is logged</small></div>
     </div><div className="card"><div className="card-head"><div>
       <h3>Attendance correction requests</h3><p className="section-sub">Review the requested time against the original attendance record before approving.</p></div>
-      </div>{loading?<div className="table-loading">Loading correction queue…</div>:!rows.length?<div className="empty-state">No attendance correction requests.</div>:<div className="correction-list">{rows.map(r=>{const a=r.attendance||{};
+      </div>{loading?<div className="table-loading">Loading correction queue…</div>:!rows.length?<div className="empty-state">No attendance correction requests.</div>:<><div className="correction-list">{currentRows.map(r=>{const a=r.attendance||{};
       const status=String(r.status||"PENDING").toUpperCase();
       return <article className={`correction-card correction-${status.toLowerCase()}`} key={r.id}>
         <div className="correction-main"><div className="correction-person">
@@ -95,7 +150,15 @@ function CorrectionQueue({rows,loading,reload}) {
               </div><div className="correction-footer"><StatusBadge status={status}/><small>{r.createdAt ? `Submitted ${new Date(r.createdAt).toLocaleString()}` : ""}{r.reviewedBy ? ` · Reviewed by ${r.reviewedBy}` : ""}</small>{status === "PENDING" ? <div className="correction-actions">
                 <button className="btn btn-danger" disabled={busyId===r.id} 
               onClick={()=>setModal({id:r.id,status:"REJECTED",reason:"",error:""})}>Reject</button><button className="btn btn-accent" disabled={busyId===r.id} onClick={()=>setModal({id:r.id,status:"APPROVED",reason:"",error:""})}>Approve correction</button>
-              </div>:<span className="muted">{r.reviewReason || "Decision recorded"}</span>}</div></article>})}</div>}</div>{modal&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setModal(null)}>
+              </div>:<span className="muted">{r.reviewReason || "Decision recorded"}</span>}</div></article>})}</div>{pages > 1 && (
+        <div className="pagination" style={{ padding: "14px 18px", borderTop: "1px solid var(--border, #edf2ee)", marginTop: "14px" }}>
+          <span>Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} of {rows.length} requests (Page {page + 1} of {pages})</span>
+          <div style={{ display: "flex", gap: "6px" }}>
+            <button className="btn btn-ghost btn-sm" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>← Previous</button>
+            <button className="btn btn-ghost btn-sm" disabled={page >= pages - 1} onClick={() => setPage(p => Math.min(pages - 1, p + 1))}>Next →</button>
+          </div>
+        </div>
+      )}</>}</div>{modal&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setModal(null)}>
                 <div className="modal correction-modal"><div className="modal-header"><div>
                 <h3>{modal.status === "APPROVED" ? "Approve attendance correction" : "Reject attendance correction"}
                 </h3><p className="section-sub">{modal.status === "APPROVED" ? "The requested times will replace the attendance record." : "Give the employee a clear reason for the rejection."}</p></div>

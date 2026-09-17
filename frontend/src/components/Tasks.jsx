@@ -9,6 +9,11 @@ export default function Tasks({managerMode=false,adminMode=false,systemAdminMode
  const {user}=useAuth();
  const [tasks,setTasks]=useState([]),[employees,setEmployees]=useState([]),[departments,setDepartments]=useState([]),[form,setForm]=useState(empty);
  const [mode,setMode]=useState(managerMode?'employee':'employee'),[error,setError]=useState(''),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true);
+ const [page, setPage] = useState(0);
+ const PAGE_SIZE = 10;
+ useEffect(() => { setPage(0); }, [tasks.length]);
+ const pages = Math.ceil(tasks.length / PAGE_SIZE);
+ const currentTasks = tasks.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
  const roleBroadcastAllowed=canBroadcastRoles||systemAdminMode||user?.role==='SYSTEM_ADMIN'||(user?.role==='HR_ADMIN'&&user?.permissions?.includes('ALL'));
  const load=async()=>{
   setLoading(true);setError('');
@@ -77,12 +82,21 @@ export default function Tasks({managerMode=false,adminMode=false,systemAdminMode
     </form>
    </div>
    <div className="card"><div className="card-title-row"><div><h3>{managerMode?'Team tasks':'Organization tasks'}</h3><p className="section-sub">{tasks.length} task{tasks.length===1?'':'s'} loaded.</p></div><button className="btn btn-ghost" onClick={load}>↻ Refresh</button></div>
-    <div className="table-wrap"><table><thead><tr><th>Title</th><th>Assigned to</th><th>Due</th><th>Status</th></tr></thead><tbody>{tasks.map(t=><tr key={t.id}>
+    <div className="table-wrap"><table><thead><tr><th>Title</th><th>Assigned to</th><th>Due</th><th>Status</th></tr></thead><tbody>{currentTasks.map(t=><tr key={t.id}>
      <td><b>{t.title}</b><div className="muted">{t.assignmentType==='DEPARTMENT'?`Department: ${t.targetDepartment}`:t.assignmentType==='ROLE'?`Role: ${t.targetRole?.replaceAll('_',' ')||'—'}`:t.assignmentType==='ROLE_GROUP'?'Everyone (non-system users)':''}</div></td>
      <td>{t.assignedTo?.name||'—'} <span className="muted">{t.assignedTo?.employeeId?`(${t.assignedTo.employeeId})`:''}</span></td>
      <td>{t.dueDate||'—'}</td>
      <td>{managerMode?<select value={t.status} onChange={e=>updateStatus(t.id,e.target.value)}><option value="PENDING">PENDING</option><option value="IN_PROGRESS">IN PROGRESS</option><option value="COMPLETED">COMPLETED</option></select>:<TaskBadge status={t.status}/>}</td>
     </tr>)}{!tasks.length&&<tr><td colSpan="4" className="empty-state">No tasks yet.</td></tr>}</tbody></table></div>
+    {pages > 1 && (
+      <div className="pagination" style={{ padding: "14px 18px", borderTop: "1px solid var(--border, #edf2ee)" }}>
+        <span>Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, tasks.length)} of {tasks.length} tasks (Page {page + 1} of {pages})</span>
+        <div style={{ display: "flex", gap: "6px" }}>
+          <button className="btn btn-ghost btn-sm" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>← Previous</button>
+          <button className="btn btn-ghost btn-sm" disabled={page >= pages - 1} onClick={() => setPage(p => Math.min(pages - 1, p + 1))}>Next →</button>
+        </div>
+      </div>
+    )}
    </div>
   </div>}
  </div>;
