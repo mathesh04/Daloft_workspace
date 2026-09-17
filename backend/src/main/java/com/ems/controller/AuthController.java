@@ -86,7 +86,14 @@ public class AuthController {
         return "User";
     }
     @PostMapping("/forgot-password") public ResponseEntity<?> forgotPassword(@RequestBody Map<String,String> body){String identity=body.getOrDefault("identity","").trim();if(identity.isEmpty())return ResponseEntity.badRequest().body(new ErrorBody("Email or employee ID is required"));try{passwordResetService.request(identity);}catch(Exception ignored){}return ResponseEntity.ok(Map.of("message","If an account matches the details, a reset link has been sent."));}
-    @PostMapping("/reset-password") public ResponseEntity<?> resetPassword(@RequestBody Map<String,String> body){try{passwordResetService.reset(body.get("token"),body.get("newPassword"));return ResponseEntity.ok(Map.of("message","Password reset successfully. Please sign in."));}catch(IllegalArgumentException e){return ResponseEntity.badRequest().body(new ErrorBody(e.getMessage()));}}
+    @PostMapping("/reset-password") 
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String,String> body, HttpServletRequest req){
+        try{
+            Employee e = passwordResetService.reset(body.get("token"),body.get("newPassword"));
+            if(e!=null){
+                auditService.logAuthEvent(e.getEmployeeId(),"PASSWORD_RESET","Password reset successfully completed",e.getId(),"SUCCESS",req);
+            }
+            return ResponseEntity.ok(Map.of("message","Password reset successfully. Please sign in."));}catch(IllegalArgumentException e){return ResponseEntity.badRequest().body(new ErrorBody(e.getMessage()));}}
     @GetMapping("/me/{employeeId}") public ResponseEntity<?> me(@PathVariable String employeeId,org.springframework.security.core.Authentication authentication){boolean elevated=authentication!=null&&authentication.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_SYSTEM_ADMIN"));if(!elevated&&(authentication==null||!authentication.getName().equalsIgnoreCase(employeeId)))return ResponseEntity.status(403).body(new ErrorBody("You can only access your own profile"));return employeeRepository.findByEmployeeId(employeeId).<ResponseEntity<?>>map(e->ResponseEntity.ok(new EmployeeResponse(e))).orElseGet(()->ResponseEntity.status(404).body(new ErrorBody("Not found")));}
     public record ErrorBody(String message){}
 }
