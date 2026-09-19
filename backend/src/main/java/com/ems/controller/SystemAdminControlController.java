@@ -2,9 +2,26 @@ package com.ems.controller;
 import com.ems.model.*; import com.ems.repository.*; import com.ems.service.*; import javax.sql.DataSource; import org.springframework.data.domain.*; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import org.springframework.transaction.annotation.Transactional; import org.springframework.security.core.Authentication; import java.sql.Connection; import java.time.*; import java.util.*;
 @RestController @RequestMapping("/api/system-admin")
 public class SystemAdminControlController {
- private final AuditLogRepository audits; private final EmployeeRepository employees; private final OfficeLocationRepository offices; private final DataSource dataSource; private final BrevoEmailService emailService; private final DepartmentRepository departments; private final SystemSettingsService settingService; private final AuditService auditService;
- public SystemAdminControlController(AuditLogRepository a,EmployeeRepository e,OfficeLocationRepository o,DataSource ds,BrevoEmailService es,DepartmentRepository dep,SystemSettingsService ss,AuditService as){audits=a;employees=e;offices=o;dataSource=ds;emailService=es;departments=dep;settingService=ss;auditService=as;}
- @GetMapping("/audit-logs") public Page<AuditLog> logs(@RequestParam(required=false) String actor,@RequestParam(required=false) String action,@RequestParam(required=false) String from,@RequestParam(required=false) String to,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size){size=Math.min(Math.max(size,1),100);String a=blank(actor),x=blank(action);LocalDateTime f=from==null||from.isBlank()?null:LocalDate.parse(from).atStartOfDay();LocalDateTime t=to==null||to.isBlank()?null:LocalDate.parse(to).atTime(LocalTime.MAX);Pageable p=PageRequest.of(Math.max(page,0),size,Sort.by(Sort.Direction.DESC,"createdAt"));if(f==null&&t==null)return audits.searchWithoutDates(a,x,p);if(f!=null&&t==null)return audits.searchFromDate(a,x,f,p);if(f==null)return audits.searchToDate(a,x,t,p);return audits.searchDateRange(a,x,f,t,p);}
+ private final AuditLogRepository audits; 
+ private final EmployeeRepository employees; 
+ private final OfficeLocationRepository offices; 
+ private final DataSource dataSource; 
+ private final BrevoEmailService emailService; 
+ private final DepartmentRepository departments; 
+ private final SystemSettingsService settingService; 
+ private final AuditService auditService;
+ public SystemAdminControlController(AuditLogRepository a,EmployeeRepository e,OfficeLocationRepository o,DataSource ds,BrevoEmailService es,DepartmentRepository dep,SystemSettingsService ss,AuditService as){
+    audits=a;
+    employees=e;
+    offices=o;
+    dataSource=ds;
+    emailService=es;
+    departments=dep;
+    settingService=ss
+    ;auditService=as;
+}
+ @GetMapping("/audit-logs") 
+ public Page<AuditLog> logs(@RequestParam(required=false) String actor,@RequestParam(required=false) String action,@RequestParam(required=false) String from,@RequestParam(required=false) String to,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size){size=Math.min(Math.max(size,1),100);String a=blank(actor),x=blank(action);LocalDateTime f=from==null||from.isBlank()?null:LocalDate.parse(from).atStartOfDay();LocalDateTime t=to==null||to.isBlank()?null:LocalDate.parse(to).atTime(LocalTime.MAX);Pageable p=PageRequest.of(Math.max(page,0),size,Sort.by(Sort.Direction.DESC,"createdAt"));if(f==null&&t==null)return audits.searchWithoutDates(a,x,p);if(f!=null&&t==null)return audits.searchFromDate(a,x,f,p);if(f==null)return audits.searchToDate(a,x,t,p);return audits.searchDateRange(a,x,f,t,p);}
  @GetMapping(value="/audit-logs/export",produces="text/csv") public ResponseEntity<String> export(@RequestParam(required=false) String actor,@RequestParam(required=false) String action,@RequestParam(required=false) String from,@RequestParam(required=false) String to){Page<AuditLog> p=logs(actor,action,from,to,0,100);StringBuilder b=new StringBuilder("Timestamp,Actor,Action,Details\n");for(AuditLog x:p)b.append(csv(x.getCreatedAt())).append(',').append(csv(x.getActor())).append(',').append(csv(x.getAction())).append(',').append(csv(x.getDetails())).append('\n');return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=audit-logs.csv").body(b.toString());}
  @GetMapping("/settings") public Map<String,Object> getSettings(){return settingService.allTyped();}
  @PutMapping("/settings") @Transactional public ResponseEntity<?> saveSettings(@RequestBody Map<String,Object> body,Authentication auth){try{validateProtectedLoginPolicy(body);Map<String,Object> out=settingService.update(body);auditService.log(auth,"SYSTEM_SETTINGS_UPDATED","Updated organization configuration","SYSTEM_SETTING","organization","SUCCESS",null);return ResponseEntity.ok(out);}catch(Exception e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}

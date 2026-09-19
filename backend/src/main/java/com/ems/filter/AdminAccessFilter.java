@@ -31,10 +31,6 @@ public class AdminAccessFilter extends OncePerRequestFilter {
         c.doFilter(r,p);
     }
 
-    /**
-     * More-specific module paths must win over generic report/analytics paths.
-     * This is important because inventory contains its own reports/analytics endpoints.
-     */
     private String permission(String p){
         if(p.contains("/inventory")) return "INVENTORY";
         if(p.contains("/holidays") || p.contains("/office-calendar")) return "HOLIDAY_CALENDAR";

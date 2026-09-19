@@ -56,18 +56,12 @@ public class TaskController {
         }
     }
 
-    /**
-     * HR Admin / Organization Admin task targets.
-     */
     @GetMapping("/api/admin/tasks/targets")
     public TaskTargetResponse adminTargets(Authentication auth) {
         ensureTaskAdmin(auth);
         return tasks.getTaskTargetsForAdmin(auth.getName());
     }
 
-    /**
-     * Organization Admin task targets on the canonical system-admin surface.
-     */
     @GetMapping("/api/system-admin/tasks/targets")
     public TaskTargetResponse systemTargets(Authentication auth) {
         ensureSystemAdmin(auth);

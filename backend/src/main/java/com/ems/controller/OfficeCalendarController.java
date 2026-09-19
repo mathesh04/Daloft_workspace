@@ -42,8 +42,6 @@ public class OfficeCalendarController {
         YearMonth ym = YearMonth.of(reqYear, reqMonth);
         LocalDate startOfMonth = ym.atDay(1);
         LocalDate endOfMonth = ym.atEndOfMonth();
-
-        // 1. Working days config (default Mon-Fri)
         String workingDaysRaw = settings.getString("WORKING_DAYS", "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY");
         List<String> workingDays = Arrays.stream(workingDaysRaw.split(","))
                 .map(String::trim)
@@ -51,10 +49,8 @@ public class OfficeCalendarController {
                 .map(s -> s.toUpperCase(Locale.ROOT))
                 .toList();
 
-        // 2. Active holidays for the year
         List<OrganizationHoliday> yearHolidays = holidayService.byYear(reqYear, true);
 
-        // 3. Approved leaves overlapping this month
         List<LeaveRequest> approvedLeaves = leaveRequestRepository
                 .findByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                         LeaveStatus.APPROVED, endOfMonth, startOfMonth

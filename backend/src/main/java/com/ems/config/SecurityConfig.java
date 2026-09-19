@@ -54,13 +54,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/hr/**", "/api/admin/**").hasAnyRole("HR_ADMIN", "SYSTEM_ADMIN")
                 .anyRequest().authenticated()
             )
-            // 1. Maintenance check runs first — blocks non-sysadmin traffic before JWT
             .addFilterBefore(maintenanceModeFilter, UsernamePasswordAuthenticationFilter.class)
-            // 2. JWT validation sets the SecurityContext
             .addFilterAfter(jwtAuthFilter, MaintenanceModeFilter.class)
-            // 3. Audit wraps everything after auth so both allowed and denied mutations are logged
             .addFilterAfter(auditRequestFilter, JwtAuthFilter.class)
-            // 4. HR permission bitmap check (only for /api/admin/** with ROLE_HR_ADMIN)
             .addFilterAfter(adminAccessFilter, AuditRequestFilter.class);
 
         return http.build();

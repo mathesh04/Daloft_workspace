@@ -35,9 +35,14 @@ public class EmployeeResponse {
     public String getName() { return name; }
     public String getRole() { return role; }
     public String getDepartment() { return department; }
-    public Long getReportingManagerId(){return reportingManagerId;} public String getReportingManagerName(){return reportingManagerName;}
+    public Long getReportingManagerId(){return reportingManagerId;} 
+    public String getReportingManagerName(){return reportingManagerName;}
     public String getEmail() { return email; }
-    public String getPhoneNumber(){return phoneNumber;} public String getAddress(){return address;} public String getEmergencyContact(){return emergencyContact;} public String getDesignation(){return designation;} public String getProfilePictureUrl(){return profilePictureUrl;} public java.time.LocalDate getJoiningDate(){return joiningDate;}
+    public String getPhoneNumber(){return phoneNumber;} public String getAddress(){return address;} 
+    public String getEmergencyContact(){return emergencyContact;} 
+    public String getDesignation(){return designation;} 
+    public String getProfilePictureUrl(){return profilePictureUrl;} 
+    public java.time.LocalDate getJoiningDate(){return joiningDate;}
     public boolean isActive() { return active; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }
