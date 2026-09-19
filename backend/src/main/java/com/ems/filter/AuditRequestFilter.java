@@ -50,7 +50,7 @@ public class AuditRequestFilter extends OncePerRequestFilter {
                     try {
                         repo.save(a);
                     } catch (Exception ignored) {
-                        // Never let audit logging failures break the API response
+                        
                     }
                 }
             }

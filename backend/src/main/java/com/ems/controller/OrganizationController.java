@@ -1,14 +1,33 @@
 package com.ems.controller;
 import com.ems.model.*; 
 import com.ems.dto.*; 
-import com.ems.service.OrganizationService; import org.springframework.http.*; import org.springframework.security.core.Authentication; import org.springframework.web.bind.annotation.*; import java.util.*;
-@RestController @RequestMapping("/api/system-admin/organization")
+import com.ems.service.OrganizationService; 
+import org.springframework.http.*; 
+import org.springframework.security.core.Authentication; 
+import org.springframework.web.bind.annotation.*; 
+import java.util.*;
+@RestController 
+@RequestMapping("/api/system-admin/organization")
 public class OrganizationController {
- private final OrganizationService service; public OrganizationController(OrganizationService s){service=s;}
- @GetMapping("/employees") public List<EmployeeResponse> employees(){return service.allEmployees().stream().map(EmployeeResponse::new).toList();}
- @GetMapping("/departments") public List<DepartmentResponse> departments(){return service.listDepartments().stream().map(DepartmentResponse::new).toList();}
- @GetMapping("/managers") public List<EmployeeResponse> managers(){return service.eligibleManagers().stream().map(EmployeeResponse::new).toList();}
- @PostMapping("/departments") public ResponseEntity<?> create(@RequestBody Map<String,Object>b,Authentication a){try{return ResponseEntity.ok(new DepartmentResponse(service.createDepartment((String)b.get("name"),(String)b.get("code"),b.get("managerId")==null?null:Long.valueOf(String.valueOf(b.get("managerId"))),a)));}catch(Exception e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
+ private final OrganizationService service; 
+ public OrganizationController(OrganizationService s){
+    service=s;
+}
+ @GetMapping("/employees") 
+ public List<EmployeeResponse> employees(){
+    return service.allEmployees().stream().map(EmployeeResponse::new).toList();
+}
+ @GetMapping("/departments") 
+ public List<DepartmentResponse> departments(){
+    return service.listDepartments().stream().map(DepartmentResponse::new).toList();
+}
+ @GetMapping("/managers") 
+ public List<EmployeeResponse> managers(){
+    return service.eligibleManagers().stream().map(EmployeeResponse::new).toList();
+}
+ @PostMapping("/departments") 
+ public ResponseEntity<?> create(@RequestBody Map<String,Object>b,Authentication a){
+    try{ return ResponseEntity.ok(new DepartmentResponse(service.createDepartment((String)b.get("name"),(String)b.get("code"),b.get("managerId")==null?null:Long.valueOf(String.valueOf(b.get("managerId"))),a)));}catch(Exception e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
  @PutMapping("/departments/{id}") public ResponseEntity<?> update(@PathVariable Long id,@RequestBody Map<String,Object>b,Authentication a){try{return ResponseEntity.ok(new DepartmentResponse(service.updateDepartment(id,(String)b.get("name"),(String)b.get("code"),b.get("managerId")==null?null:Long.valueOf(String.valueOf(b.get("managerId"))),Boolean.TRUE.equals(b.get("clearManager")),b.get("active")==null?null:Boolean.valueOf(String.valueOf(b.get("active"))),a)));}catch(Exception e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
  @PostMapping("/employees/{id}/make-manager") public ResponseEntity<?> makeManager(@PathVariable Long id,Authentication a){try{return ResponseEntity.ok(new EmployeeResponse(service.makeManager(id,a)));}catch(Exception e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
  @PutMapping("/employees/{id}/reporting-manager") public ResponseEntity<?> reportingManager(@PathVariable Long id,@RequestBody Map<String,Object> b,Authentication a){try{Object v=b.get("managerId");Long managerId=v==null||String.valueOf(v).isBlank()?null:Long.valueOf(String.valueOf(v));return ResponseEntity.ok(new EmployeeResponse(service.assignReportingManager(id,managerId,a)));}catch(Exception e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}

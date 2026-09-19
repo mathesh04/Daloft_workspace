@@ -47,6 +47,9 @@ import java.util.List;
   }
   return download(s.toString().getBytes(),"leave-report.csv","text/csv");
  }
- @GetMapping(value="/inventory",produces="text/csv") public ResponseEntity<byte[]> inventoryCsv(){StringBuilder s=new StringBuilder("Code,Item,Category,Current Quantity,Minimum Quantity,Location\n");for(Component c:components.findAll())s.append(csv(c.getComponentCode())).append(',').append(csv(c.getName())).append(',').append(csv(c.getCategory()==null?"":c.getCategory().getName())).append(',').append(c.getCurrentQuantity()).append(',').append(c.getMinimumQuantity()).append(',').append(csv(c.getStorageLocation())).append('\n');return download(s.toString().getBytes(),"inventory-report.csv","text/csv");}
+ @GetMapping(value="/inventory",produces="text/csv") 
+ public ResponseEntity<byte[]> inventoryCsv(){
+  StringBuilder s=new StringBuilder("Code,Item,Category,Current Quantity,Minimum Quantity,Location\n");
+  for(Component c:components.findAll())s.append(csv(c.getComponentCode())).append(',').append(csv(c.getName())).append(',').append(csv(c.getCategory()==null?"":c.getCategory().getName())).append(',').append(c.getCurrentQuantity()).append(',').append(c.getMinimumQuantity()).append(',').append(csv(c.getStorageLocation())).append('\n');return download(s.toString().getBytes(),"inventory-report.csv","text/csv");}
  private ResponseEntity<byte[]> download(byte[] b,String n,String type){return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+n+"\"").contentType(MediaType.parseMediaType(type)).body(b);} private String csv(Object value){String s=String.valueOf(value==null?"":value);return "\"" + s.replace("\"", "\"\"") + "\"";}
 }

@@ -15,7 +15,7 @@ public class Employee {
 
     @Column(name = "employee_id", nullable = false, unique = true)
     @NotBlank
-    private String employeeId; // login username, e.g. EMP001
+    private String employeeId;
 
     @Column(nullable = false)
     @NotBlank
@@ -24,7 +24,7 @@ public class Employee {
     @JsonIgnore
     @Column(nullable = false)
     @NotBlank
-    private String password; // BCrypt hashed, never returned to client
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -61,7 +61,7 @@ public class Employee {
 
     public Employee() {}
 
-    // Getters and setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

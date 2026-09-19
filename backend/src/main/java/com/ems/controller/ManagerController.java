@@ -206,22 +206,14 @@ public class ManagerController {
                 );
             }
 
-            /*
-             * APPROVAL
-             * --------
-             * Reserve the leave balance before changing the status.
-             */
+           
             if (st.equals("APPROVED")) {
 
                 balanceService.reserveOnApproval(r);
 
             } else {
 
-                /*
-                 * REJECTION
-                 * ----------
-                 * Store the manager's rejection reason.
-                 */
+               
                 r.setRejectionReason(reason);
             }
 
@@ -232,19 +224,11 @@ public class ManagerController {
             LeaveRequest saved =
                     leaves.save(r);
 
-            /*
-             * =========================================================
-             * EMAIL / NOTIFICATION
-             * =========================================================
-             */
+           
 
             String msg;
 
-            /*
-             * =========================================================
-             * LEAVE APPROVED
-             * =========================================================
-             */
+            
             if (st.equals("APPROVED")) {
 
                 msg =
@@ -282,11 +266,7 @@ public class ManagerController {
 
             }
 
-            /*
-             * =========================================================
-             * LEAVE REJECTED
-             * =========================================================
-             */
+            
             else {
 
                 msg =
@@ -329,12 +309,6 @@ public class ManagerController {
                         true
                 );
             }
-
-            /*
-             * =========================================================
-             * AUDIT LOG
-             * =========================================================
-             */
 
             audit.log(
                     a,

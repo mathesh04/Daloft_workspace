@@ -79,7 +79,7 @@ public class Attendance {
         PRESENT, LATE, HALF_DAY, ABSENT, WORK_FROM_HOME
     }
 
-    // Getters and setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
