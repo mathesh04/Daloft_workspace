@@ -62,7 +62,7 @@ export default function EmployeeDashboard() {
       const result = await api.unreadCount();
       setNotificationCount(result?.count || 0);
     } catch (_) {
-      // Keep the main dashboard usable even if notifications are temporarily unavailable.
+
     }
   }, []);
 

@@ -82,7 +82,7 @@ export default function DailyWorkReport() {
 
   return (
     <div className="daily-report-workspace" style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
-      {/* Header Banner */}
+    
       <div className="premium-card" style={{ background: "linear-gradient(135deg, #102d22, #18523c)", color: "#fff", padding: "24px 28px" }}>
         <span className="eyebrow green" style={{ color: "#7ce3a7", fontSize: "11px" }}>DAILY WORK LOG</span>
         <h2 style={{ color: "#fff", margin: "6px 0 8px", fontSize: "24px" }}>Daily Work Report Submission</h2>
@@ -94,7 +94,7 @@ export default function DailyWorkReport() {
       {error && <div className="error-banner">{error}</div>}
       {message && <div className="success-banner">{message}</div>}
 
-      {/* Today's Status Banner */}
+
       {todayReport ? (
         <div className="premium-card" style={{ borderLeft: "5px solid #2fa876", background: "#f3faf6", padding: "22px 26px" }}>
           <span className="eyebrow green" style={{ fontSize: "11px" }}>TODAY'S REPORT SUBMITTED</span>
@@ -111,7 +111,7 @@ export default function DailyWorkReport() {
         </div>
       ) : null}
 
-      {/* Submission Form */}
+
       <div className="card" style={{ padding: "24px" }}>
         <h3 style={{ fontSize: "18px", margin: "0 0 6px" }}>Submit New Work Report</h3>
         <p className="section-sub" style={{ marginBottom: "20px", fontSize: "14px" }}>Fill in your daily activities according to the company work report policy.</p>
@@ -183,7 +183,7 @@ export default function DailyWorkReport() {
         </form>
       </div>
 
-      {/* Submission History Table */}
+
       <div className="card" style={{ padding: "24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <h3 style={{ fontSize: "18px", margin: 0 }}>My Submission History</h3>
