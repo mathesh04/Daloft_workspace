@@ -86,15 +86,22 @@ public class EmployeeService {
           e.setActive(true);
         
         Employee saved=employeeRepository.save(e);
-        try { 
-        emailService.send(
-            saved,
-            "Welcome to EMS Management",
-            "Welcome " + saved.getName() + ".\n" +
-            "Your Employee ID: " + saved.getEmployeeId() + "\n" +
-            "Your Password: " + req.getPassword() + "\n" +
-            "Login here: " +  "https://daloft-workspace.vercel.app"+ "/login"
-        ); 
+        try {
+            emailService.send(
+                    saved,
+                    "Welcome to DALOFT AEROSPACE",
+                    "Dear " + saved.getName() + ",\n\n" +
+                            "Welcome to DALOFT AEROSPACE PRIVATE LIMITED.\n\n" +
+                            "We are pleased to welcome you to our organization. Your employee account has been successfully created, and you may now access the DALOFT People platform using the credentials below.\n\n" +
+                            "Employee ID: " + saved.getEmployeeId() + "\n" +
+                            "Password: " + req.getPassword() + "\n" +
+                            "Login: https://daloft-workspace.vercel.app/login\n\n" +
+                            "Please keep your login credentials confidential and change your password after your first login if required.\n\n" +
+                            "We look forward to your contribution and wish you a successful journey with DALOFT AEROSPACE.\n\n" +
+                            "Warm regards,\n" +
+                            "HR & People Operations\n" +
+                            "DALOFT AEROSPACE PRIVATE LIMITED"
+            );
     } catch(Exception ignored){}
         return new EmployeeResponse(saved);
     }

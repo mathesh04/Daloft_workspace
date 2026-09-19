@@ -63,7 +63,21 @@ public class BrevoEmailService {
         }
     }
     public void sendPasswordReset(Employee employee, String resetUrl) {
-        String body = "Hello " + employee.getName() + ",\n\nWe received a password reset request for your EMS account.\n\nReset your password: " + resetUrl + "\n\nThis link expires in 15 minutes and can only be used once. If you did not request this, you can ignore this email.\n\nEMS Management";
-        send(employee, "Reset your EMS password", body);
+        String body =
+                "Dear " + employee.getName() + ",\n\n" +
+                        "We received a request to reset the password for your DALOFT People account.\n\n" +
+                        "Reset Password\n" +
+                        "------------------------------\n" +
+                        "Use the secure link below to create a new password:\n" +
+                        resetUrl + "\n\n" +
+                        "This password reset link is valid for 15 minutes and can only be used once.\n\n" +
+                        "If you did not request a password reset, you can safely ignore this email. " +
+                        "Your account will remain secure.\n\n" +
+                        "For security reasons, please do not share this link with anyone.\n\n" +
+                        "Warm regards,\n" +
+                        "HR & People Operations\n" +
+                        "DALOFT AEROSPACE PRIVATE LIMITED";
+
+        send(employee, "DALOFT AEROSPACE | Password Reset", body);
     }
 }
