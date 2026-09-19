@@ -84,7 +84,6 @@ function ReportCard({ report }) {
 
   return (
     <article className={`dwr-report-card ${hasBlocker ? "has-blocker" : ""}`}>
-      {/* Header */}
       <div className="dwr-report-card-header">
         <div className="dwr-card-person">
           <div className="dwr-avatar">{initials}</div>

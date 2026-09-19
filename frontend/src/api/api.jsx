@@ -97,7 +97,7 @@ async function del(path) {
 }
 
 const api = {
-  // Production analytics dashboard
+
   dashboardSummary: () => get("/admin/analytics/summary"),
   attendanceAnalytics: (days=7) => get(`/admin/analytics/attendance?days=${days}`),
   departmentAnalytics: () => get("/admin/analytics/departments"),
@@ -115,10 +115,10 @@ const api = {
   downloadAttendancePdf: (m,y) => download(`/admin/reports/attendance/pdf?${new URLSearchParams({...(m?{month:m}:{}),...(y?{year:y}:{})})}`, "attendance-report.pdf"),
   downloadInventoryReportCsv: () => download("/admin/reports/inventory", "inventory-report.csv"),
   downloadLeaveReportCsv: (m,y) => download(`/admin/reports/leave?${new URLSearchParams({...(m?{month:m}:{}),...(y?{year:y}:{})})}`, "leave-report.csv"),
-  // Auth
+
   login: (employeeId, password) => post("/auth/login", { employeeId, password }),
 
-  // HR_ADMIN: employee lifecycle
+
   getEmployees: () => get("/admin/employees"),
   adminDepartments: () => get("/admin/employees/departments"),
   createEmployee: (payload) => post("/admin/employees", payload),
@@ -126,7 +126,7 @@ const api = {
   setEmployeeActive: (id, active) => patch(`/admin/employees/${id}/status`, { active }),
   archiveEmployee: (id) => del(`/admin/employees/${id}`),
 
-  // SYSTEM_ADMIN: HR_ADMIN lifecycle only
+
   getHrAdmins: () => get("/system-admin/users"),
   createHrAdmin: (payload) => post("/system-admin/users", payload),
   updateHrAdmin: (id, payload) => put(`/system-admin/users/${id}`, payload),
@@ -176,7 +176,7 @@ const api = {
   updateSystemOffice: (id,payload) => put(`/system-admin/offices/${id}`, payload),
   setSystemOfficeActive: (id,active) => patch(`/system-admin/offices/${id}/status`, {active}),
 
-  // Attendance - self
+
   geofenceConfig: () => get("/attendance/geofence-config"),
   checkIn: (location) => location ? post("/attendance/check-in", location) : post("/attendance/check-in"),
   checkOut: (location) => location ? post("/attendance/check-out", location) : post("/attendance/check-out"),
@@ -186,13 +186,13 @@ const api = {
   createAttendanceRegularization: (payload) => post("/attendance/regularization", payload),
   leaveBalances: (year) => get(`/leaves/balances${year?`?year=${year}`:""}`),
 
-  // Attendance - admin
+
   allAttendance: () => get("/admin/attendance"),
   adminAttendanceCorrections: () => get("/admin/attendance-corrections"),
   reviewAdminAttendanceCorrection: (id,status,reason) => put(`/admin/attendance-corrections/${id}/status`, {status, reason}),
   todayAttendance: () => get("/admin/attendance/today"),
 
-  // Phase 3
+
   myLeaves: () => get("/leaves/me"),
   cancelLeave: (id) => put(`/leaves/${id}/cancel`, {}),
   createLeave: (payload) => post("/leaves", payload),
@@ -211,12 +211,12 @@ const api = {
   allDamageReports: () => get("/admin/damage-reports"),
   updateDamageStatus: (id, status) => put(`/admin/damage-reports/${id}/status`, { status }),
 
-  // Announcements
+
   getAnnouncements: () => get("/announcements"),
   createAnnouncement: (title, message) => post("/admin/announcements", { title, message }),
   deleteAnnouncement: (id) => del(`/admin/announcements/${id}`),
 
-  // Tasks
+
   myTasks: () => get("/tasks/me"),
   updateMyTaskStatus: (id, status) => patch(`/tasks/${id}/status`, { status }),
   updateManagerTaskStatus: (id, status) => patch(`/manager/tasks/${id}/status`, { status }),
@@ -245,7 +245,7 @@ const api = {
   downloadInventoryPdf: () => download("/admin/inventory/reports/inventory/pdf", "inventory-report.pdf"),
   downloadHolidayReportCsv: (year) => download(`/admin/holidays/export?year=${year}`, "holiday-calendar.csv"),
 
-  // Employee inventory workflow
+ 
   getAvailableInventory: () => get("/inventory/available"),
   createInventoryRequest: (payload) => post("/inventory/requests", payload),
   myInventoryRequests: () => get("/inventory/requests/me"),
@@ -253,13 +253,13 @@ const api = {
   submitUsageUpdate: (payload) => post("/inventory/usage", payload),
   myUsageUpdates: () => get("/inventory/usage/me"),
 
-  // Admin request and usage review
+
   getInventoryRequests: () => get("/admin/inventory/requests"),
   reviewInventoryRequest: (id, payload) => post(`/admin/inventory/requests/${id}/review`, payload),
   getInventoryUsageUpdates: () => get("/admin/inventory/usage-updates"),
   reviewInventoryUsage: (id, payload) => post(`/admin/inventory/usage-updates/${id}/review`, payload),
 
-  // Daily Work Reports
+
   submitDailyReport: (payload) => post("/daily-reports", payload),
   myDailyReports: () => get("/daily-reports/me"),
   myDailyReportToday: () => get("/daily-reports/today"),

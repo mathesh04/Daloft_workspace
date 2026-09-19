@@ -35,9 +35,7 @@ A full-stack HR management system with role-based access control, geofence atten
 - Java 17+
 - Maven 3.8+
 - Node.js 18+
-- PostgreSQL database ( [Supabase](https://supabase.com))
-
----
+- PostgreSQL database (local or [Supabase](https://supabase.com))
 
 
 ## Project Structure
@@ -75,11 +73,6 @@ Daloft-workspace/
 
 ---
 
-## Environment Variables Reference
-
-See [`.env.example`](.env.example) for the full list with descriptions.
-
-### Backend (`backend/.env`)
 
 ```
 DB_URL              PostgreSQL JDBC URL
@@ -97,13 +90,6 @@ GEOFENCE_ENABLED    true/false — GPS check-in enforcement
 FLYWAY_ENABLED      true/false — run DB migrations on startup
 ```
 
-### Frontend (`frontend/.env`)
-
-```
-VITE_API_BASE_URL      API base path (/api in dev, full URL in prod)
-VITE_BACKEND_ORIGIN    Vite proxy target (local dev only)
-VITE_APP_NAME          App display name
-```
 
 ---
 

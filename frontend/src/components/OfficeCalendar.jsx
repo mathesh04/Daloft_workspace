@@ -14,7 +14,7 @@ const FULL_MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December"
 ];
 
-// Palette exactly matching the reference screenshot
+
 const THEME = {
   weekend: {
     bg: "#489ae9",
@@ -29,13 +29,13 @@ const THEME = {
     label: "Organization Holiday",
   },
   leave: {
-    bg: "#e24b70", // Pink/Rose as in screenshot "mathesh"
+    bg: "#e24b70", 
     text: "#ffffff",
     dot: "#e24b70",
     label: "Approved Leave",
   },
   wfh: {
-    bg: "#c6d747", // Olive/Yellow-green as in screenshot "Vishal"
+    bg: "#c6d747",
     text: "#1e2908",
     dot: "#c6d747",
     label: "Approved WFH",
@@ -62,15 +62,15 @@ export default function OfficeCalendar() {
     leaves: [],
   });
 
-  // Selected event popover state
+
   const [selectedEvent, setSelectedEvent] = useState(null);
-  // Manage Holidays drawer state
+
   const [holidayDrawerOpen, setHolidayDrawerOpen] = useState(false);
-  // Search query for highlighting
+
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Fetch month data
+
   const loadData = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -109,7 +109,7 @@ export default function OfficeCalendar() {
     loadData();
   }, [loadData]);
 
-  // Navigation handlers
+
   function prevMonth() {
     if (currentMonth === 1) {
       setCurrentMonth(12);
@@ -133,15 +133,15 @@ export default function OfficeCalendar() {
     setCurrentMonth(today.getMonth() + 1);
   }
 
-  // Generate weeks (each week has 7 days, Sunday=col 1, Saturday=col 7)
+
   const weeks = useMemo(() => {
-    const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay(); // 0 (Sun) to 6 (Sat)
+    const firstDayIndex = new Date(currentYear, currentMonth - 1, 1).getDay(); 
     const daysInCurrentMonth = new Date(currentYear, currentMonth, 0).getDate();
     const daysInPrevMonth = new Date(currentYear, currentMonth - 1, 0).getDate();
 
     const allDays = [];
 
-    // Prev month padding days
+ 
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       const d = daysInPrevMonth - i;
       const prevMonthNum = currentMonth === 1 ? 12 : currentMonth - 1;
@@ -151,14 +151,14 @@ export default function OfficeCalendar() {
         dateObj,
         dayNumber: d,
         isoDate: formatIso(dateObj),
-        dayOfWeek: dateObj.getDay(), // 0-6
+        dayOfWeek: dateObj.getDay(),
         dayOfWeekName: DAY_OF_WEEK_NAMES[dateObj.getDay()],
         isCurrentMonth: false,
         monthName: d === 1 ? SHORT_MONTH_NAMES[prevMonthNum - 1] : null,
       });
     }
 
-    // Current month days
+ 
     for (let d = 1; d <= daysInCurrentMonth; d++) {
       const dateObj = new Date(currentYear, currentMonth - 1, d);
       allDays.push({
@@ -172,7 +172,7 @@ export default function OfficeCalendar() {
       });
     }
 
-    // Next month padding days to complete full 5 or 6 weeks
+
     const totalSlots = allDays.length <= 35 ? 35 : 42;
     const remainingSlots = totalSlots - allDays.length;
     for (let d = 1; d <= remainingSlots; d++) {
@@ -190,7 +190,7 @@ export default function OfficeCalendar() {
       });
     }
 
-    // Split into arrays of 7 days (weeks)
+   
     const weekChunks = [];
     for (let i = 0; i < allDays.length; i += 7) {
       weekChunks.push(allDays.slice(i, i + 7));
@@ -198,14 +198,14 @@ export default function OfficeCalendar() {
     return weekChunks;
   }, [currentYear, currentMonth]);
 
-  // Compute multi-day spans and single-day events for each week row
+ 
   const weekEvents = useMemo(() => {
     return weeks.map((week) => {
       const weekStartIso = week[0].isoDate;
       const weekEndIso = week[6].isoDate;
       const items = [];
 
-      // 1. Weekend bars for non-working days in this week
+
       week.forEach((day, dayIndex) => {
         const isWorking = calendarData.workingDays.includes(day.dayOfWeekName);
         if (!isWorking) {
@@ -222,7 +222,7 @@ export default function OfficeCalendar() {
         }
       });
 
-      // 2. Organization Holidays in this week
+
       calendarData.holidays.forEach((h) => {
         if (h.holidayDate >= weekStartIso && h.holidayDate <= weekEndIso) {
           const dayIndex = week.findIndex((d) => d.isoDate === h.holidayDate);
@@ -242,12 +242,12 @@ export default function OfficeCalendar() {
         }
       });
 
-      // 3. Approved Leaves & WFH (Multi-day continuous spanning across days in this week)
+     
       calendarData.leaves.forEach((l) => {
         if (!l.startDate || !l.endDate) return;
-        // Check if leave overlaps this week
+      
         if (l.startDate <= weekEndIso && l.endDate >= weekStartIso) {
-          // Clamp start and end to this week's bounds (Sunday=0 to Saturday=6)
+       
           let startIdx = 0;
           let endIdx = 6;
 
@@ -285,9 +285,9 @@ export default function OfficeCalendar() {
         }
       });
 
-      // Assign non-overlapping visual lanes/slots for overlapping events
+
       items.sort((a, b) => {
-        // Multi-day events first, then by start column
+       
         const aSpan = a.endCol - a.startCol;
         const bSpan = b.endCol - b.startCol;
         if (bSpan !== aSpan) return bSpan - aSpan;
@@ -340,7 +340,7 @@ export default function OfficeCalendar() {
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
       }}
     >
-      {/* Top Application Bar (Exact match to screenshot header) */}
+
       <div
         style={{
           display: "flex",
@@ -351,9 +351,9 @@ export default function OfficeCalendar() {
           padding: "4px 8px 10px",
         }}
       >
-        {/* Left Controls: Today Pill + Navigation + Title */}
+
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-          {/* Today Button */}
+        
           <button
             type="button"
             onClick={goToToday}
@@ -374,7 +374,6 @@ export default function OfficeCalendar() {
             Today
           </button>
 
-          {/* Prev / Next Chevrons */}
           <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
             <button
               type="button"
@@ -424,15 +423,14 @@ export default function OfficeCalendar() {
             </button>
           </div>
 
-          {/* Month Year Title */}
+          
           <h2 style={{ fontSize: "21px", fontWeight: "600", color: "#ffffff", margin: 0, letterSpacing: "-0.01em" }}>
             {FULL_MONTH_NAMES[currentMonth - 1]} {currentYear}
           </h2>
         </div>
 
-        {/* Right Toolbar: Search + Settings + View Toggle + Actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-          {/* Quick Filter Search Bar */}
+        
           {searchOpen ? (
             <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
               <input
@@ -497,7 +495,7 @@ export default function OfficeCalendar() {
             </button>
           )}
 
-          {/* Export CSV Button */}
+         
           <button
             type="button"
             onClick={() => api.downloadHolidayReportCsv(currentYear)}
@@ -520,7 +518,7 @@ export default function OfficeCalendar() {
             <span>📥 Export CSV</span>
           </button>
 
-          {/* Manage Holidays Button */}
+   
           <button
             type="button"
             onClick={() => setHolidayDrawerOpen(true)}
@@ -540,7 +538,7 @@ export default function OfficeCalendar() {
             + Manage Holidays
           </button>
 
-          {/* Month Pill Dropdown */}
+         
           <div
             style={{
               border: "1px solid #3c4043",
@@ -558,7 +556,7 @@ export default function OfficeCalendar() {
             <span style={{ fontSize: "10px", color: "#9aa0a6" }}>▾</span>
           </div>
 
-          {/* Active Calendar View Icon (Blue Filled) */}
+    
           <div
             title="Calendar grid active"
             style={{
@@ -587,7 +585,7 @@ export default function OfficeCalendar() {
         </div>
       )}
 
-      {/* Month Calendar Grid (Outer Border Frame matching screenshot) */}
+  
       <div
         style={{
           borderRadius: "14px",
@@ -598,7 +596,7 @@ export default function OfficeCalendar() {
           flexDirection: "column",
         }}
       >
-        {/* Render Weeks */}
+       
         {weekEvents.map((weekObj, weekIdx) => {
           const isFirstWeek = weekIdx === 0;
           return (
@@ -612,7 +610,7 @@ export default function OfficeCalendar() {
                 flexDirection: "column",
               }}
             >
-              {/* 7 Column Background Slot Lines & Date Headers */}
+           
               <div
                 style={{
                   display: "grid",
@@ -638,7 +636,7 @@ export default function OfficeCalendar() {
                         background: isToday ? "#1b2128" : "transparent",
                       }}
                     >
-                      {/* Day Name Header (Only displayed in top week row) */}
+           
                       {isFirstWeek && (
                         <span
                           style={{
@@ -653,7 +651,7 @@ export default function OfficeCalendar() {
                         </span>
                       )}
 
-                      {/* Date Number / Month Tag (e.g. "29", "1 Dec", "1 Jan") */}
+                   
                       <span
                         style={{
                           fontSize: "12.5px",
@@ -679,7 +677,7 @@ export default function OfficeCalendar() {
                 })}
               </div>
 
-              {/* Foreground Events Layer (Positioned below the date header row) */}
+  
               <div
                 style={{
                   position: "relative",
@@ -740,8 +738,6 @@ export default function OfficeCalendar() {
           );
         })}
       </div>
-
-      {/* Bottom Color Legend (Matches screenshot reference) */}
       <div
         style={{
           display: "flex",
@@ -757,32 +753,31 @@ export default function OfficeCalendar() {
           Legend
         </span>
 
-        {/* Weekend */}
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.weekend.bg }} />
           <span style={{ color: "#d2d5d8" }}>Weekend</span>
         </div>
 
-        {/* Approved Leave */}
+       
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.leave.bg }} />
           <span style={{ color: "#d2d5d8" }}>Approved Leave</span>
         </div>
 
-        {/* Approved WFH */}
+    
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.wfh.bg }} />
           <span style={{ color: "#d2d5d8" }}>Approved WFH</span>
         </div>
 
-        {/* Organization Holiday */}
+       
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.holiday.bg }} />
           <span style={{ color: "#d2d5d8" }}>Organization Holiday</span>
         </div>
       </div>
 
-      {/* Event Details Popover Modal */}
+     
       {selectedEvent && (
         <div
           style={{
@@ -810,7 +805,7 @@ export default function OfficeCalendar() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
+           
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
                 <span
@@ -840,7 +835,7 @@ export default function OfficeCalendar() {
               </button>
             </div>
 
-            {/* Badge */}
+          
             <div style={{ marginBottom: "14px" }}>
               <span
                 style={{
@@ -856,7 +851,7 @@ export default function OfficeCalendar() {
               </span>
             </div>
 
-            {/* Detail Rows */}
+           
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px" }}>
               {selectedEvent.employee && (
                 <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #2c2f35", paddingBottom: "8px" }}>
@@ -930,7 +925,7 @@ export default function OfficeCalendar() {
         </div>
       )}
 
-      {/* Manage Holidays Drawer Modal */}
+     
       {holidayDrawerOpen && (
         <HolidayManagerModal
           year={currentYear}
@@ -941,8 +936,6 @@ export default function OfficeCalendar() {
     </div>
   );
 }
-
-// ── Dark-Themed Holiday Management Drawer Modal ──────────────────────────────
 
 function HolidayManagerModal({ year, onClose, onUpdate }) {
   const [items, setItems] = useState([]);
@@ -1057,7 +1050,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+      
         <div
           style={{
             padding: "18px 24px",
@@ -1107,7 +1100,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
 
         <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: "20px" }}>
           
-          {/* Add / Edit Form */}
+        
           <form
             onSubmit={handleSave}
             style={{
@@ -1235,7 +1228,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
             </div>
           </form>
 
-          {/* List of Holidays */}
+         
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#ffffff", margin: "0 0 4px" }}>
               Holidays for {year} ({items.length})

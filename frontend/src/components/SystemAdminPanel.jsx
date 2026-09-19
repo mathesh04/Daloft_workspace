@@ -13,7 +13,7 @@ export default function SystemAdminPanel({section='control'}){
    } else if(section==='settings'){
      setSettings(await api.systemSettings()||{});
    } else if(section==='organization'){
-     // Organization loads its own data to avoid blocking every system-admin tab.
+   
    } else if(section==='security'){
      setData({security:await api.systemSecurity()});
    } else if(section==='health'){
