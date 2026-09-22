@@ -15,7 +15,6 @@ export function DaloftBrand({ compact = false }) {
   return (
     <div className={`daloft-brand ${compact ? "compact" : ""}`} aria-label="Daloft Aerospace Private Limited">
       <img className="daloft-logo-image" src="/assets/daloft-aerospace-logo.png" alt="Daloft Aerospace" />
-      {!compact && <div className="daloft-corporate-copy"><strong></strong><small></small></div>}
     </div>
   );
 }
@@ -76,6 +75,8 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
   }, [open]);
 
   const initials = (user?.name || "User").split(" ").map(x => x[0]).slice(0, 2).join("").toUpperCase();
+  const isAdminRole = ["SYSTEM_ADMIN", "ADMIN", "HR_ADMIN", "MANAGER"].includes(user?.role);
+  const userChipMeta = isAdminRole ? (roleLabel[user?.role] || user?.employeeId || "") : (user?.employeeId || roleLabel[user?.role] || "");
 
   const go = (item) => { onNavigate?.(item.key); setOpen(false); };
   const signOut = () => { logout(); navigate("/login"); };
@@ -121,7 +122,7 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
             <button className="top-icon" onClick={() => onNavigate?.("notifications")} title="Notifications" aria-label="Open notifications"><Icon name="bell"/></button>
             <div id="topbar-actions" className="topbar-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }} />
             <div className="topbar-divider" />
-            <div className="user-chip"><span className="avatar">{initials}</span><div><strong>{user?.name || "User"}</strong><small>{user?.employeeId || roleLabel[user?.role] || ""}</small></div></div>
+            <div className="user-chip"><span className="avatar">{initials}</span><div><strong>{user?.name || "User"}</strong><small>{userChipMeta}</small></div></div>
           </div>
         </header>
         <main className="enterprise-content">{children}</main>

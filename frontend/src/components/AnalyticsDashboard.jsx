@@ -30,7 +30,7 @@ export default function AnalyticsDashboard({ role = "ADMIN" }) {
   const today=attendance[attendance.length-1]||{};
   return <div className="analytics-page">
     {error&&<div className="error-banner">{error}</div>}
-    <section className="welcome-banner"><div><span className="eyebrow green">LIVE OPERATIONS</span><h2>Workforce command center</h2><p>People, attendance, leave and workplace operations in one fast view.</p></div><div className="today-pill"><span>{new Date().toLocaleDateString(undefined,{weekday:"long",day:"2-digit",month:"short",year:"numeric"})}</span><strong>{loading?"Syncing…":`${presence}% present today`}</strong></div></section>
+    <section className="welcome-banner"><div><span className="eyebrow">LIVE OPERATIONS</span><h2>Workforce command center</h2><p>People, attendance, leave and workplace operations in one fast view.</p></div><div className="today-pill"><span>{new Date().toLocaleDateString(undefined,{weekday:"long",day:"2-digit",month:"short",year:"numeric"})}</span><strong>{loading?"Syncing…":`${presence}% present today`}</strong></div></section>
     <div className="metric-grid">
       <Metric label="Active employees" value={loading?"—":s.totalEmployees} meta="Current workforce" tone="green" icon="👥"/>
       <Metric label="Present today" value={loading?"—":s.presentToday} meta={`${presence}% of active workforce`} tone="blue" icon="✓"/>

@@ -71,7 +71,7 @@ export default function Tasks({managerMode=false,adminMode=false,systemAdminMode
      <div className="field"><label>Assignment</label><select value={mode} onChange={e=>setMode(e.target.value)}>
        <option value="employee">One employee</option>
        <option value="department">Everyone in a department</option>
-       {roleBroadcastAllowed&&!managerMode&&<><option value="role">Everyone with a role</option><option value="all">All active employees, managers and HR admins</option></>}
+       {roleBroadcastAllowed&&!managerMode&&<><option value="role">Everyone with a role</option><option value="all">All active employees, managers and administrators</option></>}
      </select></div>
      {mode==='department'&&<div className="field"><label>Department</label><select value={form.department} onChange={e=>setForm({...form,department:e.target.value})} required><option value="">Select department…</option>{departments.map(d=><option key={d.id||d.name} value={d.name}>{d.name}</option>)}</select></div>}
      {mode==='role'&&<div className="field"><label>Target role</label><select value={form.targetRole} onChange={e=>setForm({...form,targetRole:e.target.value})} required><option value="">Select role…</option>{roleOptions.map(r=><option key={r} value={r}>{r.replaceAll('_',' ')}</option>)}</select></div>}

@@ -19,7 +19,17 @@ async function handle(response) {
   }
 
   if (!response.ok) {
-    const message = (typeof data === "string" && data.trim()) || (data && data.message) || `Request failed (${response.status})`;
+    let message = (typeof data === "string" && data.trim()) || (data && data.message) || `Request failed (${response.status})`;
+    // never surface raw backend/stack messages (Hibernate, proxies, exceptions)
+    if (typeof message === "string" && /could not initialize proxy|no session|hibernate|nullpointer|stacktrace|\.model\.|exception/i.test(message)) {
+      message = `The server could not load this data (error ${response.status}). Please refresh — if the problem continues, contact support.`;
+    }
+    // never surface raw HTML error pages (proxies, 404 pages, gateways) to the UI
+    if (typeof message === "string" && /^\s*<(!doctype|html|head|body)/i.test(message)) {
+      message = response.status === 404
+        ? "The requested resource is unavailable (404). Please refresh or contact support."
+        : `The server could not process this request (${response.status}). Please try again.`;
+    }
     if (response.status === 401 || response.status === 403) {
       if (response.status === 401) { localStorage.removeItem("ems_token"); localStorage.removeItem("ems_user"); }
     }

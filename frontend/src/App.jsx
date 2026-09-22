@@ -73,7 +73,7 @@ export default function App() {
         />
         <Route
           path="*"
-          element={<Navigate to={user ? (isSystemRole(user.role) ? "/system" : isHrRole(user.role) ? "/admin" : isManagerRole(user.role) ? "/manager" : "/employee") : "/login"} replace />}
+          element={<Navigate to={user ? (isSystemRole(user.role) ? "/system" : isAdminRole(user.role) ? "/admin" : isManagerRole(user.role) ? "/manager" : "/employee") : "/login"} replace />}
         />
       </Routes>
       </Suspense>

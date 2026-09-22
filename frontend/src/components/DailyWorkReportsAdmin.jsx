@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import React, { useEffect, useState } from "react";
 import api from "../api/api";
 
 function getIsoDate(date) {
@@ -203,19 +202,19 @@ function ReportCard({ report }) {
 }
 
 export default function DailyWorkReportsAdmin() {
-  const [employeesSummary, setEmployeesSummary] = useState([]);
   const [reports, setReports] = useState([]);
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [loadingRoster, setLoadingRoster] = useState(false);
+  const [employees, setEmployees] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [filters, setFilters] = useState({
+    departmentId: "",
+    employeeId: "",
+    date: "",
+    from: "",
+    to: "",
+  });
   const [loadingReports, setLoadingReports] = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingReports, setDownloadingReports] = useState(false);
   const [error, setError] = useState("");
-  const [exportOpen, setExportOpen] = useState(false);
-  const [topbarTarget, setTopbarTarget] = useState(null);
-  const dropdownRef = useRef(null);
 
   // Responsive layout state
   const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth <= 860 : false));
@@ -232,77 +231,80 @@ export default function DailyWorkReportsAdmin() {
 
   // Locate topbar actions container in DOM
   useEffect(() => {
-    const el = document.getElementById("topbar-actions");
-    if (el) setTopbarTarget(el);
-  }, []);
-
-  // Close export dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setExportOpen(false);
+    (async () => {
+      try {
+        const results = await Promise.allSettled([
+          api.getAdminDailyReportEmployees(),
+          api.adminDepartments(),
+        ]);
+        setEmployees(results[0].status === "fulfilled" ? (Array.isArray(results[0].value) ? results[0].value : []) : []);
+        setDepartments(results[1].status === "fulfilled" ? (Array.isArray(results[1].value) ? results[1].value : []) : []);
+        if (results.some((r) => r.status === "rejected")) {
+          setError("Some filter options are temporarily unavailable. Reports remain viewable.");
+        }
+      } catch (e) {
+        setError(e.message);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    })();
   }, []);
 
-  const loadRoster = useCallback(async () => {
-    setLoadingRoster(true);
-    try {
-      const roster = await api.getAdminDailyReportEmployees();
-      setEmployeesSummary(Array.isArray(roster) ? roster : []);
-    } catch (err) {
-      setError(err.message || "Failed to load employee roster");
-    } finally {
-      setLoadingRoster(false);
-    }
-  }, []);
-
-  const loadReports = useCallback(async () => {
+  const loadDailyReports = async (f = filters) => {
     setLoadingReports(true);
     setError("");
     try {
+      // Specific date is expressed as a from/to range so the backend filter applies cleanly
+      const rangeFrom = f.date || f.from;
+      const rangeTo = f.date || f.to;
       const data = await api.getAdminDailyReports({
-        employeeId: selectedEmployeeId,
-        from: fromDate,
-        to: toDate,
+        employeeId: f.employeeId,
+        from: rangeFrom,
+        to: rangeTo,
       });
-      setReports(Array.isArray(data) ? data : []);
-    } catch (err) {
-      setError(err.message || "Failed to load daily work reports");
+      let rows = Array.isArray(data) ? data : [];
+      // Department filtering (applied on the employee's department of each report)
+      if (f.departmentId) {
+        const dep = departments.find((d) => String(d.id) === String(f.departmentId));
+        const depName = dep ? (dep.name || "").trim().toLowerCase() : null;
+        if (depName) {
+          rows = rows.filter(
+            (r) => ((r.employee && r.employee.department) || "").trim().toLowerCase() === depName
+          );
+        }
+      }
+      setReports(rows);
+    } catch (e) {
+      setError(e.message || "Unable to load daily work reports.");
     } finally {
       setLoadingReports(false);
     }
-  }, [selectedEmployeeId, fromDate, toDate]);
+  };
 
   useEffect(() => {
-    loadRoster();
-  }, [loadRoster]);
+    loadDailyReports(filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  useEffect(() => {
-    loadReports();
-  }, [loadReports]);
+  const handleApplyReportFilters = (e) => {
+    if (e) e.preventDefault();
+    loadDailyReports(filters);
+  };
 
-  async function handleExportEmployeeWise() {
-    setDownloading(true);
+  const handleResetReportFilters = () => {
+    const emptyFilters = { departmentId: "", employeeId: "", date: "", from: "", to: "" };
+    setFilters(emptyFilters);
+    loadDailyReports(emptyFilters);
+  };
+
+  const handleExportReports = async () => {
+    setDownloadingReports(true);
     try {
-      await api.downloadEmployeeWiseDailyReportExcel(selectedEmployeeId, fromDate, toDate);
-    } catch (err) {
-      setError("Failed to download employee-wise Excel: " + err.message);
+      const from = filters.date || filters.from;
+      const to = filters.date || filters.to;
+      await api.downloadEmployeeWiseDailyReportExcel(filters.employeeId, from, to);
+    } catch (e) {
+      setError(e.message || "Failed to download daily reports.");
     } finally {
-      setDownloading(false);
-    }
-  }
-
-  async function handleExportDateWise() {
-    setDownloading(true);
-    try {
-      await api.downloadDateWiseDailyReportExcel(fromDate || toDate, fromDate, toDate);
-    } catch (err) {
-      setError("Failed to download date-wise Excel: " + err.message);
-    } finally {
-      setDownloading(false);
+      setDownloadingReports(false);
     }
   }
 
@@ -453,41 +455,13 @@ export default function DailyWorkReportsAdmin() {
             </span>
           </button>
 
-          <div style={{ height: "1px", background: "#edf2ee", margin: "2px 0" }} />
-
-          <button
-            type="button"
-            onClick={() => {
-              setExportOpen(false);
-              handleExportDateWise();
-            }}
-            disabled={downloading}
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              textAlign: "left",
-              width: "100%",
-              padding: "7px 10px",
-              borderRadius: "7px",
-              border: "none",
-              background: "transparent",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f7f3")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-          >
-            <span style={{ fontSize: "12px", fontWeight: "600", color: "#163a2a", display: "flex", alignItems: "center", gap: "6px" }}>
-              📅 Date-Wise Excel
-            </span>
-            <span style={{ fontSize: "10px", color: "#6b7d75", marginTop: "2px" }}>
-              {fromDate || toDate ? `${fromDate || "Start"} to ${toDate || "End"}` : "Consolidated by date range"}
-            </span>
-          </button>
-        </div>
-      )}
-    </div>
-  );
+  // Employee dropdown options, narrowed by the selected department
+  const selectedDepName = filters.departmentId
+    ? (departments.find((d) => String(d.id) === String(filters.departmentId))?.name || "").trim().toLowerCase()
+    : "";
+  const employeeOptions = selectedDepName
+    ? employees.filter((e) => (e.department || "").trim().toLowerCase() === selectedDepName)
+    : employees;
 
   // Roster Sidebar / List Content
   const rosterContent = (
@@ -1248,4 +1222,3 @@ export default function DailyWorkReportsAdmin() {
     </div>
   );
 }
-

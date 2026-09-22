@@ -22,30 +22,32 @@ const OfficeCalendar = lazy(() => import("./OfficeCalendar"));
 const MODULES = [
   { key:"people", permission:"PEOPLE", label:"People", icon:"people", component:EmployeeList },
   { key:"attendance", permission:"ATTENDANCE", label:"Attendance", icon:"calendar", component:AttendanceTable },
-  { key:"daily-reports", permission:"REPORTS", label:"Daily Work Reports", icon:"report", component:DailyWorkReportsAdmin },
-  { key:"announcements", permission:"COMMUNICATION", label:"Announcements", icon:"bell", component:Announcements },
-  { key:"tasks", permission:"TASKS", label:"Tasks", icon:"tasks", component:Tasks },
-  { key:"inventory", permission:"INVENTORY", label:"Inventory", icon:"box", component:Inventory },
   { key:"leave", permission:"LEAVE", label:"Leave Management", icon:"leave", component:LeaveManagement },
-  { key:"offices", permission:"OFFICE", label:"Office Locations", icon:"location", component:OfficeLocations },
+  { key:"daily-reports", permission:"REPORTS", label:"Daily Work Reports", icon:"report", component:DailyWorkReportsAdmin },
+  { key:"tasks", permission:"TASKS", label:"Tasks", icon:"tasks", component:Tasks },
+  { key:"announcements", permission:"COMMUNICATION", label:"Announcements", icon:"bell", component:Announcements },
+  { key:"office-calendar", permission:"HOLIDAY_CALENDAR", label:"Office Calendar", icon:"calendar", component:OfficeCalendar },
+  { key:"inventory", permission:"INVENTORY", label:"Inventory", icon:"box", component:Inventory },
   { key:"damage", permission:"PEOPLE", label:"Damage Reports", icon:"report", component:DamageReports },
+  { key:"offices", permission:"OFFICE", label:"Office Locations", icon:"location", component:OfficeLocations },
   { key:"reports", permission:"REPORTS", label:"Reports & Analytics", icon:"report", component:Reports },
   { key:"office-calendar", permission:"HOLIDAY_CALENDAR", label:"Office Calendar", icon:"calendar", component:OfficeCalendar },
 ];
 
 const SYSTEM_NAV = [
   {key:"system",label:"Control Center",icon:"home"},
-  {key:"employees",label:"HR Administrators",icon:"people"},
-  {key:"offices",label:"Offices & Geofences",icon:"location"},
+  {key:"employees",label:"Administrators",icon:"people"},
   {key:"organization",label:"Organization",icon:"people"},
+  {key:"office-calendar",label:"Office Calendar",icon:"calendar"},
+  {key:"tasks",label:"Tasks",icon:"tasks"},
+  {key:"notifications",label:"Notifications",icon:"bell"},
   {key:"daily-reports",label:"Daily Work Reports",icon:"report"},
   {key:"security",label:"Security Center",icon:"shield"},
   {key:"audit",label:"Audit Logs",icon:"audit"},
+  {key:"offices",label:"Offices & Geofences",icon:"location"},
   {key:"settings",label:"Configuration",icon:"settings"},
   {key:"office-calendar",label:"Office Calendar",icon:"calendar"},
   {key:"health",label:"System Health",icon:"report"},
-  {key:"tasks",label:"Tasks",icon:"tasks"},
-  {key:"notifications",label:"Notifications",icon:"bell"},
 ];
 
 export default function AdminDashboard(){
@@ -64,7 +66,7 @@ export default function AdminDashboard(){
   const routeDenied=!!routeModule && routeModule!=="notifications" && (!routeEntry || !has(routeEntry.permission));
 
   const select=(key)=>{setTab(key); if(!system && key!=="dashboard" && key!=="notifications") navigate(`/admin/${key}`); if(!system && key==="dashboard") navigate("/admin");};
-  const title = system ? (SYSTEM_NAV.find(x=>x.key===tab)?.label || "Control Center") : (tab==="dashboard"?"HR Operations":allowed.find(x=>x.key===tab)?.label || "HR Operations");
+  const title = system ? (SYSTEM_NAV.find(x=>x.key===tab)?.label || "Control Center") : (tab==="dashboard"?"Operations":allowed.find(x=>x.key===tab)?.label || "Operations");
   const subtitle = tab === "daily-reports"
     ? "Review daily work submissions, track team activities, and export records."
     : tab === "office-calendar"
