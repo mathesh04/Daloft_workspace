@@ -19,13 +19,11 @@ public class AnnouncementController {
         this.announcementService = announcementService;
     }
 
-    /** Visible to every logged-in employee. */
     @GetMapping("/api/announcements")
     public List<Announcement> getAll() {
         return announcementService.getAll();
     }
 
-    /** HR Admin only. */
     @PostMapping("/api/admin/announcements")
     public ResponseEntity<?> create(@RequestBody Map<String, String> body, Authentication auth) {
         String title = body.get("title");
@@ -39,7 +37,6 @@ public class AnnouncementController {
         }
     }
 
-    /** HR Admin only. */
     @DeleteMapping("/api/admin/announcements/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {

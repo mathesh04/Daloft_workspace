@@ -9,11 +9,10 @@ public class EmployeeRequest {
     @NotBlank
     private String name;
 
-    // Optional on update (leave blank to keep existing password)
     private String password;
 
     @NotBlank
-    private String role; // "HR_ADMIN", "MANAGER" or "EMPLOYEE" (server controls allowed transitions)
+    private String role;
 
     @NotBlank
     private String department;
@@ -24,16 +23,32 @@ public class EmployeeRequest {
     private String designation;
 
     private String email;
-    private String phoneNumber; private String address; private String emergencyContact; private String profilePictureUrl; private java.time.LocalDate joiningDate;
+    private String phoneNumber; 
+    private String address;
+     private String emergencyContact; 
+     private String profilePictureUrl; 
+     private java.time.LocalDate joiningDate;
 
-    public String getEmployeeId() { return employeeId; }
-    public void setEmployeeId(String employeeId) { this.employeeId = employeeId; }
+    public String getEmployeeId() { 
+        return employeeId; 
+    }
+    public void setEmployeeId(String employeeId) { 
+        this.employeeId = employeeId; 
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() { 
+        return name; 
+    }
+    public void setName(String name) { 
+        this.name = name; 
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getPassword() { 
+        return password; 
+    }
+    public void setPassword(String password) { 
+        this.password = password; 
+    }
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }

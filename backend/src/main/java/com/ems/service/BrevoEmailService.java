@@ -80,4 +80,23 @@ public class BrevoEmailService {
 
         send(employee, "DALOFT AEROSPACE | Password Reset", body);
     }
+
+    public void sendAccountCreationEmail(String email, String name, String employeeId, String password, String role) {
+        Employee emp = new Employee();
+        emp.setEmail(email);
+        emp.setName(name);
+        String body =
+                "Dear " + name + ",\n\n" +
+                "Welcome to DALOFT AEROSPACE! Your account has been created.\n\n" +
+                "Account Details:\n" +
+                "------------------------------\n" +
+                "Employee ID : " + employeeId + "\n" +
+                "Role        : " + role + "\n" +
+                "Password    : " + password + "\n\n" +
+                "Please log in and update your password at your earliest convenience.\n\n" +
+                "Warm regards,\n" +
+                "HR & People Operations\n" +
+                "DALOFT AEROSPACE PRIVATE LIMITED";
+        send(emp, "DALOFT AEROSPACE | Account Created", body);
+    }
 }

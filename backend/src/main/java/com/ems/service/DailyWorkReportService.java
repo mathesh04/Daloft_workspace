@@ -1,20 +1,32 @@
 package com.ems.service;
 
-import com.ems.model.DailyWorkReport;
-import com.ems.model.Employee;
-import com.ems.repository.DailyWorkReportRepository;
-import com.ems.repository.EmployeeRepository;
-import org.apache.poi.ss.usermodel.*;
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayOutputStream;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.ems.model.DailyWorkReport;
+import com.ems.model.Employee;
+import com.ems.repository.DailyWorkReportRepository;
+import com.ems.repository.EmployeeRepository;
 
 @Service
 public class DailyWorkReportService {
@@ -67,7 +79,7 @@ public class DailyWorkReportService {
                     "DAILY_REPORT"
             );
         } catch (Exception ignored) {
-            // Notification failure should never roll back work report submission
+            
         }
 
         return saved;
@@ -156,7 +168,7 @@ public class DailyWorkReportService {
             }
 
             int rowIdx = 1;
-            DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
             for (DailyWorkReport r : reports) {
                 XSSFRow row = sheet.createRow(rowIdx++);
@@ -221,7 +233,67 @@ public class DailyWorkReportService {
             }
 
             int rowIdx = 1;
-            DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+            DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            for (DailyWorkReport r : reports) {
+                XSSFRow row = sheet.createRow(rowIdx++);
+                Employee e = r.getEmployee();
+
+                row.createCell(0).setCellValue(String.valueOf(r.getReportDate()));
+                row.createCell(1).setCellValue(e != null ? e.getEmployeeId() : "");
+                row.createCell(2).setCellValue(e != null ? e.getName() : "");
+                row.createCell(3).setCellValue((e != null && e.getDepartment() != null) ? e.getDepartment() : "");
+
+                Cell c4 = row.createCell(4); c4.setCellValue(r.getTasksCompleted()); c4.setCellStyle(wrapStyle);
+                Cell c5 = row.createCell(5); c5.setCellValue(r.getBlockers()); c5.setCellStyle(wrapStyle);
+                Cell c6 = row.createCell(6); c6.setCellValue(r.getPlanForTomorrow()); c6.setCellStyle(wrapStyle);
+                Cell c7 = row.createCell(7); c7.setCellValue(r.getEquipmentsUsed() != null ? r.getEquipmentsUsed() : ""); c7.setCellStyle(wrapStyle);
+
+                row.createCell(8).setCellValue(r.getCreatedAt() != null ? r.getCreatedAt().format(dtFmt) : "");
+            }
+
+            sheet.setColumnWidth(0, 3500);
+            sheet.setColumnWidth(1, 3500);
+            sheet.setColumnWidth(2, 5500);
+            sheet.setColumnWidth(3, 4500);
+            sheet.setColumnWidth(4, 12000);
+            sheet.setColumnWidth(5, 8000);
+            sheet.setColumnWidth(6, 12000);
+            sheet.setColumnWidth(7, 6000);
+            sheet.setColumnWidth(8, 4500);
+
+            wb.write(out);
+            return out.toByteArray();
+        }
+    }
+
+    public byte[] exportReportsToExcel(List<DailyWorkReport> reports, String title) throws Exception {
+        try (XSSFWorkbook wb = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            String safeTitle = (title != null && !title.isBlank()) ? title.replaceAll("[^a-zA-Z0-9 ]", "") : "Daily Reports";
+            XSSFSheet sheet = wb.createSheet(safeTitle.length() > 30 ? safeTitle.substring(0, 30) : safeTitle);
+
+            CellStyle headerStyle = wb.createCellStyle();
+            Font font = wb.createFont();
+            font.setBold(true);
+            headerStyle.setFont(font);
+            headerStyle.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+
+            CellStyle wrapStyle = wb.createCellStyle();
+            wrapStyle.setWrapText(true);
+            wrapStyle.setVerticalAlignment(VerticalAlignment.TOP);
+
+            String[] headers = {"Date", "Employee ID", "Employee Name", "Department", "Tasks Completed / Learnings", "Blockers / Issues", "Plan for Tomorrow", "Equipment Used", "Submitted At"};
+            XSSFRow headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            int rowIdx = 1;
+            DateTimeFormatter dtFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
             for (DailyWorkReport r : reports) {
                 XSSFRow row = sheet.createRow(rowIdx++);

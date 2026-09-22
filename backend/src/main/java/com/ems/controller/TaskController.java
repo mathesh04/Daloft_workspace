@@ -46,6 +46,7 @@ public class TaskController {
             Task.TaskStatus status = Task.TaskStatus.valueOf(raw.trim().toUpperCase());
             boolean admin = auth.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_SYSTEM_ADMIN")
+                            || a.getAuthority().equals("ROLE_ADMIN")
                             || a.getAuthority().equals("ROLE_HR_ADMIN"));
 
             return ResponseEntity.ok(
@@ -56,18 +57,12 @@ public class TaskController {
         }
     }
 
-    /**
-     * HR Admin / Organization Admin task targets.
-     */
     @GetMapping("/api/admin/tasks/targets")
     public TaskTargetResponse adminTargets(Authentication auth) {
         ensureTaskAdmin(auth);
         return tasks.getTaskTargetsForAdmin(auth.getName());
     }
 
-    /**
-     * Organization Admin task targets on the canonical system-admin surface.
-     */
     @GetMapping("/api/system-admin/tasks/targets")
     public TaskTargetResponse systemTargets(Authentication auth) {
         ensureSystemAdmin(auth);
@@ -137,6 +132,7 @@ public class TaskController {
     private void ensureTaskAdmin(Authentication auth) {
         if (auth == null || auth.getAuthorities().stream().noneMatch(a ->
                 a.getAuthority().equals("ROLE_SYSTEM_ADMIN")
+                        || a.getAuthority().equals("ROLE_ADMIN")
                         || a.getAuthority().equals("ROLE_HR_ADMIN"))) {
             throw new AccessDeniedException("Task administration access required");
         }

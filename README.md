@@ -35,75 +35,14 @@ A full-stack HR management system with role-based access control, geofence atten
 - Java 17+
 - Maven 3.8+
 - Node.js 18+
-- PostgreSQL database ( [Supabase](https://supabase.com))
+- PostgreSQL database (local or [Supabase](https://supabase.com))
+
+
+
 
 ---
 
 
-## Project Structure
-
-```
-Daloft-workspace/
-├── .env.example                 Root reference for all variables
-├── .gitignore
-│
-├── backend/                     Spring Boot API (Java 17 / Maven)
-│   ├── .env                     ← your secrets (gitignored)
-│   ├── .env.example             ← safe template (committed)
-│   └── src/main/
-│       ├── java/com/ems/
-│       │   ├── controller/      REST endpoints
-│       │   ├── service/         Business logic
-│       │   ├── model/           JPA entities
-│       │   ├── repository/      Spring Data repositories
-│       │   ├── security/        JWT filter + util
-│       │   ├── filter/          Maintenance, audit, admin-access filters
-│       │   └── dto/             Request / response objects
-│       └── resources/
-│           ├── application.properties   All values read from env vars
-│           └── db/migration/            Flyway SQL migrations
-│
-└── frontend/                    React 18 + Vite
-    ├── .env                     ← your config (gitignored)
-    ├── .env.example             ← safe template (committed)
-    ├── vite.config.js           Proxy reads VITE_BACKEND_ORIGIN from .env
-    └── src/
-        ├── api/api.jsx          Fetch wrapper + 15 s GET cache
-        ├── context/AuthContext.jsx  JWT session state
-        └── components/          Dashboards, modules, shell
-```
-
----
-
-## Environment Variables Reference
-
-See [`.env.example`](.env.example) for the full list with descriptions.
-
-### Backend (`backend/.env`)
-
-```
-DB_URL              PostgreSQL JDBC URL
-DB_USERNAME         Database user
-DB_PASSWORD         Database password
-JWT_SECRET          ≥64-char random secret (openssl rand -hex 64)
-JWT_EXPIRATION_MS   Token TTL in ms (default: 86400000 = 24 h)
-BREVO_API_KEY       Brevo API key for transactional email
-BREVO_SENDER_EMAIL  From address for system emails
-APP_FRONTEND_URL    Frontend origin for email links
-CORS_ALLOWED_ORIGINS Comma-separated allowed CORS origins
-ADMIN_EMPLOYEE_ID   Bootstrap admin ID (default: SYS001)
-ADMIN_PASSWORD      Bootstrap admin password
-GEOFENCE_ENABLED    true/false — GPS check-in enforcement
-FLYWAY_ENABLED      true/false — run DB migrations on startup
-```
-
-### Frontend (`frontend/.env`)
-
-```
-VITE_API_BASE_URL      API base path (/api in dev, full URL in prod)
-VITE_BACKEND_ORIGIN    Vite proxy target (local dev only)
-VITE_APP_NAME          App display name
-```
 
 ---
 

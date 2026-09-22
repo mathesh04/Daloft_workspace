@@ -1,5 +1,16 @@
 package com.ems.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ems.dto.TaskResponse;
 import com.ems.dto.TaskTargetResponse;
 import com.ems.model.Department;
@@ -9,16 +20,6 @@ import com.ems.model.Task;
 import com.ems.repository.DepartmentRepository;
 import com.ems.repository.EmployeeRepository;
 import com.ems.repository.TaskRepository;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 
 @Service
 public class TaskService {
@@ -65,10 +66,7 @@ public class TaskService {
         return tasks.findByAssignedToOrderByDueDateAsc(employee);
     }
 
-    /**
-     * Returns exactly the people/departments a manager is allowed to target.
-     * Direct reports and employees in managed active departments are both included.
-     */
+
     @Transactional(readOnly = true)
     public TaskTargetResponse getTaskTargetsForManager(String managerEmployeeId) {
         Employee manager = actor(managerEmployeeId);
@@ -110,14 +108,11 @@ public class TaskService {
         return new TaskTargetResponse(people, departmentsForManager);
     }
 
-    /**
-     * Returns safe Organization Admin / HR Admin task targets.
-     * SYSTEM_ADMIN users are never exposed as ordinary task recipients.
-     */
+
     @Transactional(readOnly = true)
     public TaskTargetResponse getTaskTargetsForAdmin(String employeeId) {
         Employee requester = actor(employeeId);
-        if (requester.getRole() != Role.SYSTEM_ADMIN && requester.getRole() != Role.HR_ADMIN) {
+        if (requester.getRole() != Role.SYSTEM_ADMIN && requester.getRole() != Role.ADMIN) {
             throw new SecurityException("Task administration access required");
         }
 
@@ -157,7 +152,7 @@ public class TaskService {
             return false;
         }
 
-        if (manager.getRole() == Role.SYSTEM_ADMIN || manager.getRole() == Role.HR_ADMIN) {
+        if (manager.getRole() == Role.SYSTEM_ADMIN || manager.getRole() == Role.ADMIN) {
             return true;
         }
 
@@ -263,8 +258,7 @@ public class TaskService {
                     .filter(e -> !Objects.equals(e.getId(), assignedBy.getId()))
                     .toList());
 
-            // If the employee table stores the department code instead of the display name,
-            // resolve by code as a second path.
+
             if (targets.isEmpty()) {
                 Department matchingDepartment = departments.findAll()
                         .stream()
@@ -295,7 +289,7 @@ public class TaskService {
                 assignmentType = "ROLE_GROUP";
                 normalizedRole = "ALL_NON_SYSTEM_USERS";
                 targets.addAll(employees.findByRoleIn(List.of(
-                                Role.HR_ADMIN, Role.MANAGER, Role.EMPLOYEE, Role.INTERN))
+                                Role.ADMIN, Role.MANAGER, Role.EMPLOYEE, Role.INTERN))
                         .stream()
                         .filter(Employee::isActive)
                         .filter(e -> !Objects.equals(e.getId(), assignedBy.getId()))
@@ -359,7 +353,7 @@ public class TaskService {
         return result;
     }
 
-    // Backward-compatible overload.
+   
     public List<Task> create(
             String title,
             String description,

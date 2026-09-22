@@ -64,7 +64,7 @@ public class AttendanceRegularizationService {
 
     @Transactional
     public AttendanceRegularizationRequest adminReview(Long id,String status,String reason,Authentication auth){
-        if(auth==null || auth.getAuthorities().stream().noneMatch(a->a.getAuthority().equals("ROLE_SYSTEM_ADMIN")||a.getAuthority().equals("ROLE_HR_ADMIN")))
+        if(auth==null || auth.getAuthorities().stream().noneMatch(a->a.getAuthority().equals("ROLE_SYSTEM_ADMIN")||a.getAuthority().equals("ROLE_ADMIN")||a.getAuthority().equals("ROLE_HR_ADMIN")))
             throw new SecurityException("Administrative access required");
         AttendanceRegularizationRequest r=requests.findById(id).orElseThrow(()->new IllegalArgumentException("Regularization request not found"));
         if(r.getStatus()!=AttendanceRegularizationRequest.RegularizationStatus.PENDING)

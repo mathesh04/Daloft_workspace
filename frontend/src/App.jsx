@@ -16,10 +16,10 @@ const isManagerRole = (role) => role === "MANAGER";
 function PrivateRoute({ children, role }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
-  if ((role === "ADMIN" || role === "HR_ADMIN") && !isAdminRole(user.role)) return <Navigate to={isSystemRole(user.role)?"/system":"/employee"} replace />;
+  if ((role === "ADMIN" || role === "ADMIN") && !isAdminRole(user.role)) return <Navigate to={isSystemRole(user.role)?"/system":"/employee"} replace />;
   if (role === "SYSTEM_ADMIN" && !isSystemRole(user.role)) return <Navigate to={isAdminRole(user.role)?"/admin":isManagerRole(user.role)?"/manager":"/employee"} replace />;
   if (role === "MANAGER" && !isManagerRole(user.role)) return <Navigate to={isSystemRole(user.role)?"/system":isAdminRole(user.role)?"/admin":"/employee"} replace />;
-  if (role === "WORKER" && !(user.role === "EMPLOYEE" || user.role === "INTERN" || user.role === "ADMIN" || user.role === "HR_ADMIN" || user.role === "MANAGER")) return <Navigate to="/system" replace />;
+  if (role === "WORKER" && !(user.role === "EMPLOYEE" || user.role === "INTERN" || user.role === "ADMIN" || user.role === "ADMIN" || user.role === "MANAGER")) return <Navigate to="/system" replace />;
   return children;
 }
 

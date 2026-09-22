@@ -20,7 +20,7 @@ import com.ems.repository.SystemSettingRepository;
 public class SystemSettingsService {
     private static final Set<String> BOOLEAN_KEYS = Set.of(
             "ATTENDANCE_ENABLED", "CHECK_IN_ENABLED", "CHECK_OUT_ENABLED", "GEOFENCE_ENABLED",
-            "MAINTENANCE_MODE", "EMPLOYEE_LOGIN_ENABLED", "MANAGER_LOGIN_ENABLED", "HR_ADMIN_LOGIN_ENABLED"
+            "MAINTENANCE_MODE", "EMPLOYEE_LOGIN_ENABLED", "MANAGER_LOGIN_ENABLED", "HR_ADMIN_LOGIN_ENABLED", "ADMIN_LOGIN_ENABLED"
     );
     private static final Set<String> INTEGER_KEYS = Set.of(
             "GEOFENCE_RADIUS", "LATE_GRACE_MINUTES", "MIN_WORK_MINUTES", "MAX_GPS_ACCURACY",
@@ -42,6 +42,7 @@ public class SystemSettingsService {
             Map.entry("EMPLOYEE_LOGIN_ENABLED", "true"),
             Map.entry("MANAGER_LOGIN_ENABLED", "true"),
             Map.entry("HR_ADMIN_LOGIN_ENABLED", "true"),
+            Map.entry("ADMIN_LOGIN_ENABLED", "true"),
             Map.entry("TIMEZONE", "Asia/Kolkata"),
             Map.entry("WORKING_DAYS", "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY"),
             Map.entry("WORK_START_TIME", "09:00"),
@@ -54,6 +55,12 @@ public class SystemSettingsService {
     public SystemSettingsService(SystemSettingRepository repository) { this.repository = repository; }
 
     public boolean getBoolean(String key, boolean fallback) {
+        if ("ADMIN_LOGIN_ENABLED".equalsIgnoreCase(key) || "HR_ADMIN_LOGIN_ENABLED".equalsIgnoreCase(key)) {
+            String v = repository.findById("ADMIN_LOGIN_ENABLED").map(SystemSetting::getValue)
+                    .or(() -> repository.findById("HR_ADMIN_LOGIN_ENABLED").map(SystemSetting::getValue))
+                    .orElse(null);
+            return v == null ? fallback : Boolean.parseBoolean(v);
+        }
         String v = value(key);
         return v == null ? fallback : Boolean.parseBoolean(v);
     }

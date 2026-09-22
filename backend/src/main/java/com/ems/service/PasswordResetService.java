@@ -31,19 +31,21 @@ public class PasswordResetService {
     t.setTokenHash(hash(raw));
     t.setExpiryTime(settings.now().plusMinutes(15));tokens.save(t); 
     email.sendPasswordReset(e,resetBaseUrl+"?token="+raw);}
- public void reset(String raw,String newPassword){
-    if(raw==null||raw.isBlank())throw new IllegalArgumentException("Reset token is required"); 
-    if(newPassword==null||newPassword.length()<8)throw new IllegalArgumentException("Password must be at least 8 characters");
-    PasswordResetToken t=tokens.findFirstByTokenHashAndUsedFalse(hash(raw)).orElseThrow(()->new IllegalArgumentException("Invalid or expired reset link"));
-    if(t.getExpiryTime().isBefore(settings.now()))throw new IllegalArgumentException("Reset link has expired");
-    Employee e=t.getEmployee();
-    e.setPassword(encoder.encode(newPassword));
-    e.setLoginFailedAttempts(0);
-    e.setLockedUntil(null);
-    employees.save(e);
-    t.setUsed(true);
-    tokens.save(t);
-}
+  @Transactional
+  public Employee reset(String raw,String newPassword){
+     if(raw==null||raw.isBlank())throw new IllegalArgumentException("Reset token is required"); 
+     if(newPassword==null||newPassword.length()<8)throw new IllegalArgumentException("Password must be at least 8 characters");
+     PasswordResetToken t=tokens.findFirstByTokenHashAndUsedFalse(hash(raw)).orElseThrow(()->new IllegalArgumentException("Invalid or expired reset link"));
+     if(t.getExpiryTime().isBefore(settings.now()))throw new IllegalArgumentException("Reset link has expired");
+     Employee e=t.getEmployee();
+     e.setPassword(encoder.encode(newPassword));
+     e.setLoginFailedAttempts(0);
+     e.setLockedUntil(null);
+     e=employees.save(e);
+     t.setUsed(true);
+     tokens.save(t);
+     return e;
+  }
  private String random(){
     byte[] b=new byte[32];
     new SecureRandom().nextBytes(b);

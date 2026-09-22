@@ -84,10 +84,10 @@ export default function DailyWorkReport() {
   return (
     <div className="daily-report-workspace" style={{ display: "flex", flexDirection: "column", gap: "22px" }}>
     
-      <div className="premium-card" style={{ background: "#FFFFFF", color: "#14161A", padding: "24px 28px", borderLeft: "3px solid #2563EB" }}>
-        <span className="eyebrow" style={{ color: "#2563EB", fontSize: "11px", fontWeight: "600", letterSpacing: "0.08em" }}>DAILY WORK LOG</span>
-        <h2 style={{ color: "#14161A", margin: "6px 0 8px", fontSize: "24px" }}>Daily Work Report Submission</h2>
-        <p style={{ color: "#67707F", margin: 0, fontSize: "13px", maxWidth: "680px", lineHeight: 1.55 }}>
+      <div className="premium-card" style={{ background: "linear-gradient(135deg, #102d22, #18523c)", color: "#fff", padding: "24px 28px" }}>
+        <span className="eyebrow green" style={{ color: "#7ce3a7", fontSize: "11px" }}>DAILY WORK LOG</span>
+        <h2 style={{ color: "#fff", margin: "6px 0 8px", fontSize: "24px" }}>Daily Work Report Submission</h2>
+        <p style={{ color: "#a8cfbd", margin: 0, fontSize: "12px", maxWidth: "680px" }}>
           Log your completed tasks, daily learnings, blockers, and plan for tomorrow. Reports are immediately logged to HR & Operations for daily review.
         </p>
       </div>
@@ -112,6 +112,10 @@ export default function DailyWorkReport() {
         </div>
       ) : null}
 
+
+      <div className="card" style={{ padding: "24px" }}>
+        <h3 style={{ fontSize: "18px", margin: "0 0 6px" }}>Submit New Work Report</h3>
+        <p className="section-sub" style={{ marginBottom: "20px", fontSize: "14px" }}>Fill in your daily activities according to the company work report policy.</p>
 
       <div className="card dwr-form-card">
         <h3>Submit New Work Report</h3>
@@ -180,6 +184,7 @@ export default function DailyWorkReport() {
         </form>
       </div>
 
+
       <div className="card" style={{ padding: "24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <h3 style={{ fontSize: "18px", margin: 0 }}>My Submission History</h3>
@@ -235,8 +240,8 @@ export default function DailyWorkReport() {
         )}
 
         {historyPages > 1 && (
-          <div className="pagination" style={{ padding: "14px 4px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #F9FAFB", marginTop: "12px" }}>
-            <span style={{ fontSize: "13px", color: "#67707F" }}>
+          <div className="pagination" style={{ padding: "14px 4px 0", display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #edf2ee", marginTop: "12px" }}>
+            <span style={{ fontSize: "13px", color: "#687a72" }}>
               Showing {historyPage * PAGE_SIZE + 1}–{Math.min((historyPage + 1) * PAGE_SIZE, history.length)} of {history.length} submissions (Page {historyPage + 1} of {historyPages})
             </span>
             <div style={{ display: "flex", gap: "6px" }}>
