@@ -517,45 +517,6 @@ export default function OfficeCalendar() {
           >
             + Manage Holidays
           </button>
-
-         
-          <div
-            style={{
-              border: "1px solid #D9DDE3",
-              borderRadius: "8px",
-              padding: "6px 12px",
-              fontSize: "13px",
-              color: "#14161A",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              background: "#F9FAFB",
-            }}
-          >
-            <span>Month</span>
-            <span style={{ fontSize: "10px", color: "#67707F" }}>▾</span>
-          </div>
-
-    
-          <div
-            title="Calendar grid active"
-            style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "8px",
-              background: "#2563EB",
-              display: "grid",
-              placeItems: "center",
-              color: "#FFFFFF",
-            }}
-          >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-          </div>
         </div>
       </div>
 

@@ -80,18 +80,18 @@ export default function Notifications({ onCount }) {
   };
 
   return <div className="prod-panel">
-    <div className="analytics-heading">
+    <div className="notif-head">
       <div>
         <h2>Notification Center</h2>
         <p className="section-sub">Filter, prioritize and manage operational alerts.</p>
       </div>
-      <button className="btn btn-ghost" onClick={all} disabled={busyId === "all"}>{busyId === "all" ? "Marking…" : "Mark all read"}</button>
+      <button className="btn btn-ghost btn-sm notif-mark-all" onClick={all} disabled={busyId === "all"}>{busyId === "all" ? "Marking…" : "Mark all read"}</button>
     </div>
 
     {error && <div className="error-banner"><span>{error}</span><button onClick={() => setError("")}>×</button></div>}
 
-    <div className="report-filters">
-      <select value={category} onChange={e => setCategory(e.target.value)}>
+    <div className="notif-toolbar">
+      <select className="notif-select" value={category} onChange={e => setCategory(e.target.value)}>
         <option value="">All categories</option>
         <option>INVENTORY</option>
         <option>ATTENDANCE</option>
@@ -100,7 +100,7 @@ export default function Notifications({ onCount }) {
         <option>SECURITY</option>
         <option>SYSTEM</option>
       </select>
-      <select value={priority} onChange={e => setPriority(e.target.value)}>
+      <select className="notif-select" value={priority} onChange={e => setPriority(e.target.value)}>
         <option value="">All priorities</option>
         <option>LOW</option>
         <option>MEDIUM</option>

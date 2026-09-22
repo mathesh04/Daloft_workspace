@@ -37,6 +37,7 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="login-form-heading">
+            <span className="login-eyebrow">Secure access</span>
             <h1 className="login-title">Welcome back</h1>
             <p className="login-sub">Sign in to your Daloft People workspace</p>
           </div>
@@ -46,7 +47,7 @@ export default function Login() {
             <input
               id="login-employee-id"
               type="text"
-              placeholder="Enter your employee ID"
+              placeholder="e.g. EMP001"
               value={employeeId}
               onChange={(e) => setEmployeeId(e.target.value)}
               autoComplete="username"
@@ -71,19 +72,15 @@ export default function Login() {
           </div>
 
           <button className="login-submit" type="submit" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Signing in…" : "Sign in to workspace →"}
           </button>
 
           <div className="login-help">
-            <span>Forgot your password?</span>
-            <Link to="/forgot-password">Reset it here</Link>
+            <Link to="/forgot-password">Forgot password?</Link>
           </div>
         </form>
 
-        <div className="login-trust">
-          <span className="trust-dot" />
-          <span>Secure access — only authorized Daloft Aerospace personnel.</span>
-        </div>
+        <div className="login-foot">Daloft Aerospace · Internal Workspace</div>
       </div>
     </div>
   );

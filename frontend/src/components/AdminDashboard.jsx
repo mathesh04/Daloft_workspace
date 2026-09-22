@@ -35,7 +35,7 @@ const MODULES = [
 
 const SYSTEM_NAV = [
   {key:"system",label:"Control Center",icon:"home"},
-  {key:"employees",label:"HR Administrators",icon:"people"},
+  {key:"employees",label:"Administrators",icon:"people"},
   {key:"organization",label:"Organization",icon:"people"},
   {key:"office-calendar",label:"Office Calendar",icon:"calendar"},
   {key:"tasks",label:"Tasks",icon:"tasks"},
@@ -64,7 +64,7 @@ export default function AdminDashboard(){
   const routeDenied=!!routeModule && routeModule!=="notifications" && (!routeEntry || !has(routeEntry.permission));
 
   const select=(key)=>{setTab(key); if(!system && key!=="dashboard" && key!=="notifications") navigate(`/admin/${key}`); if(!system && key==="dashboard") navigate("/admin");};
-  const title = system ? (SYSTEM_NAV.find(x=>x.key===tab)?.label || "Control Center") : (tab==="dashboard"?"HR Operations":allowed.find(x=>x.key===tab)?.label || "HR Operations");
+  const title = system ? (SYSTEM_NAV.find(x=>x.key===tab)?.label || "Control Center") : (tab==="dashboard"?"Operations":allowed.find(x=>x.key===tab)?.label || "Operations");
   const subtitle = tab === "daily-reports"
     ? "Review daily work submissions, track team activities, and export records."
     : tab === "office-calendar"
