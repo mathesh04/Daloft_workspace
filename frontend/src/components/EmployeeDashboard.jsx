@@ -11,13 +11,18 @@ import DailyWorkReport from "./DailyWorkReport";
 import { StatusBadge, TaskBadge } from "./StatusBadges";
 import WorkspaceShell from "./WorkspaceShell";
 
+const IST = "Asia/Kolkata";
 function fmtTime(iso) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const d = new Date(iso);
+  if (isNaN(d)) return "—";
+  return d.toLocaleTimeString("en-IN", { timeZone: IST, hour: "2-digit", minute: "2-digit", hour12: true });
 }
 function fmtDate(d) {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  const x = new Date(d);
+  if (isNaN(x)) return "—";
+  return x.toLocaleDateString("en-IN", { timeZone: IST, month: "short", day: "numeric" });
 }
 
 export default function EmployeeDashboard() {
@@ -62,7 +67,7 @@ export default function EmployeeDashboard() {
       const result = await api.unreadCount();
       setNotificationCount(result?.count || 0);
     } catch (_) {
-      // Keep the main dashboard usable even if notifications are temporarily unavailable.
+
     }
   }, []);
 
@@ -149,6 +154,9 @@ export default function EmployeeDashboard() {
 
   const hasCheckedIn = !!today?.checkInTime;
   const hasCheckedOut = !!today?.checkOutTime;
+  const firstName = (user?.name || "there").split(" ")[0];
+  const hour = now.getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <WorkspaceShell
@@ -168,10 +176,23 @@ export default function EmployeeDashboard() {
         {key:"profile",label:"My Profile",icon:"people"},
         {key:"notifications",label:"Notifications",icon:"bell",badge:notificationCount||null},
       ]}
-      workspaceActions={(user?.role === "HR_ADMIN" || user?.role === "MANAGER" || user?.role === "SYSTEM_ADMIN") ? [{label:user.role === "MANAGER" ? "My Team" : "Admin Workspace",icon:"home",onClick:()=>navigate(user.role === "MANAGER"?"/manager":user.role === "HR_ADMIN"?"/admin":"/system")}]:[]}
+      workspaceActions={(user?.role === "ADMIN" || user?.role === "HR_ADMIN" || user?.role === "MANAGER" || user?.role === "SYSTEM_ADMIN") ? [{label:user.role === "MANAGER" ? "My Departments" : "Admin Workspace",icon:"home",onClick:()=>navigate(user.role === "MANAGER"?"/manager":(user.role === "ADMIN" || user.role === "HR_ADMIN")?"/admin":"/system")}]:[]}
     >
       {error && <div className="error-banner">{error}</div>}
       {!attendancePolicy.attendanceEnabled && <div className="error-banner">Attendance has been disabled by your organization administrator.</div>}
+      {tab === "home" && (
+        <div className="employee-hero">
+          <div className="employee-hero-copy">
+            <span className="employee-hero-kicker">{now.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", month: "long", day: "numeric" })}</span>
+            <h2>{greeting}, {firstName}</h2>
+            <p>Your workday, attendance and priorities at a glance.</p>
+          </div>
+          <span className={"employee-hero-chip " + (hasCheckedOut ? "done" : hasCheckedIn ? "active" : "")}>
+            <i />
+            {hasCheckedOut ? "Day completed" : hasCheckedIn ? "On the clock" : "Not checked in"}
+          </span>
+        </div>
+      )}
       {tab === "home" && <div className="employee-summary-strip">
         <div className="employee-stat"><span>Today</span><strong>{hasCheckedOut ? "Completed" : hasCheckedIn ? "Working" : "Not started"}</strong><small>{today?.status ? today.status.replace("_", " ") : "Attendance status"}</small></div>
         <div className="employee-stat"><span>Working time</span><strong>{today?.workingMinutes != null ? `${Math.floor(today.workingMinutes/60)}h ${today.workingMinutes%60}m` : "—"}</strong><small>Recorded today</small></div>
@@ -193,8 +214,8 @@ export default function EmployeeDashboard() {
               {tab === "home" && (
                 <div className="grid grid-2" style={{ alignItems: "start" }}>
                   <div className="clock-card">
-                    <div className="clock-time">{now.toLocaleTimeString()}</div>
-                    <div className="clock-date">{now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</div>
+                    <div className="clock-time">{now.toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata" })}</div>
+                    <div className="clock-date">{now.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", month: "long", day: "numeric" })}</div>
       
                     <div className="clock-status-row">
                       <span className="clock-pill">Check-in: {fmtTime(today?.checkInTime)}</span>
@@ -230,16 +251,15 @@ export default function EmployeeDashboard() {
                   <div className="card">
                     <h3>Recent attendance</h3>
                     <div className="table-wrap">
-                      <table>
+                      <table className="emp-attendance-table">
                         <thead>
-                          <tr><th>Date</th><th>Check-in</th><th>Check-out</th><th>Working</th><th>Status</th></tr>
+                          <tr><th>Date</th><th>Check in / out</th><th>Worked</th><th>Status</th></tr>
                         </thead>
                         <tbody>
                           {history.slice(0, 8).map((row) => (
                             <tr key={row.id}>
                               <td>{fmtDate(row.workDate)}</td>
-                              <td>{fmtTime(row.checkInTime)}</td>
-                              <td>{fmtTime(row.checkOutTime)}</td>
+                              <td className="att-times">{row.checkInTime ? fmtTime(row.checkInTime) : "—"}<span>{row.checkOutTime ? fmtTime(row.checkOutTime) : "—"}</span></td>
                               <td>{row.workingMinutes != null ? `${Math.floor(row.workingMinutes/60)}h ${row.workingMinutes%60}m` : "—"}</td><td><StatusBadge status={row.status} /></td>
                             </tr>
                           ))}
@@ -287,7 +307,7 @@ export default function EmployeeDashboard() {
                       <h3>{a.title}</h3>
                       <p style={{ fontSize: "0.9rem", color: "var(--text)", marginBottom: 10, whiteSpace: "pre-wrap" }}>{a.message}</p>
                       <p style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                        {a.postedBy ? `Posted by ${a.postedBy.name} · ` : ""}{new Date(a.createdAt).toLocaleString()}
+                        {a.postedBy ? `Posted by ${a.postedBy.name} · ` : ""}{new Date(a.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" })}
                       </p>
                     </div>
                   ))}

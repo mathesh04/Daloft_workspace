@@ -13,7 +13,7 @@ function MiniBars({ rows = [], valueKey = "present" }) {
   return <div className="mini-bars">{rows.map((r,i)=><div className="mini-bar" key={r.date || i} title={`${r.date || ""}: ${r[valueKey] || 0}`}><span style={{height:`${Math.max(8,(n(r[valueKey])/max)*100)}%`}}/><small>{r.date ? new Date(r.date).toLocaleDateString(undefined,{weekday:"short"}).slice(0,3) : i+1}</small></div>)}</div>;
 }
 
-export default function AnalyticsDashboard({ role = "HR_ADMIN" }) {
+export default function AnalyticsDashboard({ role = "ADMIN" }) {
   const [data,setData]=useState({}); const [loading,setLoading]=useState(true); const [error,setError]=useState("");
   useEffect(()=>{
     let alive=true; setLoading(true);
@@ -30,7 +30,7 @@ export default function AnalyticsDashboard({ role = "HR_ADMIN" }) {
   const today=attendance[attendance.length-1]||{};
   return <div className="analytics-page">
     {error&&<div className="error-banner">{error}</div>}
-    <section className="welcome-banner"><div><span className="eyebrow green">LIVE OPERATIONS</span><h2>Workforce command center</h2><p>People, attendance, leave and workplace operations in one fast view.</p></div><div className="today-pill"><span>{new Date().toLocaleDateString(undefined,{weekday:"long",day:"2-digit",month:"short",year:"numeric"})}</span><strong>{loading?"Syncing…":`${presence}% present today`}</strong></div></section>
+    <section className="welcome-banner"><div><span className="eyebrow">LIVE OPERATIONS</span><h2>Workforce command center</h2><p>People, attendance, leave and workplace operations in one fast view.</p></div><div className="today-pill"><span>{new Date().toLocaleDateString(undefined,{weekday:"long",day:"2-digit",month:"short",year:"numeric"})}</span><strong>{loading?"Syncing…":`${presence}% present today`}</strong></div></section>
     <div className="metric-grid">
       <Metric label="Active employees" value={loading?"—":s.totalEmployees} meta="Current workforce" tone="green" icon="👥"/>
       <Metric label="Present today" value={loading?"—":s.presentToday} meta={`${presence}% of active workforce`} tone="blue" icon="✓"/>

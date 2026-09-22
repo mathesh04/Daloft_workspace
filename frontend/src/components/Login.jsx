@@ -18,7 +18,7 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await login(employeeId.trim(), password);
-      navigate(user.role === "SYSTEM_ADMIN" ? "/system" : user.role === "HR_ADMIN" ? "/admin" : user.role === "MANAGER" ? "/manager" : "/employee");
+      navigate(user.role === "SYSTEM_ADMIN" ? "/system" : (user.role === "ADMIN" || user.role === "HR_ADMIN") ? "/admin" : user.role === "MANAGER" ? "/manager" : "/employee");
     } catch (err) {
       setError(err.message || "Login failed");
     } finally {
@@ -28,24 +28,63 @@ export default function Login() {
 
   return (
     <div className="daloft-login">
-      <section className="login-panel">
-        <div className="login-panel-inner">
-          <div className="login-brand-header">
-            <DaloftBrand />
-          </div>
-          <span className="eyebrow green">SECURE ACCESS</span>
-          <h1 className="login-title">Welcome back</h1>
-          <p className="login-sub">Sign in to your Daloft People workspace.</p>
-          {error && <div className="error-banner" role="alert">{error}</div>}
-          <form onSubmit={handleSubmit}>
-            <div className="field"><label htmlFor="login-employee-id">Employee ID</label><input id="login-employee-id" type="text" placeholder="e.g. EMP001" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} autoComplete="username" autoFocus required /></div>
-            <div className="field"><label htmlFor="login-password">Password</label><input id="login-password" type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required /></div>
-            <button className="login-submit" type="submit" disabled={loading}>{loading ? "Signing in…" : "Sign in to workspace →"}</button>
-            <div className="login-help"><Link to="/forgot-password">Forgot password?</Link></div>
-          </form>
-          
+      <div className="login-panel-inner">
+        <div className="login-mobile-brand">
+          <DaloftBrand />
         </div>
-      </section>
+
+        {error && <div className="error-banner" role="alert">{error}</div>}
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="login-form-heading">
+            <h1 className="login-title">Welcome back</h1>
+            <p className="login-sub">Sign in to your Daloft People workspace</p>
+          </div>
+
+          <div className="field">
+            <label htmlFor="login-employee-id">Employee ID</label>
+            <input
+              id="login-employee-id"
+              type="text"
+              placeholder="Enter your employee ID"
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              autoComplete="username"
+              autoFocus
+              required
+            />
+          </div>
+
+          <div className="field">
+            <div className="login-field-label">
+              <label htmlFor="login-password">Password</label>
+            </div>
+            <input
+              id="login-password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <button className="login-submit" type="submit" disabled={loading}>
+            {loading ? "Signing in…" : "Sign in"}
+          </button>
+
+          <div className="login-help">
+            <span>Forgot your password?</span>
+            <Link to="/forgot-password">Reset it here</Link>
+          </div>
+        </form>
+
+        <div className="login-trust">
+          <span className="trust-dot" />
+          <span>Secure access — only authorized Daloft Aerospace personnel.</span>
+        </div>
+      </div>
     </div>
   );
 }

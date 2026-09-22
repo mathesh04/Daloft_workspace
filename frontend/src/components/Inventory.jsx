@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
+import { istDateTime } from "../utils/datetime";
 
 const EMPTY_COMPONENT = {
   name: "", componentCode: "", categoryId: "", manufacturer: "", modelNumber: "",
@@ -60,25 +61,63 @@ function BarList({ data, max, formatter = x => x }) {
   return <div className="bar-list">{data.map((x, i) => {
     const value = Number(x.quantity ?? x.value ?? 0);
     const share = Math.round((value / Math.max(max, 1)) * 100);
-    return <div className="bar-row" key={x.name || x.label || i}><div className="bar-label"><span title={x.name || x.label}>{x.name || x.label}</span><b>{formatter(value)}</b></div>
-      <div className="bar-track"><div className="bar-fill" style={{ width: `${Math.max(value ? 4 : 0, Math.min(100, share))}%` }} /></div></div>;
+    return <div className="bar-row" key={x.name || x.label || i}>
+      <span className="bar-label" title={x.name || x.label}>{x.name || x.label}</span>
+      <div className="bar-track"><div className="bar-fill" style={{ width: `${Math.max(value ? 4 : 0, Math.min(100, share))}%` }} /></div>
+      <b className="bar-value">{formatter(value)}</b>
+    </div>;
   })}</div>;
 }
 
+const unitFormatter = value => `${value.toLocaleString()} ${value === 1 ? "unit" : "units"}`;
+
 function MonthlyChart({ data }) {
-  const rows = data || [];
+  const rows = (data || []).slice(-6);
   const max = Math.max(...rows.flatMap(x => [Number(x.in || 0), Number(x.out || 0)]), 1);
   const totalIn = rows.reduce((sum, row) => sum + Number(row.in || 0), 0);
   const totalOut = rows.reduce((sum, row) => sum + Number(row.out || 0), 0);
   const hasMovement = totalIn > 0 || totalOut > 0;
+  const step = Math.max(1, Math.round(max / 4));
+  const ticks = [...new Set([max, Math.max(0, max - step), Math.max(0, max - 2 * step), Math.max(0, max - 3 * step), 0])].filter((v, i, arr) => i === 0 || v < arr[i - 1]);
   return <div className="inventory-movement-chart">
-    <div className="movement-summary" aria-label="Movement totals"><div><span>Received</span><b>{totalIn.toLocaleString()}</b><small>units IN</small></div><div><span>Issued</span><b>{totalOut.toLocaleString()}</b><small>units OUT</small></div><div className={totalIn - totalOut < 0 ? "negative" : "positive"}><span>Net movement</span><b>{(totalIn - totalOut).toLocaleString()}</b><small>six-month balance</small></div></div>
-    <div className={`movement-plot ${hasMovement ? "" : "no-movement"}`}><div className="movement-scale"><span>{max}</span><span>{Math.round(max/2)}</span><span>0</span></div>
-    <div className="monthly-chart">{rows.map(x => <div className="month-column" key={x.month} aria-label={`${x.month || "Unknown month"}: ${x.in || 0} received, ${x.out || 0} issued`}>
-      <div className="month-bars"><div className={`month-bar in ${Number(x.in || 0) ? "has-value" : ""}`} style={{ height: `${Number(x.in || 0) ? Math.max(5, Number(x.in || 0) / max * 100) : 0}%`, minHeight: Number(x.in || 0) ? "4px" : "0" }} title={`Stock IN: ${x.in || 0}`} />
-      <div className={`month-bar out ${Number(x.out || 0) ? "has-value" : ""}`} style={{ height: `${Number(x.out || 0) ? Math.max(5, Number(x.out || 0) / max * 100) : 0}%`, minHeight: Number(x.out || 0) ? "4px" : "0" }} title={`Stock OUT: ${x.out || 0}`} /></div>
-      <small>{x.month ? x.month.slice(5) : "—"}</small><div className="month-values"><b>{x.in || 0}</b><span>{x.out || 0}</span></div></div>)}</div>
-    {!rows.length && <div className="empty-state">No stock movement data available yet.</div>}{!hasMovement && rows.length > 0 && <div className="movement-empty"><strong>No movement recorded</strong><span>There were no receipts or issues in the selected period.</span></div>}</div>
+    <div className="movement-summary" aria-label="Movement totals">
+      <div><span>Received</span><b>{totalIn.toLocaleString()}</b><small>units IN</small></div>
+      <div><span>Issued</span><b>{totalOut.toLocaleString()}</b><small>units OUT</small></div>
+      <div className={totalIn - totalOut < 0 ? "negative" : "positive"}><span>Net movement</span><b>{(totalIn - totalOut).toLocaleString()}</b><small>six-month balance</small></div>
+    </div>
+    {hasMovement ? (
+      <div className="movement-plot">
+        <div className="movement-scale" aria-hidden="true">
+          {ticks.map((t, i) => <span key={i}>{t}</span>)}
+        </div>
+        <div className="monthly-chart">
+          {[0, 25, 50, 75, 100].map(p => <i key={p} className={"gridline" + (p === 0 ? " base" : "")} style={{ bottom: `calc(24px + (100% - 48px) * ${p / 100})` }} />)}
+          <div className="month-columns">
+          {rows.map(x => {
+            const inV = Number(x.in || 0), outV = Number(x.out || 0);
+            return <div className="month-column" key={x.month}
+              aria-label={`${x.month || "Unknown month"}: ${inV} received, ${outV} issued`}>
+              <div className="month-values">
+                {inV > 0 && <b className="v-in">{inV}</b>}
+                {outV > 0 && <b className="v-out">{outV}</b>}
+              </div>
+              <div className="month-bars">
+                <div className="month-bar in" style={{ height: `${inV ? Math.max(6, inV / max * 100) : 0}%` }} title={`Stock IN: ${inV}`} />
+                <div className="month-bar out" style={{ height: `${outV ? Math.max(6, outV / max * 100) : 0}%` }} title={`Stock OUT: ${outV}`} />
+              </div>
+              <small>{x.month ? x.month.slice(5) : "—"}</small>
+            </div>;
+          })}
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className="movement-empty">
+        <strong>No movement recorded</strong>
+        <span>There were no receipts or issues in the selected period.</span>
+      </div>
+    )}
+    {!rows.length && <div className="empty-state">No stock movement data available yet.</div>}
   </div>;
 }
 
@@ -219,17 +258,17 @@ function Dashboard({data,analytics,pendingRequests,returnRequests,onTab}) {
   return <div className="dashboard-stack">
     <div className="grid grid-4"><Stat label="Components" value={data?.totalComponents} hint="Unique hardware SKUs" /><Stat label="Total units" value={data?.totalStock} hint="Across all locations" /><Stat label="Low stock" value={data?.lowStockItems} hint={data?.totalComponents ? `${Math.round((data.lowStockItems / data.totalComponents) * 100)}% of components` : "At or below minimum"} tone="warning" /><Stat label="Pending actions" value={pendingRequests+returnRequests} hint={`${pendingRequests} requests · ${returnRequests} returns`} tone="accent" /></div>
     <div className="grid grid-2 inventory-chart-grid">
-      <div className="card chart-card inventory-category-card"><div className="card-title-row"><div><span className="chart-kicker">CURRENT HOLDINGS</span><h3>Stock by category</h3><p>Where your available units are concentrated.</p></div><span className="chart-unit">UNITS</span></div><BarList data={category} max={maxCat} /></div>
-      <div className="card chart-card inventory-movement-card"><div className="card-title-row"><div><span className="chart-kicker">LAST SIX MONTHS</span><h3>Stock movement</h3><p>Compare receipts with issues before replenishing.</p></div><div className="legend"><span>Received</span><span>Issued</span></div></div><MonthlyChart data={analytics?.monthlyUsage} /></div>
+      <div className="card chart-card inventory-category-card"><div className="card-title-row"><div><span className="chart-kicker">CURRENT HOLDINGS</span><h3>Stock by category</h3><p>Where your available units are concentrated.</p></div></div><BarList data={category} max={maxCat} formatter={unitFormatter} /></div>
+      <div className="card chart-card inventory-movement-card"><div className="card-title-row"><div><span className="chart-kicker">LAST SIX MONTHS</span><h3>Stock movement</h3><p>Compare receipts with issues before replenishing.</p></div><div className="legend"><span><i className="legend-dot present" />Received</span><span><i className="legend-dot" style={{background:"#F79009"}} />Issued</span></div></div><MonthlyChart data={analytics?.monthlyUsage} /></div>
     </div>
     <div className="grid grid-2">
-      <div className="card chart-card"><h3>Top used components</h3><p className="chart-sub">Highest stock-out volume.</p><BarList data={analytics?.topUsed} max={Math.max(...(analytics?.topUsed||[]).map(x=>x.quantity),1)} formatter={x=>`${x} units`} /></div>
+      <div className="card chart-card"><h3>Top used components</h3><p className="chart-sub">Highest stock-out volume.</p><BarList data={analytics?.topUsed} max={Math.max(...(analytics?.topUsed||[]).map(x=>x.quantity),1)} formatter={unitFormatter} /></div>
       <div className="card"><div className="card-title-row"><div><h3>Needs attention</h3><p>Low-stock items that may need replenishment.</p></div><button className="btn btn-ghost btn-sm" onClick={()=>onTab("stock")}>Open stock</button></div>
-        {data?.lowStockComponents?.length ? <div className="attention-list">{data.lowStockComponents.slice(0,6).map(i=><div className="attention-row" key={i.id}><div><b>{i.name}</b><span>{i.componentCode}</span></div><strong>{i.currentQuantity} / {i.minimumQuantity}</strong></div>)}</div> : <div className="empty-state">All components are above minimum stock.</div>}
+        {data?.lowStockComponents?.length ? <div className="attention-list">{data.lowStockComponents.slice(0,6).map(i=><div className="attention-row" key={i.id}><div><b>{i.name}</b><span>{i.componentCode}</span></div><strong>{i.currentQuantity} <em className="att-min">/ {i.minimumQuantity}</em></strong><small className="att-unit">current / minimum</small></div>)}</div> : <div className="empty-state">All components are above minimum stock.</div>}
       </div>
     </div>
     <div className="card"><div className="card-title-row"><div><h3>Recent activity</h3><p>Latest stock movements.</p></div><button className="btn btn-ghost btn-sm" onClick={()=>onTab("history")}>View all</button></div>
-      <div className="activity-list">{(data?.recentTransactions||[]).slice(0,6).map(t=><div className="activity-row" key={t.id}><span className={`activity-dot ${t.transactionType==="IN"?"dot-in":"dot-out"}`} /><div><b>{t.component?.name}</b><span>{t.transactionType==="IN"?"Stock received":"Stock issued"} · {t.quantity} units</span></div><time>{new Date(t.transactionDate).toLocaleString()}</time></div>)}</div>
+      <div className="activity-list">{(data?.recentTransactions||[]).slice(0,6).map(t=><div className="activity-row" key={t.id}><span className={`activity-dot ${t.transactionType==="IN"?"dot-in":"dot-out"}`} /><div><b>{t.component?.name}</b><span>{t.transactionType==="IN"?"Stock received":"Stock issued"} · {t.quantity} units</span></div><time>{istDateTime(t.transactionDate)}</time></div>)}</div>
     </div>
   </div>;
 }
@@ -289,19 +328,19 @@ function StockForm({modal,setModal,onSubmit,busy}) {
 }
 
 function TransactionTable({tx}) {
-  return <div className="card"><div className="card-title-row"><div><h3>Transaction history</h3><p>Every manual and approved stock movement.</p></div></div><div className="table-wrap"><table><thead><tr><th>Date</th><th>Component</th><th>Type</th><th>Quantity</th><th>Purpose</th><th>Created by</th></tr></thead><tbody>{tx.map(t=><tr key={t.id}><td>{new Date(t.transactionDate).toLocaleString()}</td><td><b>{t.component?.name}</b><small>{t.component?.componentCode}</small></td><td><span className={`movement movement-${t.transactionType.toLowerCase()}`}>{t.transactionType==="IN"?"＋":"−"} {t.transactionType}</span></td><td>{t.quantity}</td><td>{t.purpose||"—"}</td><td>{t.createdBy||"—"}</td></tr>)}</tbody></table></div></div>;
+  return <div className="card"><div className="card-title-row"><div><h3>Transaction history</h3><p>Every manual and approved stock movement.</p></div></div><div className="table-wrap"><table><thead><tr><th>Date</th><th>Component</th><th>Type</th><th>Quantity</th><th>Purpose</th><th>Created by</th></tr></thead><tbody>{tx.map(t=><tr key={t.id}><td>{istDateTime(t.transactionDate)}</td><td><b>{t.component?.name}</b><small>{t.component?.componentCode}</small></td><td><span className={`movement movement-${t.transactionType.toLowerCase()}`}>{t.transactionType==="IN"?"＋":"−"} {t.transactionType}</span></td><td>{t.quantity}</td><td>{t.purpose||"—"}</td><td>{t.createdBy||"—"}</td></tr>)}</tbody></table></div></div>;
 }
 
 function RequestTable({requests,onReview}) {
-  return <div className="card"><div className="card-title-row"><div><h3>Employee component requests</h3><p>Review requests before stock is issued.</p></div></div><div className="table-wrap"><table><thead><tr><th>Employee</th><th>Component</th><th>Qty</th><th>Purpose</th><th>Status</th><th>Requested</th><th>Action</th></tr></thead><tbody>{requests.map(r=><tr key={r.id}><td><b>{r.employee.name}</b><small>{r.employee.employeeId}</small></td><td>{r.component.name}</td><td>{r.quantity}</td><td>{r.purpose||"—"}</td><td><StatusBadge value={r.status}/></td><td>{new Date(r.requestedAt).toLocaleString()}</td><td>{r.status==="PENDING"?<button className="btn btn-accent btn-sm" onClick={()=>onReview(r)}>Review</button>:<span className="muted">{r.adminRemark||"Processed"}</span>}</td></tr>)}{!requests.length&&<tr><td colSpan="7" className="empty-state">No employee requests.</td></tr>}</tbody></table></div></div>;
+  return <div className="card"><div className="card-title-row"><div><h3>Employee component requests</h3><p>Review requests before stock is issued.</p></div></div><div className="table-wrap"><table><thead><tr><th>Employee</th><th>Component</th><th>Qty</th><th>Purpose</th><th>Status</th><th>Requested</th><th>Action</th></tr></thead><tbody>{requests.map(r=><tr key={r.id}><td><b>{r.employee.name}</b><small>{r.employee.employeeId}</small></td><td>{r.component.name}</td><td>{r.quantity}</td><td>{r.purpose||"—"}</td><td><StatusBadge value={r.status}/></td><td>{istDateTime(r.requestedAt)}</td><td>{r.status==="PENDING"?<button className="btn btn-accent btn-sm" onClick={()=>onReview(r)}>Review</button>:<span className="muted">{r.adminRemark||"Processed"}</span>}</td></tr>)}{!requests.length&&<tr><td colSpan="7" className="empty-state">No employee requests.</td></tr>}</tbody></table></div></div>;
 }
 
 function UsageTable({usage,onReview}) {
-  return <div className="card"><div className="card-title-row"><div><h3>Assigned assets & usage</h3><p>Monitor issued hardware and employee return requests.</p></div></div><div className="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>Component</th><th>Qty</th><th>Status</th><th>Project / notes</th><th>Action</th></tr></thead><tbody>{usage.map(u=><tr key={u.id}><td>{new Date(u.createdAt).toLocaleString()}</td><td>{u.employee.name}</td><td>{u.component.name}</td><td>{u.quantity}</td><td><StatusBadge value={u.usageStatus}/></td><td>{u.projectName||"—"}<small>{u.notes||""}</small></td><td>{u.usageStatus==="RETURN_REQUESTED"?<button className="btn btn-accent btn-sm" onClick={()=>onReview(u)}>Review return</button>:<span className="muted">—</span>}</td></tr>)}{!usage.length&&<tr><td colSpan="7" className="empty-state">No asset usage updates yet.</td></tr>}</tbody></table></div></div>;
+  return <div className="card"><div className="card-title-row"><div><h3>Assigned assets & usage</h3><p>Monitor issued hardware and employee return requests.</p></div></div><div className="table-wrap"><table><thead><tr><th>Date</th><th>Employee</th><th>Component</th><th>Qty</th><th>Status</th><th>Project / notes</th><th>Action</th></tr></thead><tbody>{usage.map(u=><tr key={u.id}><td>{istDateTime(u.createdAt)}</td><td>{u.employee.name}</td><td>{u.component.name}</td><td>{u.quantity}</td><td><StatusBadge value={u.usageStatus}/></td><td>{u.projectName||"—"}<small>{u.notes||""}</small></td><td>{u.usageStatus==="RETURN_REQUESTED"?<button className="btn btn-accent btn-sm" onClick={()=>onReview(u)}>Review return</button>:<span className="muted">—</span>}</td></tr>)}{!usage.length&&<tr><td colSpan="7" className="empty-state">No asset usage updates yet.</td></tr>}</tbody></table></div></div>;
 }
 
 function AuditTable({audit}) {
-  return <div className="card"><div className="card-title-row"><div><h3>Audit log</h3><p>Recent inventory actions recorded by the system.</p></div></div><div className="audit-list">{audit.map(x=><div className="audit-row" key={x.id}><span className="audit-icon">•</span><div><b>{x.action.replaceAll("_"," ")}</b><span>{x.details}</span></div><div><strong>{x.actor}</strong><small>{new Date(x.createdAt).toLocaleString()}</small></div></div>)}{!audit.length&&<div className="empty-state">No audit events yet.</div>}</div></div>;
+  return <div className="card"><div className="card-title-row"><div><h3>Audit log</h3><p>Recent inventory actions recorded by the system.</p></div></div><div className="audit-list">{audit.map(x=><div className="audit-row" key={x.id}><span className="audit-icon">•</span><div><b>{x.action.replaceAll("_"," ")}</b><span>{x.details}</span></div><div><strong>{x.actor}</strong><small>{istDateTime(x.createdAt)}</small></div></div>)}{!audit.length&&<div className="empty-state">No audit events yet.</div>}</div></div>;
 }
 
 function Reports({onDone}) {

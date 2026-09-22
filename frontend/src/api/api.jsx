@@ -19,7 +19,17 @@ async function handle(response) {
   }
 
   if (!response.ok) {
-    const message = (typeof data === "string" && data.trim()) || (data && data.message) || `Request failed (${response.status})`;
+    let message = (typeof data === "string" && data.trim()) || (data && data.message) || `Request failed (${response.status})`;
+    // never surface raw backend/stack messages (Hibernate, proxies, exceptions)
+    if (typeof message === "string" && /could not initialize proxy|no session|hibernate|nullpointer|stacktrace|\.model\.|exception/i.test(message)) {
+      message = `The server could not load this data (error ${response.status}). Please refresh — if the problem continues, contact support.`;
+    }
+    // never surface raw HTML error pages (proxies, 404 pages, gateways) to the UI
+    if (typeof message === "string" && /^\s*<(!doctype|html|head|body)/i.test(message)) {
+      message = response.status === 404
+        ? "The requested resource is unavailable (404). Please refresh or contact support."
+        : `The server could not process this request (${response.status}). Please try again.`;
+    }
     if (response.status === 401 || response.status === 403) {
       if (response.status === 401) { localStorage.removeItem("ems_token"); localStorage.removeItem("ems_user"); }
     }
@@ -97,7 +107,7 @@ async function del(path) {
 }
 
 const api = {
-  // Production analytics dashboard
+
   dashboardSummary: () => get("/admin/analytics/summary"),
   attendanceAnalytics: (days=7) => get(`/admin/analytics/attendance?days=${days}`),
   departmentAnalytics: () => get("/admin/analytics/departments"),
@@ -115,10 +125,10 @@ const api = {
   downloadAttendancePdf: (m,y) => download(`/admin/reports/attendance/pdf?${new URLSearchParams({...(m?{month:m}:{}),...(y?{year:y}:{})})}`, "attendance-report.pdf"),
   downloadInventoryReportCsv: () => download("/admin/reports/inventory", "inventory-report.csv"),
   downloadLeaveReportCsv: (m,y) => download(`/admin/reports/leave?${new URLSearchParams({...(m?{month:m}:{}),...(y?{year:y}:{})})}`, "leave-report.csv"),
-  // Auth
+
   login: (employeeId, password) => post("/auth/login", { employeeId, password }),
 
-  // HR_ADMIN: employee lifecycle
+
   getEmployees: () => get("/admin/employees"),
   adminDepartments: () => get("/admin/employees/departments"),
   createEmployee: (payload) => post("/admin/employees", payload),
@@ -126,7 +136,7 @@ const api = {
   setEmployeeActive: (id, active) => patch(`/admin/employees/${id}/status`, { active }),
   archiveEmployee: (id) => del(`/admin/employees/${id}`),
 
-  // SYSTEM_ADMIN: HR_ADMIN lifecycle only
+
   getHrAdmins: () => get("/system-admin/users"),
   createHrAdmin: (payload) => post("/system-admin/users", payload),
   updateHrAdmin: (id, payload) => put(`/system-admin/users/${id}`, payload),
@@ -143,7 +153,10 @@ const api = {
   setReportingManager: (id,managerId) => put(`/system-admin/organization/employees/${id}/reporting-manager`, {managerId}),
   getAdminAccess: (id) => get(`/system-admin/organization/admins/${id}/access`),
   saveAdminAccess: (id,payload) => put(`/system-admin/organization/admins/${id}/access`, payload),
-  managerTeam: () => get("/manager/team"),
+  managerTeam: (departmentId) => get(departmentId ? `/manager/team?departmentId=${departmentId}` : "/manager/team"),
+  managerDailyReports: (filters={}) => get(`/manager/daily-reports?${new URLSearchParams(Object.entries(filters).filter(([,v])=>v!==undefined&&v!==null&&v!==""))}`),
+  managerDailyReportEmployees: () => get("/manager/daily-reports/employees"),
+  downloadManagerDailyReportsExcel: (filters={}, filename="daily-work-reports.xlsx") => download(`/manager/daily-reports/export?${new URLSearchParams(Object.entries(filters).filter(([,v])=>v!==undefined&&v!==null&&v!==""))}`, filename),
   managerDepartments: () => get("/manager/departments"),
   managerTasks: () => get("/manager/tasks"),
   managerTaskTargets: () => get("/manager/task-targets"),
@@ -163,6 +176,7 @@ const api = {
   systemSettings: () => get("/system-admin/settings"),
   adminAccessMe: () => get("/admin/access/me"),
   holidays: (year, includeInactive=false) => get(`/admin/holidays?year=${year}&includeInactive=${includeInactive}`),
+  officeCalendar: (year, month) => get(`/admin/office-calendar?year=${year}&month=${month}`),
   createHoliday: (payload) => post("/admin/holidays", payload),
   updateHoliday: (id,payload) => put(`/admin/holidays/${id}`, payload),
   setHolidayActive: (id,active) => patch(`/admin/holidays/${id}/status`, {active}),
@@ -175,7 +189,7 @@ const api = {
   updateSystemOffice: (id,payload) => put(`/system-admin/offices/${id}`, payload),
   setSystemOfficeActive: (id,active) => patch(`/system-admin/offices/${id}/status`, {active}),
 
-  // Attendance - self
+
   geofenceConfig: () => get("/attendance/geofence-config"),
   checkIn: (location) => location ? post("/attendance/check-in", location) : post("/attendance/check-in"),
   checkOut: (location) => location ? post("/attendance/check-out", location) : post("/attendance/check-out"),
@@ -185,13 +199,13 @@ const api = {
   createAttendanceRegularization: (payload) => post("/attendance/regularization", payload),
   leaveBalances: (year) => get(`/leaves/balances${year?`?year=${year}`:""}`),
 
-  // Attendance - admin
+
   allAttendance: () => get("/admin/attendance"),
   adminAttendanceCorrections: () => get("/admin/attendance-corrections"),
   reviewAdminAttendanceCorrection: (id,status,reason) => put(`/admin/attendance-corrections/${id}/status`, {status, reason}),
   todayAttendance: () => get("/admin/attendance/today"),
 
-  // Phase 3
+
   myLeaves: () => get("/leaves/me"),
   cancelLeave: (id) => put(`/leaves/${id}/cancel`, {}),
   createLeave: (payload) => post("/leaves", payload),
@@ -210,12 +224,12 @@ const api = {
   allDamageReports: () => get("/admin/damage-reports"),
   updateDamageStatus: (id, status) => put(`/admin/damage-reports/${id}/status`, { status }),
 
-  // Announcements
+
   getAnnouncements: () => get("/announcements"),
   createAnnouncement: (title, message) => post("/admin/announcements", { title, message }),
   deleteAnnouncement: (id) => del(`/admin/announcements/${id}`),
 
-  // Tasks
+
   myTasks: () => get("/tasks/me"),
   updateMyTaskStatus: (id, status) => patch(`/tasks/${id}/status`, { status }),
   updateManagerTaskStatus: (id, status) => patch(`/manager/tasks/${id}/status`, { status }),
@@ -244,7 +258,7 @@ const api = {
   downloadInventoryPdf: () => download("/admin/inventory/reports/inventory/pdf", "inventory-report.pdf"),
   downloadHolidayReportCsv: (year) => download(`/admin/holidays/export?year=${year}`, "holiday-calendar.csv"),
 
-  // Employee inventory workflow
+ 
   getAvailableInventory: () => get("/inventory/available"),
   createInventoryRequest: (payload) => post("/inventory/requests", payload),
   myInventoryRequests: () => get("/inventory/requests/me"),
@@ -252,13 +266,13 @@ const api = {
   submitUsageUpdate: (payload) => post("/inventory/usage", payload),
   myUsageUpdates: () => get("/inventory/usage/me"),
 
-  // Admin request and usage review
+
   getInventoryRequests: () => get("/admin/inventory/requests"),
   reviewInventoryRequest: (id, payload) => post(`/admin/inventory/requests/${id}/review`, payload),
   getInventoryUsageUpdates: () => get("/admin/inventory/usage-updates"),
   reviewInventoryUsage: (id, payload) => post(`/admin/inventory/usage-updates/${id}/review`, payload),
 
-  // Daily Work Reports
+
   submitDailyReport: (payload) => post("/daily-reports", payload),
   myDailyReports: () => get("/daily-reports/me"),
   myDailyReportToday: () => get("/daily-reports/today"),

@@ -9,7 +9,12 @@ export default function Tasks({managerMode=false,adminMode=false,systemAdminMode
  const {user}=useAuth();
  const [tasks,setTasks]=useState([]),[employees,setEmployees]=useState([]),[departments,setDepartments]=useState([]),[form,setForm]=useState(empty);
  const [mode,setMode]=useState(managerMode?'employee':'employee'),[error,setError]=useState(''),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true);
- const roleBroadcastAllowed=canBroadcastRoles||systemAdminMode||user?.role==='SYSTEM_ADMIN'||(user?.role==='HR_ADMIN'&&user?.permissions?.includes('ALL'));
+ const [page, setPage] = useState(0);
+ const PAGE_SIZE = 10;
+ useEffect(() => { setPage(0); }, [tasks.length]);
+ const pages = Math.ceil(tasks.length / PAGE_SIZE);
+ const currentTasks = tasks.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+ const roleBroadcastAllowed=canBroadcastRoles||systemAdminMode||user?.role==='SYSTEM_ADMIN'||((user?.role==='ADMIN'||user?.role==='HR_ADMIN')&&user?.permissions?.includes('ALL'));
  const load=async()=>{
   setLoading(true);setError('');
   try{
@@ -41,7 +46,7 @@ export default function Tasks({managerMode=false,adminMode=false,systemAdminMode
   }catch(e){setError(e.message||'Unable to load tasks.')}finally{setLoading(false)}
  };
  useEffect(()=>{load()},[managerMode]);
- const roleOptions=useMemo(()=>['EMPLOYEE','MANAGER','HR_ADMIN'].filter(r=>employees.some(e=>e.role===r&&e.active)),[employees]);
+ const roleOptions=useMemo(()=>['EMPLOYEE','MANAGER','ADMIN'].filter(r=>employees.some(e=>(e.role===r||(r==='ADMIN'&&e.role==='HR_ADMIN'))&&e.active)),[employees]);
  const submit=async ev=>{
   ev.preventDefault();setSaving(true);setError('');
   try{
@@ -71,18 +76,27 @@ export default function Tasks({managerMode=false,adminMode=false,systemAdminMode
      {mode==='department'&&<div className="field"><label>Department</label><select value={form.department} onChange={e=>setForm({...form,department:e.target.value})} required><option value="">Select department…</option>{departments.map(d=><option key={d.id||d.name} value={d.name}>{d.name}</option>)}</select></div>}
      {mode==='role'&&<div className="field"><label>Target role</label><select value={form.targetRole} onChange={e=>setForm({...form,targetRole:e.target.value})} required><option value="">Select role…</option>{roleOptions.map(r=><option key={r} value={r}>{r.replaceAll('_',' ')}</option>)}</select></div>}
      {mode==='employee'&&<div className="field"><label>Assign to {employees.length ? `(${employees.length} available)` : ""}</label><select value={form.assignedTo} onChange={e=>setForm({...form,assignedTo:e.target.value})} required><option value="">Select employee…</option>{employees.map(e=><option key={e.employeeId||e.id} value={e.employeeId}>{e.name||e.employeeId} · {e.employeeId} · {e.role||'EMPLOYEE'}</option>)}</select>{!employees.length&&<div className="field-help">{managerMode?'No active employees are currently under your responsibility.':'No active employees are available for task assignment.'}</div>}</div>}
-     {mode==='all'&&<div className="selection-summary"><b>Broadcast task</b><span>All active EMPLOYEE, MANAGER and HR ADMIN accounts will receive this task. The assigning Organization Admin is excluded.</span></div>}
+     {mode==='all'&&<div className="selection-summary"><b>Broadcast task</b><span>All active EMPLOYEE, MANAGER and ADMIN accounts will receive this task. The assigning Organization Admin is excluded.</span></div>}
      <div className="field"><label>Due date</label><input type="date" value={form.dueDate} onChange={e=>setForm({...form,dueDate:e.target.value})}/></div>
      <button className="btn btn-accent" style={{width:'100%'}} disabled={saving}>{saving?'Assigning…':mode==='all'?'Assign to everyone':'Assign task'}</button>
     </form>
    </div>
    <div className="card"><div className="card-title-row"><div><h3>{managerMode?'Team tasks':'Organization tasks'}</h3><p className="section-sub">{tasks.length} task{tasks.length===1?'':'s'} loaded.</p></div><button className="btn btn-ghost" onClick={load}>↻ Refresh</button></div>
-    <div className="table-wrap"><table><thead><tr><th>Title</th><th>Assigned to</th><th>Due</th><th>Status</th></tr></thead><tbody>{tasks.map(t=><tr key={t.id}>
+    <div className="table-wrap"><table><thead><tr><th>Title</th><th>Assigned to</th><th>Due</th><th>Status</th></tr></thead><tbody>{currentTasks.map(t=><tr key={t.id}>
      <td><b>{t.title}</b><div className="muted">{t.assignmentType==='DEPARTMENT'?`Department: ${t.targetDepartment}`:t.assignmentType==='ROLE'?`Role: ${t.targetRole?.replaceAll('_',' ')||'—'}`:t.assignmentType==='ROLE_GROUP'?'Everyone (non-system users)':''}</div></td>
      <td>{t.assignedTo?.name||'—'} <span className="muted">{t.assignedTo?.employeeId?`(${t.assignedTo.employeeId})`:''}</span></td>
      <td>{t.dueDate||'—'}</td>
      <td>{managerMode?<select value={t.status} onChange={e=>updateStatus(t.id,e.target.value)}><option value="PENDING">PENDING</option><option value="IN_PROGRESS">IN PROGRESS</option><option value="COMPLETED">COMPLETED</option></select>:<TaskBadge status={t.status}/>}</td>
     </tr>)}{!tasks.length&&<tr><td colSpan="4" className="empty-state">No tasks yet.</td></tr>}</tbody></table></div>
+    {pages > 1 && (
+      <div className="pagination" style={{ padding: "14px 18px", borderTop: "1px solid var(--border, #edf2ee)" }}>
+        <span>Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, tasks.length)} of {tasks.length} tasks (Page {page + 1} of {pages})</span>
+        <div style={{ display: "flex", gap: "6px" }}>
+          <button className="btn btn-ghost btn-sm" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>← Previous</button>
+          <button className="btn btn-ghost btn-sm" disabled={page >= pages - 1} onClick={() => setPage(p => Math.min(pages - 1, p + 1))}>Next →</button>
+        </div>
+      </div>
+    )}
    </div>
   </div>}
  </div>;

@@ -4,16 +4,17 @@ import { useAuth } from "../context/AuthContext";
 
 const roleLabel = {
   SYSTEM_ADMIN: "System Administrator",
+  ADMIN: "HR Administrator",
   HR_ADMIN: "HR Administrator",
   MANAGER: "Manager",
   EMPLOYEE: "Employee",
+  INTERN: "Intern",
 };
 
 export function DaloftBrand({ compact = false }) {
   return (
-    <div className={`daloft-brand ${compact ? "compact" : ""}`} aria-label="Daloft Aerospace Private Limited — Daloft People">
+    <div className={`daloft-brand ${compact ? "compact" : ""}`} aria-label="Daloft Aerospace Private Limited">
       <img className="daloft-logo-image" src="/assets/daloft-aerospace-logo.png" alt="Daloft Aerospace" />
-      {!compact && <div className="daloft-corporate-copy"><strong></strong><small></small></div>}
     </div>
   );
 }
@@ -74,6 +75,8 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
   }, [open]);
 
   const initials = (user?.name || "User").split(" ").map(x => x[0]).slice(0, 2).join("").toUpperCase();
+  const isAdminRole = ["SYSTEM_ADMIN", "ADMIN", "HR_ADMIN", "MANAGER"].includes(user?.role);
+  const userChipMeta = isAdminRole ? (roleLabel[user?.role] || user?.employeeId || "") : (user?.employeeId || roleLabel[user?.role] || "");
 
   const go = (item) => { onNavigate?.(item.key); setOpen(false); };
   const signOut = () => { logout(); navigate("/login"); };
@@ -104,19 +107,22 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
         <div className="sidebar-bottom">
           {workspaceActions.map(action => <button key={action.label} className="side-nav-item workspace-action" onClick={action.onClick} title={collapsed ? action.label : undefined} aria-label={action.label}><Icon name={action.icon || "home"}/><span className="nav-label">{action.label}</span></button>)}
           <button className="side-nav-item workspace-action" onClick={signOut} title={collapsed ? "Sign out" : undefined} aria-label="Sign out"><Icon name="logout"/><span className="nav-label">Sign out</span></button>
-          <div className="sidebar-footer"><span>DALOFT PEOPLE</span><small>Enterprise HR platform</small></div>
+          <div className="sidebar-footer"><span>DALOFT PEOPLE</span>
+            <small>Enterprise HR platform</small>
+          </div>
         </div>
 
       </aside>
       <div className="shell-main">
         <header className="enterprise-topbar">
           <button ref={menuButtonRef} className="mobile-menu" onClick={() => setOpen(true)} aria-label="Open navigation" aria-expanded={open} aria-controls="primary-navigation"><Icon name="menu"/></button>
-          <div className="topbar-title"><span className="eyebrow">DALOFT PEOPLE</span><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
+          <div className="topbar-title">
+            <span className="eyebrow">DALOFT PEOPLE</span><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
           <div className="topbar-tools">
             <button className="top-icon" onClick={() => onNavigate?.("notifications")} title="Notifications" aria-label="Open notifications"><Icon name="bell"/></button>
             <div id="topbar-actions" className="topbar-actions" style={{ display: "flex", alignItems: "center", gap: "8px" }} />
             <div className="topbar-divider" />
-            <div className="user-chip"><span className="avatar">{initials}</span><div><strong>{user?.name || "User"}</strong><small>{user?.employeeId || roleLabel[user?.role] || ""}</small></div></div>
+            <div className="user-chip"><span className="avatar">{initials}</span><div><strong>{user?.name || "User"}</strong><small>{userChipMeta}</small></div></div>
           </div>
         </header>
         <main className="enterprise-content">{children}</main>
