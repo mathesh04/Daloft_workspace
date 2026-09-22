@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/system-admin/**").hasRole("SYSTEM_ADMIN")
                 .requestMatchers("/api/manager/**").hasRole("MANAGER")
-                .requestMatchers("/api/hr/**", "/api/admin/**").hasAnyRole("HR_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers("/api/hr/**", "/api/admin/**").hasAnyRole("ADMIN", "HR_ADMIN", "SYSTEM_ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(maintenanceModeFilter, UsernamePasswordAuthenticationFilter.class)

@@ -19,7 +19,7 @@ public class AdminAccessFilter extends OncePerRequestFilter {
         String path=r.getRequestURI();
         if(auth!=null && auth.isAuthenticated()
                 && path.startsWith("/api/admin/")
-                && auth.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_HR_ADMIN"))){
+                && auth.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_ADMIN") || x.getAuthority().equals("ROLE_HR_ADMIN"))){
             String perm=permission(path);
             if(perm!=null && !access.allowed(auth.getName(),perm)){
                 p.setStatus(403);

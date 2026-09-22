@@ -13,7 +13,7 @@ function MiniBars({ rows = [], valueKey = "present" }) {
   return <div className="mini-bars">{rows.map((r,i)=><div className="mini-bar" key={r.date || i} title={`${r.date || ""}: ${r[valueKey] || 0}`}><span style={{height:`${Math.max(8,(n(r[valueKey])/max)*100)}%`}}/><small>{r.date ? new Date(r.date).toLocaleDateString(undefined,{weekday:"short"}).slice(0,3) : i+1}</small></div>)}</div>;
 }
 
-export default function AnalyticsDashboard({ role = "HR_ADMIN" }) {
+export default function AnalyticsDashboard({ role = "ADMIN" }) {
   const [data,setData]=useState({}); const [loading,setLoading]=useState(true); const [error,setError]=useState("");
   useEffect(()=>{
     let alive=true; setLoading(true);

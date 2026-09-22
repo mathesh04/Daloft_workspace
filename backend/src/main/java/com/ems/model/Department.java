@@ -11,9 +11,9 @@ public class Department {
  private String name;
  @Column(unique=true) 
  private String code;
- @ManyToOne(fetch=FetchType.LAZY) 
- @JoinColumn(name="manager_id") 
- private Employee manager;
+  @ManyToOne(fetch=FetchType.EAGER) 
+  @JoinColumn(name="manager_id") 
+  private Employee manager;
  @Column(nullable=false) 
  private boolean active=true;
  @Column(name="created_at",nullable=false,updatable=false) 

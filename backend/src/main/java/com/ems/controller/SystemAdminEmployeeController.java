@@ -16,5 +16,5 @@ public class SystemAdminEmployeeController {
  public ResponseEntity<?> create(@Valid @RequestBody EmployeeRequest r){
     try{return ResponseEntity.ok(employees.createHrAdmin(r));}catch(IllegalArgumentException e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
  @PutMapping("/{id}") public ResponseEntity<?> update(@PathVariable Long id,@Valid @RequestBody EmployeeRequest r){try{return ResponseEntity.ok(employees.updateHrAdmin(id,r));}catch(IllegalArgumentException e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
- @PatchMapping("/{id}/status") public ResponseEntity<?> status(@PathVariable Long id,@RequestBody Map<String,Boolean> b){try{employees.setHrAdminActive(id,Boolean.TRUE.equals(b.get("active")));return ResponseEntity.ok(Map.of("message","HR_ADMIN status updated"));}catch(IllegalArgumentException e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
+ @PatchMapping("/{id}/status") public ResponseEntity<?> status(@PathVariable Long id,@RequestBody Map<String,Boolean> b){try{employees.setHrAdminActive(id,Boolean.TRUE.equals(b.get("active")));return ResponseEntity.ok(Map.of("message","Admin status updated"));}catch(IllegalArgumentException e){return ResponseEntity.badRequest().body(Map.of("message",e.getMessage()));}}
 }

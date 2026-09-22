@@ -57,7 +57,20 @@ public class EmsApplication {
     a.setActive(true);
     repo.save(a);
     System.out.println("Initial SYSTEM_ADMIN created successfully. Credentials are not printed to logs.");
-  }
-};
+    }
+  };
+ }
+
+ @Bean
+ public CommandLineRunner databaseStartupMigration(org.springframework.jdbc.core.JdbcTemplate jdbc) {
+   return args -> {
+     try {
+       jdbc.execute("ALTER TABLE employees DROP CONSTRAINT IF EXISTS employees_role_check");
+       jdbc.execute("ALTER TABLE employees ADD CONSTRAINT employees_role_check CHECK (role IN ('SYSTEM_ADMIN', 'ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE', 'INTERN'))");
+       jdbc.execute("UPDATE employees SET role = 'ADMIN' WHERE role = 'HR_ADMIN'");
+     } catch (Exception e) {
+       System.out.println("Role startup migration notice: " + e.getMessage());
+     }
+   };
  }
 }

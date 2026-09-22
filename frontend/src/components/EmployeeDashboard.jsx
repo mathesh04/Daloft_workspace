@@ -168,7 +168,7 @@ export default function EmployeeDashboard() {
         {key:"profile",label:"My Profile",icon:"people"},
         {key:"notifications",label:"Notifications",icon:"bell",badge:notificationCount||null},
       ]}
-      workspaceActions={(user?.role === "HR_ADMIN" || user?.role === "MANAGER" || user?.role === "SYSTEM_ADMIN") ? [{label:user.role === "MANAGER" ? "My Team" : "Admin Workspace",icon:"home",onClick:()=>navigate(user.role === "MANAGER"?"/manager":user.role === "HR_ADMIN"?"/admin":"/system")}]:[]}
+      workspaceActions={(user?.role === "ADMIN" || user?.role === "HR_ADMIN" || user?.role === "MANAGER" || user?.role === "SYSTEM_ADMIN") ? [{label:user.role === "MANAGER" ? "My Departments" : "Admin Workspace",icon:"home",onClick:()=>navigate(user.role === "MANAGER"?"/manager":(user.role === "ADMIN" || user.role === "HR_ADMIN")?"/admin":"/system")}]:[]}
     >
       {error && <div className="error-banner">{error}</div>}
       {!attendancePolicy.attendanceEnabled && <div className="error-banner">Attendance has been disabled by your organization administrator.</div>}
