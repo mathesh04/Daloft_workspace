@@ -1,11 +1,16 @@
 package com.ems.service;
 
-import com.ems.model.*;
-import com.ems.repository.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Year;
-import java.util.*;
+
+import com.ems.model.Employee;
+import com.ems.model.LeaveBalance;
+import com.ems.model.LeaveRequest;
+import com.ems.repository.LeaveBalanceRepository;
 
 @Service
 public class LeaveBalanceService {
@@ -18,7 +23,7 @@ public class LeaveBalanceService {
             case "CASUAL" -> settings.getInt("LEAVE_CASUAL_DAYS",12);
             case "SICK" -> settings.getInt("LEAVE_SICK_DAYS",12);
             case "EARNED" -> settings.getInt("LEAVE_EARNED_DAYS",15);
-            default -> 0; // unpaid/WFH/other do not consume a paid entitlement by default
+            default -> 0; 
         };
     }
 

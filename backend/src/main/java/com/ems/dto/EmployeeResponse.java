@@ -1,6 +1,7 @@
 package com.ems.dto;
 
 import com.ems.model.Employee;
+import org.hibernate.Hibernate;
 import java.time.LocalDateTime;
 
 public class EmployeeResponse {
@@ -22,8 +23,13 @@ public class EmployeeResponse {
         this.name = e.getName();
         this.role = e.getRole().name();
         this.department = e.getDepartment();
-        this.reportingManagerId = e.getReportingManager()==null?null:e.getReportingManager().getId();
-        this.reportingManagerName = e.getReportingManager()==null?null:e.getReportingManager().getName();
+        if (e.getReportingManager() != null) {
+            this.reportingManagerId = e.getReportingManager().getId();
+            this.reportingManagerName = Hibernate.isInitialized(e.getReportingManager()) ? e.getReportingManager().getName() : null;
+        } else {
+            this.reportingManagerId = null;
+            this.reportingManagerName = null;
+        }
         this.email = e.getEmail();
         this.phoneNumber=e.getPhoneNumber(); this.address=e.getAddress(); this.emergencyContact=e.getEmergencyContact(); this.designation=e.getDesignation(); this.profilePictureUrl=e.getProfilePictureUrl(); this.joiningDate=e.getJoiningDate();
         this.active = e.isActive();

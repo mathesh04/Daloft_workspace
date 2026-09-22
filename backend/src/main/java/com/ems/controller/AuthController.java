@@ -73,7 +73,7 @@ public class AuthController {
         if (role == Role.EMPLOYEE) return settings.getBoolean("EMPLOYEE_LOGIN_ENABLED", true);
         if (role == Role.INTERN) return settings.getBoolean("INTERN_LOGIN_ENABLED", true);
         if (role == Role.MANAGER) return settings.getBoolean("MANAGER_LOGIN_ENABLED", true);
-        if (role == Role.HR_ADMIN) return settings.getBoolean("HR_ADMIN_LOGIN_ENABLED", true);
+        if (role == Role.ADMIN) return settings.getBoolean("ADMIN_LOGIN_ENABLED", settings.getBoolean("HR_ADMIN_LOGIN_ENABLED", true));
         return false;
     }
 
@@ -81,7 +81,7 @@ public class AuthController {
         if (role == Role.EMPLOYEE) return "Employee";
         if (role == Role.INTERN) return "Intern";
         if (role == Role.MANAGER) return "Manager";
-        if (role == Role.HR_ADMIN) return "Administrator";
+        if (role == Role.ADMIN) return "Administrator";
         if (role == Role.SYSTEM_ADMIN) return "Organization Admin";
         return "User";
     }

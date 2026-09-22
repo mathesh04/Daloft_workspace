@@ -4,9 +4,11 @@ import { useAuth } from "../context/AuthContext";
 
 const roleLabel = {
   SYSTEM_ADMIN: "System Administrator",
-  HR_ADMIN: "HR Administrator",
+  ADMIN: "Administrator",
+  HR_ADMIN: "Administrator",
   MANAGER: "Manager",
   EMPLOYEE: "Employee",
+  INTERN: "Intern",
 };
 
 export function DaloftBrand({ compact = false }) {
