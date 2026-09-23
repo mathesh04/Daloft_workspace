@@ -1,4 +1,6 @@
 
+import { isTokenExpired } from "../utils/jwt";
+
 const rawBase = (import.meta.env.VITE_API_BASE_URL || "/api").trim().replace(/\/+$/, "");
 const BASE_URL = rawBase.endsWith("/api")
   ? rawBase
@@ -7,6 +9,30 @@ const BASE_URL = rawBase.endsWith("/api")
 function authHeaders() {
   const token = localStorage.getItem("ems_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function triggerSessionExpired(reason = "Your session has expired. Please sign in again.") {
+  localStorage.removeItem("ems_token");
+  localStorage.removeItem("ems_user");
+  invalidateGetCache();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(
+      new CustomEvent("ems:session-expired", {
+        detail: { reason },
+      })
+    );
+  }
+}
+
+function ensureFreshToken(path = "") {
+  if (path.startsWith("/auth/")) return true;
+  const token = localStorage.getItem("ems_token");
+  if (!token) return true;
+  if (isTokenExpired(token)) {
+    triggerSessionExpired("Your session has expired. Please sign in again.");
+    throw new Error("Your session has expired. Please sign in again.");
+  }
+  return true;
 }
 
 async function handle(response) {
@@ -30,8 +56,13 @@ async function handle(response) {
         ? "The requested resource is unavailable (404). Please refresh or contact support."
         : `The server could not process this request (${response.status}). Please try again.`;
     }
-    if (response.status === 401 || response.status === 403) {
-      if (response.status === 401) { localStorage.removeItem("ems_token"); localStorage.removeItem("ems_user"); }
+    if (response.status === 401) {
+      triggerSessionExpired("Your session has expired. Please sign in again.");
+    } else if (response.status === 403) {
+      const token = localStorage.getItem("ems_token");
+      if (!token || isTokenExpired(token)) {
+        triggerSessionExpired("Your session has expired. Please sign in again.");
+      }
     }
     throw new Error(message);
   }
@@ -47,6 +78,7 @@ function invalidateGetCache() {
 }
 
 async function get(path) {
+  ensureFreshToken(path);
   const now = Date.now();
   const cached = getCache.get(path);
   const token = localStorage.getItem("ems_token") || "";
@@ -61,6 +93,7 @@ async function get(path) {
 }
 
 async function post(path, body) {
+  ensureFreshToken(path);
   const options = {
     method: "POST",
     headers: { ...authHeaders() },
@@ -74,6 +107,7 @@ async function post(path, body) {
 }
 
 async function put(path, body) {
+  ensureFreshToken(path);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -83,6 +117,7 @@ async function put(path, body) {
 }
 
 async function patch(path, body) {
+  ensureFreshToken(path);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -92,6 +127,7 @@ async function patch(path, body) {
 }
 
 async function download(path, filename) {
+  ensureFreshToken(path);
   const res = await fetch(`${BASE_URL}${path}`, { headers: { ...authHeaders() } });
   if (!res.ok) throw new Error(`Download failed (${res.status})`);
   const blob = await res.blob();
@@ -99,6 +135,7 @@ async function download(path, filename) {
 }
 
 async function del(path) {
+  ensureFreshToken(path);
   const res = await fetch(`${BASE_URL}${path}`, {
     method: "DELETE",
     headers: { ...authHeaders() },

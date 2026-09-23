@@ -1,38 +1,38 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import api from '../api/api';
-import Tasks from './Tasks';
-import WorkspaceShell from './WorkspaceShell';
+import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import api from "../api/api";
+import Tasks from "./Tasks";
+import WorkspaceShell from "./WorkspaceShell";
 
 export default function ManagerDashboard() {
   const { user, logout } = useAuth();
   const nav = useNavigate();
 
-  const [tab, setTab] = useState('departments');
+  const [tab, setTab] = useState("departments");
   const [departments, setDepartments] = useState([]);
   const [team, setTeam] = useState([]);
   const [selectedDeptId, setSelectedDeptId] = useState(null);
   const [leaves, setLeaves] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [corrections, setCorrections] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  // Daily Work Reports state
+
   const [reports, setReports] = useState([]);
   const [reportEmployees, setReportEmployees] = useState([]);
   const [reportFilters, setReportFilters] = useState({
-    date: '',
-    from: '',
-    to: '',
-    employeeId: '',
-    departmentId: '',
+    date: "",
+    from: "",
+    to: "",
+    employeeId: "",
+    departmentId: "",
   });
   const [loadingReports, setLoadingReports] = useState(false);
   const [downloadingReports, setDownloadingReports] = useState(false);
 
   const load = async () => {
-    setError('');
+    setError("");
     try {
       const results = await Promise.allSettled([
         api.managerDepartments(),
@@ -43,7 +43,9 @@ export default function ManagerDashboard() {
         api.managerDailyReportEmployees(),
       ]);
 
-      const vals = results.map((r) => (r.status === 'fulfilled' ? r.value : []));
+      const vals = results.map((r) =>
+        r.status === "fulfilled" ? r.value : [],
+      );
       setDepartments(vals[0] || []);
       setTeam(vals[1] || []);
       setLeaves(vals[2] || []);
@@ -51,8 +53,10 @@ export default function ManagerDashboard() {
       setCorrections(vals[4] || []);
       setReportEmployees(vals[5] || []);
 
-      if (results.some((r) => r.status === 'rejected')) {
-        setError('Some manager data is temporarily unavailable. The available workspace remains usable.');
+      if (results.some((r) => r.status === "rejected")) {
+        setError(
+          "Some manager data is temporarily unavailable. The available workspace remains usable.",
+        );
       }
     } catch (e) {
       setError(e.message);
@@ -69,14 +73,14 @@ export default function ManagerDashboard() {
       const res = await api.managerDailyReports(filters);
       setReports(Array.isArray(res) ? res : []);
     } catch (e) {
-      setError(e.message || 'Unable to load daily work reports.');
+      setError(e.message || "Unable to load daily work reports.");
     } finally {
       setLoadingReports(false);
     }
   };
 
   useEffect(() => {
-    if (tab === 'reports') {
+    if (tab === "reports") {
       loadDailyReports(reportFilters);
     }
   }, [tab]);
@@ -87,7 +91,13 @@ export default function ManagerDashboard() {
   };
 
   const handleResetReportFilters = () => {
-    const emptyFilters = { date: '', from: '', to: '', employeeId: '', departmentId: '' };
+    const emptyFilters = {
+      date: "",
+      from: "",
+      to: "",
+      employeeId: "",
+      departmentId: "",
+    };
     setReportFilters(emptyFilters);
     loadDailyReports(emptyFilters);
   };
@@ -97,10 +107,10 @@ export default function ManagerDashboard() {
     try {
       await api.downloadManagerDailyReportsExcel(
         reportFilters,
-        `daily-reports-${reportFilters.date || (reportFilters.from ? `${reportFilters.from}-to-${reportFilters.to}` : 'all')}.xlsx`
+        `daily-reports-${reportFilters.date || (reportFilters.from ? `${reportFilters.from}-to-${reportFilters.to}` : "all")}.xlsx`,
       );
     } catch (e) {
-      alert(e.message || 'Failed to download daily reports.');
+      alert(e.message || "Failed to download daily reports.");
     } finally {
       setDownloadingReports(false);
     }
@@ -108,9 +118,9 @@ export default function ManagerDashboard() {
 
   const review = async (id, status) => {
     try {
-      let reason = '';
-      if (status === 'REJECTED') {
-        reason = window.prompt('Enter the rejection reason:') || '';
+      let reason = "";
+      if (status === "REJECTED") {
+        reason = window.prompt("Enter the rejection reason:") || "";
         if (!reason.trim()) return;
       }
       await api.reviewManagerLeave(id, status, reason);
@@ -122,9 +132,9 @@ export default function ManagerDashboard() {
 
   const reviewCorrection = async (id, status) => {
     try {
-      let reason = '';
-      if (status === 'REJECTED') {
-        reason = window.prompt('Enter the rejection reason:') || '';
+      let reason = "";
+      if (status === "REJECTED") {
+        reason = window.prompt("Enter the rejection reason:") || "";
         if (!reason.trim()) return;
       }
       await api.reviewManagerAttendanceCorrection(id, status, reason);
@@ -134,15 +144,15 @@ export default function ManagerDashboard() {
     }
   };
 
-  // Filter team members based on selected department
+
   const filteredTeam = selectedDeptId
     ? team.filter((e) => {
         const d = departments.find((dept) => dept.id === selectedDeptId);
         if (!d) return true;
-        const norm = (e.department || '').trim().toLowerCase();
+        const norm = (e.department || "").trim().toLowerCase();
         return (
-          norm === (d.name || '').trim().toLowerCase() ||
-          norm === (d.code || '').trim().toLowerCase()
+          norm === (d.name || "").trim().toLowerCase() ||
+          norm === (d.code || "").trim().toLowerCase()
         );
       })
     : team;
@@ -153,33 +163,54 @@ export default function ManagerDashboard() {
   return (
     <WorkspaceShell
       title={
-        tab === 'departments'
-          ? `Good morning, ${user.name ? user.name.split(' ')[0] : 'Manager'}`
+        tab === "departments"
+          ? `Good morning, ${user.name ? user.name.split(" ")[0] : "Manager"}`
           : {
-              reports: 'Department Daily Reports',
-              leaves: 'Leave Approvals',
-              tasks: 'Department Tasks',
-              attendance: 'Department Attendance',
-              corrections: 'Attendance Corrections',
-            }[tab] || 'My Departments'
+              reports: "Department Daily Reports",
+              leaves: "Leave Approvals",
+              tasks: "Department Tasks",
+              attendance: "Department Attendance",
+              corrections: "Attendance Corrections",
+            }[tab] || "My Departments"
       }
       subtitle="Oversee your assigned departments, workforce roster, daily work reports, approvals and tasks."
       active={tab}
       onNavigate={setTab}
       navItems={[
-        { key: 'departments', label: 'My Departments', icon: 'people', badge: departments.length || team.length || null },
-        { key: 'reports', label: 'Daily Reports', icon: 'report' },
-        { key: 'leaves', label: 'Leave Approvals', icon: 'leave', badge: leaves.length || null },
-        { key: 'tasks', label: 'Department Tasks', icon: 'tasks' },
-        { key: 'attendance', label: 'Team Attendance', icon: 'calendar' },
-        { key: 'corrections', label: 'Attendance Corrections', icon: 'calendar', badge: corrections.length || null },
+        {
+          key: "departments",
+          label: "My Departments",
+          icon: "people",
+          badge: departments.length || team.length || null,
+        },
+        { key: "reports", label: "Daily Reports", icon: "report" },
+        {
+          key: "leaves",
+          label: "Leave Approvals",
+          icon: "leave",
+          badge: leaves.length || null,
+        },
+        { key: "tasks", label: "Department Tasks", icon: "tasks" },
+        { key: "attendance", label: "Team Attendance", icon: "calendar" },
+        {
+          key: "corrections",
+          label: "Attendance Corrections",
+          icon: "calendar",
+          badge: corrections.length || null,
+        },
       ]}
-      workspaceActions={[{ label: 'My Workspace', icon: 'home', onClick: () => nav('/employee') }]}
+      workspaceActions={[
+        {
+          label: "My Workspace",
+          icon: "home",
+          onClick: () => nav("/employee"),
+        },
+      ]}
     >
       {error && <div className="error-banner">{error}</div>}
 
-      {/* MY DEPARTMENTS TAB */}
-      {tab === 'departments' && (
+      {}
+      {tab === "departments" && (
         <>
           <div className="manager-metrics">
             <div className="employee-stat">
@@ -190,7 +221,9 @@ export default function ManagerDashboard() {
             <div className="employee-stat">
               <span>Total workforce</span>
               <strong>{team.length}</strong>
-              <small>{totalActiveInTeam} active · {totalInactiveInTeam} inactive</small>
+              <small>
+                {totalActiveInTeam} active · {totalInactiveInTeam} inactive
+              </small>
             </div>
             <div className="employee-stat">
               <span>Leave approvals</span>
@@ -209,7 +242,8 @@ export default function ManagerDashboard() {
               <span className="eyebrow green">DEPARTMENT OVERVIEW</span>
               <h2>Your departments at a glance</h2>
               <p>
-                Strictly scoped to your assigned departments. Click a department card or pill to filter your workforce roster.
+                Strictly scoped to your assigned departments. Click a department
+                card or pill to filter your workforce roster.
               </p>
               <div className="manager-mini-grid">
                 <div>
@@ -221,7 +255,9 @@ export default function ManagerDashboard() {
                   <span>Inactive Members</span>
                 </div>
                 <div>
-                  <strong>{attendance.filter((a) => a.checkInTime).length}</strong>
+                  <strong>
+                    {attendance.filter((a) => a.checkInTime).length}
+                  </strong>
                   <span>Checked In Today</span>
                 </div>
               </div>
@@ -229,62 +265,133 @@ export default function ManagerDashboard() {
 
             <div className="premium-card manager-action-card">
               <span className="eyebrow">QUICK NAVIGATION</span>
-              <button onClick={() => setTab('reports')}>
+              <button onClick={() => setTab("reports")}>
                 View daily work reports <b>→</b>
               </button>
-              <button onClick={() => setTab('tasks')}>
+              <button onClick={() => setTab("tasks")}>
                 Assign department tasks <b>→</b>
               </button>
-              <button onClick={() => setTab('leaves')}>
+              <button onClick={() => setTab("leaves")}>
                 Review leave requests <b>→</b>
               </button>
             </div>
           </div>
 
-          {/* Department Cards Grid */}
+          {}
           <div style={{ marginTop: 24, marginBottom: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Assigned Departments</h3>
-              <span className="muted" style={{ fontSize: '0.85rem' }}>{departments.length} assigned</span>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 12,
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 600 }}>
+                Assigned Departments
+              </h3>
+              <span className="muted" style={{ fontSize: "0.85rem" }}>
+                {departments.length} assigned
+              </span>
             </div>
 
             {departments.length === 0 ? (
-              <div className="card" style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)' }}>
-                No departments are currently assigned to your manager account. Please contact your Organization Admin.
+              <div
+                className="card"
+                style={{
+                  padding: 24,
+                  textAlign: "center",
+                  color: "var(--text-muted)",
+                }}
+              >
+                No departments are currently assigned to your manager account.
+                Please contact your Organization Admin.
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                  gap: 16,
+                }}
+              >
                 {departments.map((d) => {
                   const isSelected = selectedDeptId === d.id;
                   return (
                     <div
                       key={d.id}
                       className="card"
-                      onClick={() => setSelectedDeptId(isSelected ? null : d.id)}
+                      onClick={() =>
+                        setSelectedDeptId(isSelected ? null : d.id)
+                      }
                       style={{
                         padding: 18,
-                        cursor: 'pointer',
-                        border: isSelected ? '2px solid #2563EB' : '1px solid var(--line)',
-                        backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.05)' : '#FFFFFF',
-                        transition: 'all 0.15s ease',
+                        cursor: "pointer",
+                        border: isSelected
+                          ? "2px solid #2563EB"
+                          : "1px solid var(--line)",
+                        backgroundColor: isSelected
+                          ? "rgba(37, 99, 235, 0.05)"
+                          : "#FFFFFF",
+                        transition: "all 0.15s ease",
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                        }}
+                      >
                         <div>
-                          <b style={{ fontSize: '1.05rem', color: isSelected ? '#1E4FBF' : 'inherit' }}>{d.name}</b>
-                          {d.code && <div className="muted" style={{ fontSize: '0.8rem', marginTop: 2 }}>Code: {d.code}</div>}
+                          <b
+                            style={{
+                              fontSize: "1.05rem",
+                              color: isSelected ? "#1E4FBF" : "inherit",
+                            }}
+                          >
+                            {d.name}
+                          </b>
+                          {d.code && (
+                            <div
+                              className="muted"
+                              style={{ fontSize: "0.8rem", marginTop: 2 }}
+                            >
+                              Code: {d.code}
+                            </div>
+                          )}
                         </div>
-                        <span className={`badge ${d.active ? 'badge-success' : 'badge-danger'}`}>
-                          {d.active ? 'Active' : 'Inactive'}
+                        <span
+                          className={`badge ${d.active ? "badge-success" : "badge-danger"}`}
+                        >
+                          {d.active ? "Active" : "Inactive"}
                         </span>
                       </div>
-                      <div style={{ display: 'flex', gap: 16, marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 16,
+                          marginTop: 14,
+                          paddingTop: 12,
+                          borderTop: "1px solid var(--line)",
+                        }}
+                      >
                         <div>
-                          <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{d.totalEmployees ?? 0}</div>
+                          <div style={{ fontSize: "1.2rem", fontWeight: 700 }}>
+                            {d.totalEmployees ?? 0}
+                          </div>
                           <small className="muted">Total Members</small>
                         </div>
                         <div>
-                          <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1E4FBF' }}>{d.activeEmployees ?? 0}</div>
+                          <div
+                            style={{
+                              fontSize: "1.2rem",
+                              fontWeight: 700,
+                              color: "#1E4FBF",
+                            }}
+                          >
+                            {d.activeEmployees ?? 0}
+                          </div>
                           <small className="muted">Active</small>
                         </div>
                       </div>
@@ -295,16 +402,28 @@ export default function ManagerDashboard() {
             )}
           </div>
 
-          {/* Department Filter Pills & Team Roster */}
+          {}
           <div className="card" style={{ marginTop: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 14,
+                flexWrap: "wrap",
+                gap: 10,
+              }}
+            >
               <div>
                 <h3 style={{ margin: 0 }}>Workforce Under My Responsibility</h3>
-                <small className="muted">Showing {filteredTeam.length} employee{filteredTeam.length === 1 ? '' : 's'}</small>
+                <small className="muted">
+                  Showing {filteredTeam.length} employee
+                  {filteredTeam.length === 1 ? "" : "s"}
+                </small>
               </div>
               <div className="tabs" style={{ margin: 0 }}>
                 <button
-                  className={`tab-btn ${selectedDeptId === null ? 'active' : ''}`}
+                  className={`tab-btn ${selectedDeptId === null ? "active" : ""}`}
                   onClick={() => setSelectedDeptId(null)}
                 >
                   All Departments ({team.length})
@@ -312,10 +431,17 @@ export default function ManagerDashboard() {
                 {departments.map((d) => (
                   <button
                     key={d.id}
-                    className={`tab-btn ${selectedDeptId === d.id ? 'active' : ''}`}
+                    className={`tab-btn ${selectedDeptId === d.id ? "active" : ""}`}
                     onClick={() => setSelectedDeptId(d.id)}
                   >
-                    {d.name} ({d.totalEmployees ?? team.filter(e => (e.department||'').trim().toLowerCase() === (d.name||'').trim().toLowerCase()).length})
+                    {d.name} (
+                    {d.totalEmployees ??
+                      team.filter(
+                        (e) =>
+                          (e.department || "").trim().toLowerCase() ===
+                          (d.name || "").trim().toLowerCase(),
+                      ).length}
+                    )
                   </button>
                 ))}
               </div>
@@ -340,15 +466,19 @@ export default function ManagerDashboard() {
                         <div className="muted">{e.employeeId}</div>
                       </td>
                       <td>
-                        <span className={`badge ${e.role === 'INTERN' ? 'badge-warning' : 'badge-neutral'}`}>
+                        <span
+                          className={`badge ${e.role === "INTERN" ? "badge-warning" : "badge-neutral"}`}
+                        >
                           {e.role}
                         </span>
                       </td>
-                      <td>{e.department || '—'}</td>
-                      <td>{e.designation || '—'}</td>
+                      <td>{e.department || "—"}</td>
+                      <td>{e.designation || "—"}</td>
                       <td>
-                        <span className={`badge ${e.active ? 'badge-success' : 'badge-danger'}`}>
-                          {e.active ? 'Active' : 'Inactive'}
+                        <span
+                          className={`badge ${e.active ? "badge-success" : "badge-danger"}`}
+                        >
+                          {e.active ? "Active" : "Inactive"}
                         </span>
                       </td>
                     </tr>
@@ -356,7 +486,11 @@ export default function ManagerDashboard() {
                   {!filteredTeam.length && (
                     <tr>
                       <td colSpan="5" className="empty-state">
-                        No employees found in {selectedDeptId ? 'the selected department' : 'your assigned departments'}.
+                        No employees found in{" "}
+                        {selectedDeptId
+                          ? "the selected department"
+                          : "your assigned departments"}
+                        .
                       </td>
                     </tr>
                   )}
@@ -367,15 +501,28 @@ export default function ManagerDashboard() {
         </>
       )}
 
-      {/* DAILY WORK REPORTS TAB */}
-      {tab === 'reports' && (
-        <KeepAlive active={tab === 'reports'}>
+      {}
+      {tab === "reports" && (
+        <KeepAlive active={tab === "reports"}>
           <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 16,
+                flexWrap: "wrap",
+                gap: 12,
+              }}
+            >
               <div>
                 <h3 style={{ margin: 0 }}>Department Daily Work Reports</h3>
-                <p className="muted" style={{ margin: '4px 0 0', fontSize: '0.88rem' }}>
-                  Monitor daily learnings, deliverables, blockers, and equipment used by your department members.
+                <p
+                  className="muted"
+                  style={{ margin: "4px 0 0", fontSize: "0.88rem" }}
+                >
+                  Monitor daily learnings, deliverables, blockers, and equipment
+                  used by your department members.
                 </p>
               </div>
               <button
@@ -383,28 +530,33 @@ export default function ManagerDashboard() {
                 onClick={handleExportReports}
                 disabled={downloadingReports || !reports.length}
               >
-                {downloadingReports ? 'Exporting…' : '📥 Download Excel'}
+                {downloadingReports ? "Exporting…" : "📥 Download Excel"}
               </button>
             </div>
 
-            {/* Filters Form */}
+            {}
             <form
               onSubmit={handleApplyReportFilters}
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
                 gap: 12,
-                padding: '14px 16px',
-                backgroundColor: 'var(--surface-2)',
+                padding: "14px 16px",
+                backgroundColor: "var(--surface-2)",
                 borderRadius: 8,
                 marginBottom: 20,
               }}
             >
               <div className="field" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.8rem' }}>Department</label>
+                <label style={{ fontSize: "0.8rem" }}>Department</label>
                 <select
                   value={reportFilters.departmentId}
-                  onChange={(e) => setReportFilters({ ...reportFilters, departmentId: e.target.value })}
+                  onChange={(e) =>
+                    setReportFilters({
+                      ...reportFilters,
+                      departmentId: e.target.value,
+                    })
+                  }
                 >
                   <option value="">All My Departments</option>
                   {departments.map((d) => (
@@ -416,10 +568,15 @@ export default function ManagerDashboard() {
               </div>
 
               <div className="field" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.8rem' }}>Employee</label>
+                <label style={{ fontSize: "0.8rem" }}>Employee</label>
                 <select
                   value={reportFilters.employeeId}
-                  onChange={(e) => setReportFilters({ ...reportFilters, employeeId: e.target.value })}
+                  onChange={(e) =>
+                    setReportFilters({
+                      ...reportFilters,
+                      employeeId: e.target.value,
+                    })
+                  }
                 >
                   <option value="">All Team Members</option>
                   {reportEmployees.map((e) => (
@@ -431,45 +588,78 @@ export default function ManagerDashboard() {
               </div>
 
               <div className="field" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.8rem' }}>Specific Date</label>
+                <label style={{ fontSize: "0.8rem" }}>Specific Date</label>
                 <input
                   type="date"
                   value={reportFilters.date}
-                  onChange={(e) => setReportFilters({ ...reportFilters, date: e.target.value, from: '', to: '' })}
+                  onChange={(e) =>
+                    setReportFilters({
+                      ...reportFilters,
+                      date: e.target.value,
+                      from: "",
+                      to: "",
+                    })
+                  }
                 />
               </div>
 
               <div className="field" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.8rem' }}>From Date</label>
+                <label style={{ fontSize: "0.8rem" }}>From Date</label>
                 <input
                   type="date"
                   value={reportFilters.from}
-                  onChange={(e) => setReportFilters({ ...reportFilters, from: e.target.value, date: '' })}
+                  onChange={(e) =>
+                    setReportFilters({
+                      ...reportFilters,
+                      from: e.target.value,
+                      date: "",
+                    })
+                  }
                 />
               </div>
 
               <div className="field" style={{ margin: 0 }}>
-                <label style={{ fontSize: '0.8rem' }}>To Date</label>
+                <label style={{ fontSize: "0.8rem" }}>To Date</label>
                 <input
                   type="date"
                   value={reportFilters.to}
-                  onChange={(e) => setReportFilters({ ...reportFilters, to: e.target.value, date: '' })}
+                  onChange={(e) =>
+                    setReportFilters({
+                      ...reportFilters,
+                      to: e.target.value,
+                      date: "",
+                    })
+                  }
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
-                <button className="btn btn-primary btn-sm" type="submit" style={{ flex: 1 }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                <button
+                  className="btn btn-primary btn-sm"
+                  type="submit"
+                  style={{ flex: 1 }}
+                >
                   Filter
                 </button>
-                <button className="btn btn-ghost btn-sm" type="button" onClick={handleResetReportFilters}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  type="button"
+                  onClick={handleResetReportFilters}
+                >
                   Reset
                 </button>
               </div>
             </form>
 
-            {/* Reports List / Table */}
+            {}
             {loadingReports ? (
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
+              <div
+                style={{
+                  padding: 40,
+                  textAlign: "center",
+                  color: "var(--text-muted)",
+                }}
+              >
                 <div className="loading-spinner" style={{ marginBottom: 10 }} />
                 Loading daily reports…
               </div>
@@ -478,12 +668,12 @@ export default function ManagerDashboard() {
                 <table>
                   <thead>
                     <tr>
-                      <th style={{ width: '110px' }}>Date</th>
-                      <th style={{ width: '180px' }}>Employee</th>
+                      <th style={{ width: "110px" }}>Date</th>
+                      <th style={{ width: "180px" }}>Employee</th>
                       <th>Tasks Completed / Learnings</th>
                       <th>Blockers / Issues</th>
                       <th>Plan for Tomorrow</th>
-                      <th style={{ width: '140px' }}>Equipment</th>
+                      <th style={{ width: "140px" }}>Equipment</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -494,25 +684,33 @@ export default function ManagerDashboard() {
                         </td>
                         <td>
                           <b>{r.employee?.name}</b>
-                          <div className="muted" style={{ fontSize: '0.78rem' }}>
-                            {r.employee?.employeeId} · {r.employee?.department || '—'}
+                          <div
+                            className="muted"
+                            style={{ fontSize: "0.78rem" }}
+                          >
+                            {r.employee?.employeeId} ·{" "}
+                            {r.employee?.department || "—"}
                           </div>
                         </td>
-                        <td style={{ whiteSpace: 'pre-wrap', minWidth: 200 }}>
-                          {r.tasksCompleted || '—'}
+                        <td style={{ whiteSpace: "pre-wrap", minWidth: 200 }}>
+                          {r.tasksCompleted || "—"}
                         </td>
-                        <td style={{ whiteSpace: 'pre-wrap', minWidth: 150 }}>
-                          {r.blockers && r.blockers !== 'None' ? (
-                            <span style={{ color: '#B42318' }}>{r.blockers}</span>
+                        <td style={{ whiteSpace: "pre-wrap", minWidth: 150 }}>
+                          {r.blockers && r.blockers !== "None" ? (
+                            <span style={{ color: "#B42318" }}>
+                              {r.blockers}
+                            </span>
                           ) : (
                             <span className="muted">None</span>
                           )}
                         </td>
-                        <td style={{ whiteSpace: 'pre-wrap', minWidth: 180 }}>
-                          {r.planForTomorrow || '—'}
+                        <td style={{ whiteSpace: "pre-wrap", minWidth: 180 }}>
+                          {r.planForTomorrow || "—"}
                         </td>
                         <td>
-                          <small className="muted">{r.equipmentsUsed || 'N/A'}</small>
+                          <small className="muted">
+                            {r.equipmentsUsed || "N/A"}
+                          </small>
                         </td>
                       </tr>
                     ))}
@@ -531,9 +729,9 @@ export default function ManagerDashboard() {
         </KeepAlive>
       )}
 
-      {/* LEAVE APPROVALS TAB */}
-      {tab === 'leaves' && (
-        <KeepAlive active={tab === 'leaves'}>
+      {}
+      {tab === "leaves" && (
+        <KeepAlive active={tab === "leaves"}>
           <div className="card">
             <h3>Pending team leave requests</h3>
             <div className="table-wrap">
@@ -552,16 +750,27 @@ export default function ManagerDashboard() {
                     <tr key={r.id}>
                       <td>
                         <b>{r.employee?.name}</b>
-                        <div className="muted">{r.employee?.employeeId} · {r.employee?.department || '—'}</div>
+                        <div className="muted">
+                          {r.employee?.employeeId} ·{" "}
+                          {r.employee?.department || "—"}
+                        </div>
                       </td>
                       <td>{r.leaveType}</td>
-                      <td>{r.startDate} → {r.endDate}</td>
-                      <td>{r.reason || '—'}</td>
                       <td>
-                        <button className="btn btn-accent btn-sm" onClick={() => review(r.id, 'APPROVED')}>
+                        {r.startDate} → {r.endDate}
+                      </td>
+                      <td>{r.reason || "—"}</td>
+                      <td>
+                        <button
+                          className="btn btn-accent btn-sm"
+                          onClick={() => review(r.id, "APPROVED")}
+                        >
                           Approve
-                        </button>{' '}
-                        <button className="btn btn-danger btn-sm" onClick={() => review(r.id, 'REJECTED')}>
+                        </button>{" "}
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => review(r.id, "REJECTED")}
+                        >
                           Reject
                         </button>
                       </td>
@@ -581,16 +790,16 @@ export default function ManagerDashboard() {
         </KeepAlive>
       )}
 
-      {/* DEPARTMENT TASKS TAB */}
-      {tab === 'tasks' && (
-        <KeepAlive active={tab === 'tasks'}>
+      {}
+      {tab === "tasks" && (
+        <KeepAlive active={tab === "tasks"}>
           <Tasks managerMode />
         </KeepAlive>
       )}
 
-      {/* TEAM ATTENDANCE TAB */}
-      {tab === 'attendance' && (
-        <KeepAlive active={tab === 'attendance'}>
+      {}
+      {tab === "attendance" && (
+        <KeepAlive active={tab === "attendance"}>
           <div className="card">
             <h3>Team attendance</h3>
             <div className="table-wrap">
@@ -610,17 +819,24 @@ export default function ManagerDashboard() {
                     <tr key={a.id}>
                       <td>
                         <b>{a.employee?.name}</b>
-                        <div className="muted">{a.employee?.employeeId} · {a.employee?.department || '—'}</div>
+                        <div className="muted">
+                          {a.employee?.employeeId} ·{" "}
+                          {a.employee?.department || "—"}
+                        </div>
                       </td>
                       <td>{a.workDate}</td>
-                      <td>{a.checkInTime || '—'}</td>
-                      <td>{a.checkOutTime || '—'}</td>
+                      <td>{a.checkInTime || "—"}</td>
+                      <td>{a.checkOutTime || "—"}</td>
                       <td>
-                        <span className={`badge ${a.status === 'PRESENT' ? 'badge-success' : a.status === 'LATE' ? 'badge-warning' : 'badge-neutral'}`}>
+                        <span
+                          className={`badge ${a.status === "PRESENT" ? "badge-success" : a.status === "LATE" ? "badge-warning" : "badge-neutral"}`}
+                        >
                           {a.status}
                         </span>
                       </td>
-                      <td>{a.workingHours != null ? `${a.workingHours} hrs` : '—'}</td>
+                      <td>
+                        {a.workingHours != null ? `${a.workingHours} hrs` : "—"}
+                      </td>
                     </tr>
                   ))}
                   {!attendance.length && (
@@ -637,9 +853,9 @@ export default function ManagerDashboard() {
         </KeepAlive>
       )}
 
-      {/* ATTENDANCE CORRECTIONS TAB */}
-      {tab === 'corrections' && (
-        <KeepAlive active={tab === 'corrections'}>
+      {}
+      {tab === "corrections" && (
+        <KeepAlive active={tab === "corrections"}>
           <div className="card">
             <h3>Pending attendance corrections</h3>
             <div className="table-wrap">
@@ -658,18 +874,28 @@ export default function ManagerDashboard() {
                     <tr key={r.id}>
                       <td>
                         <b>{r.employee?.name}</b>
-                        <div className="muted">{r.employee?.employeeId} · {r.employee?.department || '—'}</div>
+                        <div className="muted">
+                          {r.employee?.employeeId} ·{" "}
+                          {r.employee?.department || "—"}
+                        </div>
                       </td>
-                      <td>{r.attendance?.workDate || '—'}</td>
+                      <td>{r.attendance?.workDate || "—"}</td>
                       <td>
-                        {r.requestedCheckIn || '—'} → {r.requestedCheckOut || '—'}
+                        {r.requestedCheckIn || "—"} →{" "}
+                        {r.requestedCheckOut || "—"}
                       </td>
                       <td>{r.reason}</td>
                       <td>
-                        <button className="btn btn-accent btn-sm" onClick={() => reviewCorrection(r.id, 'APPROVED')}>
+                        <button
+                          className="btn btn-accent btn-sm"
+                          onClick={() => reviewCorrection(r.id, "APPROVED")}
+                        >
                           Approve
-                        </button>{' '}
-                        <button className="btn btn-danger btn-sm" onClick={() => reviewCorrection(r.id, 'REJECTED')}>
+                        </button>{" "}
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => reviewCorrection(r.id, "REJECTED")}
+                        >
                           Reject
                         </button>
                       </td>
@@ -698,5 +924,5 @@ function KeepAlive({ active, children }) {
     if (active) setMounted(true);
   }, [active]);
   if (!mounted) return null;
-  return <div style={{ display: active ? 'block' : 'none' }}>{children}</div>;
+  return <div style={{ display: active ? "block" : "none" }}>{children}</div>;
 }
