@@ -844,9 +844,6 @@ table tbody tr:hover { background: #FAFBFC; }
   }
 }
 
-/* ============================================================
-   DASHBOARDS & ANALYTICS
-   ============================================================ */
 .analytics-page { display: flex; flex-direction: column; gap: 16px; }
 .analytics-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 16px; }
 .second-grid { grid-template-columns: 1.05fr .95fr; }
