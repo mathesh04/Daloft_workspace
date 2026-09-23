@@ -16,10 +16,30 @@ const FULL_MONTH_NAMES = [
 
 
 const THEME = {
-  weekend: { bg: "#3B82F6", text: "#FFFFFF", dot: "#3B82F6" },
-  leave:   { bg: "#12B76A", text: "#FFFFFF", dot: "#12B76A" },
-  wfh:     { bg: "#E11D48", text: "#FFFFFF", dot: "#E11D48" },
-  holiday: { bg: "#F59E0B", text: "#FFFFFF", dot: "#F59E0B" },
+  weekend: {
+    bg: "#489ae9",
+    text: "#ffffff",
+    dot: "#489ae9",
+    label: "Weekend",
+  },
+  holiday: {
+    bg: "#509e6c",
+    text: "#ffffff",
+    dot: "#509e6c",
+    label: "Organization Holiday",
+  },
+  leave: {
+    bg: "#e24b70", 
+    text: "#ffffff",
+    dot: "#e24b70",
+    label: "Approved Leave",
+  },
+  wfh: {
+    bg: "#c6d747",
+    text: "#1e2908",
+    dot: "#c6d747",
+    label: "Approved WFH",
+  },
 };
 
 function formatIso(d) {
@@ -311,8 +331,8 @@ export default function OfficeCalendar() {
         display: "flex",
         flexDirection: "column",
         gap: "14px",
-        background: "#FFFFFF",
-        color: "#14161A",
+        background: "#121315",
+        color: "#e8eaed",
         padding: "16px",
         borderRadius: "16px",
         minHeight: "calc(100vh - 120px)",
@@ -338,9 +358,9 @@ export default function OfficeCalendar() {
             type="button"
             onClick={goToToday}
             style={{
-              border: "1px solid #D9DDE3",
+              border: "1px solid #3c4043",
               background: "transparent",
-              color: "#14161A",
+              color: "#e8eaed",
               padding: "7px 18px",
               borderRadius: "999px",
               fontSize: "13px",
@@ -348,7 +368,7 @@ export default function OfficeCalendar() {
               cursor: "pointer",
               transition: "all 0.15s ease",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F7FA")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#202124")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             Today
@@ -367,13 +387,13 @@ export default function OfficeCalendar() {
                 height: "32px",
                 display: "grid",
                 placeItems: "center",
-                color: "#14161A",
+                color: "#e8eaed",
                 cursor: "pointer",
                 fontSize: "16px",
                 fontWeight: "700",
                 transition: "background 0.15s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F7FA")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#202124")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
               ‹
@@ -390,13 +410,13 @@ export default function OfficeCalendar() {
                 height: "32px",
                 display: "grid",
                 placeItems: "center",
-                color: "#14161A",
+                color: "#e8eaed",
                 cursor: "pointer",
                 fontSize: "16px",
                 fontWeight: "700",
                 transition: "background 0.15s ease",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F7FA")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#202124")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
               ›
@@ -404,7 +424,7 @@ export default function OfficeCalendar() {
           </div>
 
           
-          <h2 style={{ fontSize: "21px", fontWeight: "600", color: "#14161A", margin: 0, letterSpacing: "-0.01em" }}>
+          <h2 style={{ fontSize: "21px", fontWeight: "600", color: "#ffffff", margin: 0, letterSpacing: "-0.01em" }}>
             {FULL_MONTH_NAMES[currentMonth - 1]} {currentYear}
           </h2>
         </div>
@@ -420,9 +440,9 @@ export default function OfficeCalendar() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
-                  background: "#F5F7FA",
-                  border: "1px solid #D9DDE3",
-                  color: "#14161A",
+                  background: "#202124",
+                  border: "1px solid #3c4043",
+                  color: "#fff",
                   padding: "6px 28px 6px 12px",
                   borderRadius: "20px",
                   fontSize: "12px",
@@ -441,7 +461,7 @@ export default function OfficeCalendar() {
                   right: "8px",
                   background: "none",
                   border: "none",
-                  color: "#67707F",
+                  color: "#9aa0a6",
                   cursor: "pointer",
                   fontSize: "12px",
                 }}
@@ -462,10 +482,10 @@ export default function OfficeCalendar() {
                 height: "36px",
                 display: "grid",
                 placeItems: "center",
-                color: "#67707F",
+                color: "#9aa0a6",
                 cursor: "pointer",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F7FA")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#202124")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -482,8 +502,8 @@ export default function OfficeCalendar() {
             title="Export holiday schedule as CSV"
             style={{
               background: "transparent",
-              border: "1px solid #D9DDE3",
-              color: "#47505E",
+              border: "1px solid #3c4043",
+              color: "#c4c7c5",
               padding: "6px 12px",
               borderRadius: "8px",
               fontSize: "12px",
@@ -492,7 +512,7 @@ export default function OfficeCalendar() {
               alignItems: "center",
               gap: "6px",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F7FA")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#202124")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <span>📥 Export CSV</span>
@@ -503,25 +523,64 @@ export default function OfficeCalendar() {
             type="button"
             onClick={() => setHolidayDrawerOpen(true)}
             style={{
-              background: "#EFF4FE",
-              border: "1px solid #C6D7F8",
-              color: "#1E4FBF",
+              background: "#1f3b2e",
+              border: "1px solid #2f5c47",
+              color: "#7ee4aa",
               padding: "6px 14px",
               borderRadius: "8px",
               fontSize: "12px",
               fontWeight: "600",
               cursor: "pointer",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#DBEAFE")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#EFF4FE")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "#28513f")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "#1f3b2e")}
           >
             + Manage Holidays
           </button>
+
+         
+          <div
+            style={{
+              border: "1px solid #3c4043",
+              borderRadius: "8px",
+              padding: "6px 12px",
+              fontSize: "13px",
+              color: "#e8eaed",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#1a1b1e",
+            }}
+          >
+            <span>Month</span>
+            <span style={{ fontSize: "10px", color: "#9aa0a6" }}>▾</span>
+          </div>
+
+    
+          <div
+            title="Calendar grid active"
+            style={{
+              width: "36px",
+              height: "36px",
+              borderRadius: "8px",
+              background: "#0064d2",
+              display: "grid",
+              placeItems: "center",
+              color: "#ffffff",
+            }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </div>
         </div>
       </div>
 
       {error && (
-        <div style={{ background: "#FEF0EE", border: "1px solid #F5C6C1", color: "#B42318", padding: "10px 14px", borderRadius: "8px", fontSize: "12.5px" }}>
+        <div style={{ background: "#381c1c", border: "1px solid #7d2a2a", color: "#fca5a5", padding: "10px 14px", borderRadius: "8px", fontSize: "12.5px" }}>
           {error}
         </div>
       )}
@@ -530,9 +589,9 @@ export default function OfficeCalendar() {
       <div
         style={{
           borderRadius: "14px",
-          border: "1px solid #E7E9ED",
+          border: "1px solid #282a2d",
           overflow: "hidden",
-          background: "#FFFFFF",
+          background: "#16171a",
           display: "flex",
           flexDirection: "column",
         }}
@@ -546,7 +605,7 @@ export default function OfficeCalendar() {
               style={{
                 position: "relative",
                 minHeight: isFirstWeek ? "130px" : "118px",
-                borderBottom: weekIdx === weekEvents.length - 1 ? "none" : "1px solid #F2F4F7",
+                borderBottom: weekIdx === weekEvents.length - 1 ? "none" : "1px solid #26282b",
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -568,13 +627,13 @@ export default function OfficeCalendar() {
                     <div
                       key={day.isoDate}
                       style={{
-                        borderRight: dIdx === 6 ? "none" : "1px solid #F2F4F7",
+                        borderRight: dIdx === 6 ? "none" : "1px solid #26282b",
                         padding: "8px 4px 4px",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         textAlign: "center",
-                        background: isToday ? "#EFF4FE" : "transparent",
+                        background: isToday ? "#1b2128" : "transparent",
                       }}
                     >
            
@@ -583,7 +642,7 @@ export default function OfficeCalendar() {
                           style={{
                             fontSize: "11px",
                             fontWeight: "700",
-                            color: "#67707F",
+                            color: "#9aa0a6",
                             letterSpacing: "0.06em",
                             marginBottom: "3px",
                           }}
@@ -598,11 +657,11 @@ export default function OfficeCalendar() {
                           fontSize: "12.5px",
                           fontWeight: isToday ? "700" : isCurrent ? "500" : "400",
                           color: isToday
-                            ? "#FFFFFF"
+                            ? "#ffffff"
                             : isCurrent
-                            ? "#14161A"
-                            : "#98A0AC",
-                          background: isToday ? "#2563EB" : "transparent",
+                            ? "#e8eaed"
+                            : "#606469",
+                          background: isToday ? "#1a73e8" : "transparent",
                           borderRadius: isToday ? "50%" : "0",
                           width: isToday ? "24px" : "auto",
                           height: isToday ? "24px" : "auto",
@@ -690,31 +749,31 @@ export default function OfficeCalendar() {
           flexWrap: "wrap",
         }}
       >
-        <span style={{ fontSize: "11px", color: "#67707F", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+        <span style={{ fontSize: "11px", color: "#9aa0a6", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.06em" }}>
           Legend
         </span>
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.weekend.bg }} />
-          <span style={{ color: "#47505E" }}>Weekend</span>
+          <span style={{ color: "#d2d5d8" }}>Weekend</span>
         </div>
 
        
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.leave.bg }} />
-          <span style={{ color: "#47505E" }}>Approved Leave</span>
+          <span style={{ color: "#d2d5d8" }}>Approved Leave</span>
         </div>
 
     
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.wfh.bg }} />
-          <span style={{ color: "#47505E" }}>Approved WFH</span>
+          <span style={{ color: "#d2d5d8" }}>Approved WFH</span>
         </div>
 
        
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span style={{ width: "13px", height: "13px", borderRadius: "3px", background: THEME.holiday.bg }} />
-          <span style={{ color: "#47505E" }}>Organization Holiday</span>
+          <span style={{ color: "#d2d5d8" }}>Organization Holiday</span>
         </div>
       </div>
 
@@ -739,10 +798,10 @@ export default function OfficeCalendar() {
               maxWidth: "420px",
               padding: "20px",
               borderRadius: "14px",
-              background: "#FFFFFF",
-              color: "#14161A",
+              background: "#1e1f23",
+              color: "#e8eaed",
               boxShadow: "0 18px 40px rgba(0,0,0,0.55)",
-              border: "1px solid #E7E9ED",
+              border: "1px solid #33363b",
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -757,7 +816,7 @@ export default function OfficeCalendar() {
                     background: (THEME[selectedEvent.category] || THEME.weekend).bg,
                   }}
                 />
-                <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#14161A", margin: 0 }}>
+                <h3 style={{ fontSize: "17px", fontWeight: "700", color: "#ffffff", margin: 0 }}>
                   {selectedEvent.title}
                 </h3>
               </div>
@@ -768,7 +827,7 @@ export default function OfficeCalendar() {
                   background: "transparent",
                   border: "none",
                   fontSize: "18px",
-                  color: "#67707F",
+                  color: "#9aa0a6",
                   cursor: "pointer",
                 }}
               >
@@ -795,50 +854,50 @@ export default function OfficeCalendar() {
            
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", fontSize: "13px" }}>
               {selectedEvent.employee && (
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #E7E9ED", paddingBottom: "8px" }}>
-                  <span style={{ color: "#67707F" }}>Employee ID</span>
-                  <span style={{ color: "#14161A", fontWeight: "600" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #2c2f35", paddingBottom: "8px" }}>
+                  <span style={{ color: "#9aa0a6" }}>Employee ID</span>
+                  <span style={{ color: "#ffffff", fontWeight: "600" }}>
                     {selectedEvent.employee.employeeId || "—"}
                   </span>
                 </div>
               )}
 
               {selectedEvent.employee?.department && (
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #E7E9ED", paddingBottom: "8px" }}>
-                  <span style={{ color: "#67707F" }}>Department</span>
-                  <span style={{ color: "#14161A", fontWeight: "600" }}>{selectedEvent.employee.department}</span>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #2c2f35", paddingBottom: "8px" }}>
+                  <span style={{ color: "#9aa0a6" }}>Department</span>
+                  <span style={{ color: "#ffffff", fontWeight: "600" }}>{selectedEvent.employee.department}</span>
                 </div>
               )}
 
               {selectedEvent.startDate && selectedEvent.endDate && (
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #E7E9ED", paddingBottom: "8px" }}>
-                  <span style={{ color: "#67707F" }}>Date Range</span>
-                  <span style={{ color: "#14161A", fontWeight: "600" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #2c2f35", paddingBottom: "8px" }}>
+                  <span style={{ color: "#9aa0a6" }}>Date Range</span>
+                  <span style={{ color: "#ffffff", fontWeight: "600" }}>
                     {selectedEvent.startDate} → {selectedEvent.endDate} ({selectedEvent.workingDays || 1}d)
                   </span>
                 </div>
               )}
 
               {selectedEvent.date && !selectedEvent.startDate && (
-                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #E7E9ED", paddingBottom: "8px" }}>
-                  <span style={{ color: "#67707F" }}>Date</span>
-                  <span style={{ color: "#14161A", fontWeight: "600" }}>{selectedEvent.date}</span>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid #2c2f35", paddingBottom: "8px" }}>
+                  <span style={{ color: "#9aa0a6" }}>Date</span>
+                  <span style={{ color: "#ffffff", fontWeight: "600" }}>{selectedEvent.date}</span>
                 </div>
               )}
 
               {selectedEvent.reason && (
-                <div style={{ borderBottom: "1px solid #E7E9ED", paddingBottom: "8px" }}>
-                  <span style={{ color: "#67707F", display: "block", marginBottom: "4px" }}>Reason</span>
-                  <p style={{ margin: 0, color: "#14161A", background: "#F9FAFB", padding: "8px", borderRadius: "6px", fontSize: "12px", lineHeight: "1.45" }}>
+                <div style={{ borderBottom: "1px solid #2c2f35", paddingBottom: "8px" }}>
+                  <span style={{ color: "#9aa0a6", display: "block", marginBottom: "4px" }}>Reason</span>
+                  <p style={{ margin: 0, color: "#e8eaed", background: "#151619", padding: "8px", borderRadius: "6px", fontSize: "12px", lineHeight: "1.45" }}>
                     {selectedEvent.reason}
                   </p>
                 </div>
               )}
 
               {selectedEvent.description && (
-                <div style={{ borderBottom: "1px solid #E7E9ED", paddingBottom: "8px" }}>
-                  <span style={{ color: "#67707F", display: "block", marginBottom: "4px" }}>Description</span>
-                  <p style={{ margin: 0, color: "#14161A", background: "#F9FAFB", padding: "8px", borderRadius: "6px", fontSize: "12px", lineHeight: "1.45" }}>
+                <div style={{ borderBottom: "1px solid #2c2f35", paddingBottom: "8px" }}>
+                  <span style={{ color: "#9aa0a6", display: "block", marginBottom: "4px" }}>Description</span>
+                  <p style={{ margin: 0, color: "#e8eaed", background: "#151619", padding: "8px", borderRadius: "6px", fontSize: "12px", lineHeight: "1.45" }}>
                     {selectedEvent.description}
                   </p>
                 </div>
@@ -850,9 +909,9 @@ export default function OfficeCalendar() {
                 type="button"
                 onClick={() => setSelectedEvent(null)}
                 style={{
-                  background: "#F5F7FA",
-                  border: "1px solid #D9DDE3",
-                  color: "#14161A",
+                  background: "#2a2d32",
+                  border: "1px solid #3c4045",
+                  color: "#ffffff",
                   padding: "6px 14px",
                   borderRadius: "6px",
                   fontSize: "12px",
@@ -981,10 +1040,10 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
           width: "100%",
           maxWidth: "640px",
           height: "100%",
-          background: "#F9FAFB",
-          color: "#14161A",
+          background: "#18191c",
+          color: "#e8eaed",
           boxShadow: "-8px 0 32px rgba(0,0,0,0.6)",
-          borderLeft: "1px solid #E7E9ED",
+          borderLeft: "1px solid #2d3035",
           display: "flex",
           flexDirection: "column",
           overflowY: "auto",
@@ -995,21 +1054,21 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
         <div
           style={{
             padding: "18px 24px",
-            borderBottom: "1px solid #F9FAFB",
+            borderBottom: "1px solid #282a2e",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             position: "sticky",
             top: 0,
-            background: "#F9FAFB",
+            background: "#18191c",
             zIndex: 10,
           }}
         >
           <div>
-            <span style={{ fontSize: "10.5px", letterSpacing: "0.08em", fontWeight: "700", color: "#67707F", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "10.5px", letterSpacing: "0.08em", fontWeight: "700", color: "#509e6c", textTransform: "uppercase" }}>
               GOVERNANCE
             </span>
-            <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#14161A", margin: "2px 0 0" }}>
+            <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#ffffff", margin: "2px 0 0" }}>
               Manage {year} Holidays
             </h2>
           </div>
@@ -1017,7 +1076,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
             type="button"
             onClick={onClose}
             style={{
-              background: "#F9FAFB",
+              background: "#282a2e",
               border: "none",
               borderRadius: "8px",
               width: "32px",
@@ -1026,7 +1085,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
               placeItems: "center",
               cursor: "pointer",
               fontSize: "16px",
-              color: "#47505E",
+              color: "#c4c7c5",
             }}
           >
             ✕
@@ -1034,7 +1093,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
         </div>
 
         {error && (
-          <div style={{ margin: "14px 24px 0", background: "#FEF0EE", border: "1px solid #F5C6C1", color: "#B42318", padding: "10px", borderRadius: "8px", fontSize: "12px" }}>
+          <div style={{ margin: "14px 24px 0", background: "#3a1b1b", border: "1px solid #7d2a2a", color: "#fca5a5", padding: "10px", borderRadius: "8px", fontSize: "12px" }}>
             {error}
           </div>
         )}
@@ -1047,15 +1106,15 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
             style={{
               padding: "16px",
               borderRadius: "12px",
-              border: "1px solid #E7E9ED",
-              background: "#F9FAFB",
+              border: "1px solid #2d3035",
+              background: "#1e2024",
               display: "flex",
               flexDirection: "column",
               gap: "12px",
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#14161A", margin: 0 }}>
+              <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#ffffff", margin: 0 }}>
                 {editingId ? "Edit Holiday" : "Add New Holiday"}
               </h3>
               {editingId && (
@@ -1065,7 +1124,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                     setEditingId(null);
                     setForm(blankForm);
                   }}
-                  style={{ background: "none", border: "none", color: "#67707F", fontSize: "11px", cursor: "pointer" }}
+                  style={{ background: "none", border: "none", color: "#9aa0a6", fontSize: "11px", cursor: "pointer" }}
                 >
                   Cancel Edit
                 </button>
@@ -1074,7 +1133,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                <label style={{ fontSize: "11px", color: "#67707F", display: "block", marginBottom: "4px" }}>
+                <label style={{ fontSize: "11px", color: "#9aa0a6", display: "block", marginBottom: "4px" }}>
                   Holiday Name *
                 </label>
                 <input
@@ -1083,12 +1142,12 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                   placeholder="e.g., Christmas"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #D9DDE3", background: "#FFFFFF", color: "#14161A", fontSize: "12px" }}
+                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #3c4045", background: "#121315", color: "#fff", fontSize: "12px" }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: "11px", color: "#67707F", display: "block", marginBottom: "4px" }}>
+                <label style={{ fontSize: "11px", color: "#9aa0a6", display: "block", marginBottom: "4px" }}>
                   Date *
                 </label>
                 <input
@@ -1096,20 +1155,20 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                   type="date"
                   value={form.holidayDate}
                   onChange={(e) => setForm({ ...form, holidayDate: e.target.value })}
-                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #D9DDE3", background: "#FFFFFF", color: "#14161A", fontSize: "12px" }}
+                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #3c4045", background: "#121315", color: "#fff", fontSize: "12px" }}
                 />
               </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <div>
-                <label style={{ fontSize: "11px", color: "#67707F", display: "block", marginBottom: "4px" }}>
+                <label style={{ fontSize: "11px", color: "#9aa0a6", display: "block", marginBottom: "4px" }}>
                   Holiday Type
                 </label>
                 <select
                   value={form.type}
                   onChange={(e) => setForm({ ...form, type: e.target.value })}
-                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #D9DDE3", background: "#FFFFFF", color: "#14161A", fontSize: "12px" }}
+                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #3c4045", background: "#121315", color: "#fff", fontSize: "12px" }}
                 >
                   <option value="PUBLIC">PUBLIC</option>
                   <option value="ORGANIZATION">ORGANIZATION</option>
@@ -1118,7 +1177,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
               </div>
 
               <div>
-                <label style={{ fontSize: "11px", color: "#67707F", display: "block", marginBottom: "4px" }}>
+                <label style={{ fontSize: "11px", color: "#9aa0a6", display: "block", marginBottom: "4px" }}>
                   Description (Optional)
                 </label>
                 <input
@@ -1126,13 +1185,13 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                   placeholder="Optional notes"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #D9DDE3", background: "#FFFFFF", color: "#14161A", fontSize: "12px" }}
+                  style={{ width: "100%", padding: "7px 10px", borderRadius: "8px", border: "1px solid #3c4045", background: "#121315", color: "#fff", fontSize: "12px" }}
                 />
               </div>
             </div>
 
             <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
-              <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "#47505E", cursor: "pointer" }}>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "#c4c7c5", cursor: "pointer" }}>
                 <input
                   type="checkbox"
                   checked={form.recurring}
@@ -1141,7 +1200,7 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                 Recurring Holiday (Annual)
               </label>
 
-              <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "#47505E", cursor: "pointer" }}>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "#c4c7c5", cursor: "pointer" }}>
                 <input
                   type="checkbox"
                   checked={form.active}
@@ -1156,8 +1215,8 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                   marginLeft: "auto",
                   padding: "6px 14px",
                   borderRadius: "8px",
-                  background: "#2563EB",
-                  color: "#FFFFFF",
+                  background: "#509e6c",
+                  color: "#ffffff",
                   border: "none",
                   fontWeight: "600",
                   fontSize: "12px",
@@ -1171,16 +1230,16 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
 
          
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#14161A", margin: "0 0 4px" }}>
+            <h3 style={{ fontSize: "14px", fontWeight: "700", color: "#ffffff", margin: "0 0 4px" }}>
               Holidays for {year} ({items.length})
             </h3>
 
             {loading ? (
-              <div style={{ textAlign: "center", padding: "20px", color: "#67707F", fontSize: "12px" }}>
+              <div style={{ textAlign: "center", padding: "20px", color: "#9aa0a6", fontSize: "12px" }}>
                 Loading…
               </div>
             ) : items.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "20px", background: "#F9FAFB", borderRadius: "8px", color: "#67707F", fontSize: "12px" }}>
+              <div style={{ textAlign: "center", padding: "20px", background: "#1f2125", borderRadius: "8px", color: "#9aa0a6", fontSize: "12px" }}>
                 No holidays found for {year}.
               </div>
             ) : (
@@ -1190,8 +1249,8 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                   style={{
                     padding: "10px 14px",
                     borderRadius: "8px",
-                    border: "1px solid #E7E9ED",
-                    background: "#F9FAFB",
+                    border: "1px solid #2c2f34",
+                    background: "#1e2024",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
@@ -1201,17 +1260,17 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                 >
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <strong style={{ fontSize: "13px", color: "#14161A" }}>{h.name}</strong>
-                      <span style={{ fontSize: "9.5px", fontWeight: "700", padding: "1px 5px", borderRadius: "4px", background: "#E9F6EF", color: "#067647" }}>
+                      <strong style={{ fontSize: "13px", color: "#ffffff" }}>{h.name}</strong>
+                      <span style={{ fontSize: "9.5px", fontWeight: "700", padding: "1px 5px", borderRadius: "4px", background: "#273a2f", color: "#509e6c" }}>
                         {h.type}
                       </span>
                       {h.recurring && (
-                        <span style={{ fontSize: "9.5px", color: "#3B82F6" }}>
+                        <span style={{ fontSize: "9.5px", color: "#489ae9" }}>
                           Recurring
                         </span>
                       )}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#67707F", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "#9aa0a6", marginTop: "2px" }}>
                       {h.holidayDate} {h.description ? `· ${h.description}` : ""}
                     </div>
                   </div>
@@ -1221,9 +1280,9 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                       type="button"
                       onClick={() => startEdit(h)}
                       style={{
-                        background: "#F5F7FA",
-                        border: "1px solid #D9DDE3",
-                        color: "#14161A",
+                        background: "#2b2e34",
+                        border: "1px solid #3d4149",
+                        color: "#e8eaed",
                         borderRadius: "6px",
                         padding: "4px 8px",
                         fontSize: "11px",
@@ -1236,9 +1295,9 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                       type="button"
                       onClick={() => handleToggleActive(h)}
                       style={{
-                        background: "#F5F7FA",
-                        border: "1px solid #D9DDE3",
-                        color: "#14161A",
+                        background: "#2b2e34",
+                        border: "1px solid #3d4149",
+                        color: "#e8eaed",
                         borderRadius: "6px",
                         padding: "4px 8px",
                         fontSize: "11px",
@@ -1251,9 +1310,9 @@ function HolidayManagerModal({ year, onClose, onUpdate }) {
                       type="button"
                       onClick={() => handleDelete(h)}
                       style={{
-                        background: "#FEF0EE",
-                        border: "1px solid #F5C6C1",
-                        color: "#B42318",
+                        background: "#421818",
+                        border: "1px solid #732626",
+                        color: "#ff8b8b",
                         borderRadius: "6px",
                         padding: "4px 8px",
                         fontSize: "11px",
