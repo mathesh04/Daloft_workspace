@@ -61,12 +61,11 @@ export default function Login() {
           </div>
 
           {/* Heading */}
-          <div className="login-heading">
-            <h1>Log in to your account</h1>
-
-            <p>
+          <div className="login-heading">            
+            <h1>
               Sign in to your Daloft People workspace
-            </p>
+            </h1>
+            <p>Log in to your account</p>
           </div>
 
           {/* Error */}
