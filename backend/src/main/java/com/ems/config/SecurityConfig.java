@@ -54,9 +54,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/hr/**", "/api/admin/**").hasAnyRole("ADMIN", "HR_ADMIN", "SYSTEM_ADMIN")
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(maintenanceModeFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(jwtAuthFilter, MaintenanceModeFilter.class)
-            .addFilterAfter(auditRequestFilter, JwtAuthFilter.class)
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(maintenanceModeFilter, JwtAuthFilter.class)
+            .addFilterAfter(auditRequestFilter, MaintenanceModeFilter.class)
             .addFilterAfter(adminAccessFilter, AuditRequestFilter.class);
 
         return http.build();

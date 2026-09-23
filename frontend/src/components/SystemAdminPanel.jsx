@@ -390,6 +390,7 @@ function Settings({ section, settings, setSettings, save }) {
     "GEOFENCE_ENABLED",
     "MAINTENANCE_MODE",
     "EMPLOYEE_LOGIN_ENABLED",
+    "INTERN_LOGIN_ENABLED",
     "MANAGER_LOGIN_ENABLED",
     "ADMIN_LOGIN_ENABLED",
     "HR_ADMIN_LOGIN_ENABLED",
@@ -522,6 +523,11 @@ function Settings({ section, settings, setSettings, save }) {
             label="Employee login"
             checked={!!settings.EMPLOYEE_LOGIN_ENABLED}
             onChange={(v) => set("EMPLOYEE_LOGIN_ENABLED", v)}
+          />
+          <ToggleRow
+            label="Intern login"
+            checked={!!settings.INTERN_LOGIN_ENABLED}
+            onChange={(v) => set("INTERN_LOGIN_ENABLED", v)}
           />
           <ToggleRow
             label="Manager login"
