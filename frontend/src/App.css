@@ -524,62 +524,199 @@ table tbody tr:hover { background: #FAFBFC; }
 @keyframes dp-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 /* ============================================================
-   LOGIN & AUTH — centered card
+   LOGIN & AUTH — Daloft People workspace
+   Clean · Light · Enterprise · Responsive
    ============================================================ */
 .daloft-login {
   min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: #F6F7F9;
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+.login-header {
+  width: 100%;
+  padding: 26px 40px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.login-company-logo {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+}
+
+.login-company-logo .daloft-logo-image {
+  width: 128px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.login-main {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  background: #F3F1EC;
+  padding: 28px 24px 42px;
 }
-.login-panel-inner {
+
+.login-container {
   width: 100%;
-  max-width: 396px;
-  background: #FDFCFA;
-  border: 1px solid #E3DFD5;
-  border-radius: 10px;
-  padding: 36px 34px 26px;
-  box-shadow: 0 1px 2px rgba(28, 27, 24, 0.05), 0 10px 28px -14px rgba(28, 27, 24, 0.14);
-  animation: dp-rise .3s ease-out both;
+  max-width: 430px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 34px 34px 30px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 14px 36px -18px rgba(16, 24, 40, 0.16);
+  animation: dp-login-rise .24s ease-out both;
 }
-.login-mobile-brand { display: flex; justify-content: center; margin-bottom: 24px; }
-.login-mobile-brand + .error-banner { margin-top: 20px; }
-.login-mobile-brand .daloft-logo-image { width: 128px; height: 36px; }
-.login-form-heading { margin-bottom: 24px; text-align: center; }
-.login-eyebrow { display: block; font-size: 10.5px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #8B8577; margin-bottom: 10px; }
-.login-title { margin: 0 0 7px; font-size: 27px; letter-spacing: 0; font-weight: 600; color: #1D1B16; font-family: Georgia, "Times New Roman", serif; }
-.login-sub { color: #79746A; font-size: 13.5px; margin: 0; line-height: 1.5; }
-.login-form .field { margin-bottom: 15px; }
-.login-form .field label { font-size: 10.5px; font-weight: 600; color: #6E695F; text-transform: uppercase; letter-spacing: 0.08em; }
-.login-field-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-.login-form .field input {
-  background: #FCFBF8;
-  border: 1px solid #DAD5CA;
-  border-radius: 8px;
-  padding: 11px 13px;
-  font-size: 14px;
+
+.login-brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.login-brand-mark .daloft-logo-image {
+  width: 142px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.login-heading {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.login-heading h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.login-heading p {
+  margin: 7px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.login-error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger-strong);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.login-field {
+  margin-bottom: 16px;
+}
+
+.login-field label {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.login-field input {
+  display: block;
   width: 100%;
   min-height: 44px;
-  color: #26241F;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: #FFFFFF;
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.4;
+  outline: none;
+  box-shadow: none;
 }
-.login-form .field input:focus { border-color: #26241F; box-shadow: 0 0 0 3px rgba(38, 36, 31, 0.08); background: #fff; }
+
+.login-field input::placeholder {
+  color: #98A0AC;
+}
+
+.login-field input:hover {
+  border-color: #C7CDD5;
+}
+
+.login-field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.login-remember-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: -1px 0 18px;
+}
+
+.login-remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+.login-remember input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex: none;
+}
+
+.login-remember span {
+  color: var(--text-secondary);
+}
+
 .login-submit {
   width: 100%;
-  border: 1px solid #23211C;
-  border-radius: 8px;
-  padding: 11px 16px;
-  background: #23211C;
-  color: #FBFAF7;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
   min-height: 44px;
-  margin-top: 4px;
-  letter-spacing: 0.01em;
-  transition: background .15s ease;
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0;
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
 }
 
 
@@ -589,54 +726,46 @@ table tbody tr:hover { background: #FAFBFC; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  margin-top: 16px;
+  margin-top: 17px;
+}
+
+.login-forgot a {
+  color: var(--accent-ink);
   font-size: 12.5px;
-  color: var(--text-muted);
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
 }
-.login-help a { color: #79746A; font-weight: 600; }
-.login-help a:hover { color: #1D1B16; }
-.login-help a:hover { text-decoration: underline; }
-.login-foot {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #ECE8DE;
+
+.login-forgot a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.login-footer {
+  width: 100%;
+  padding: 0 24px 24px;
   text-align: center;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  color: #A29B8C;
-  text-transform: uppercase;
+  color: var(--text-faint);
+  font-size: 10.5px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
 }
-.login-trust {
-  margin-top: 26px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line-soft);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  color: var(--text-muted);
-  font-size: 12px;
-  text-align: center;
+
+@keyframes dp-login-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.trust-dot { width: 7px; height: 7px; border-radius: 50%; background: #12B76A; box-shadow: 0 0 0 3px rgba(18, 183, 106, 0.15); flex: none; }
-@keyframes dp-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-
-.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #F3F4F7; }
-.auth-card { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 34px 30px; box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 12px 32px -8px rgba(16, 24, 40, 0.1); display: flex; flex-direction: column; gap: 14px; }
-.auth-card h2 { margin: 0; font-size: 21px; text-align: center; }
-.auth-card p { margin: 0; color: var(--text-muted); font-size: 13px; line-height: 1.55; text-align: center; }
-.auth-card input { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 11px 13px; font-size: 14px; width: 100%; min-height: 44px; }
-.auth-card input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
-.auth-card button { border: 1px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 16px; background: var(--accent); color: #fff; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; min-height: 46px; }
-.auth-card button:hover { background: var(--accent-hover); }
-.auth-card a { color: var(--accent-ink); font-size: 12.5px; font-weight: 600; text-align: center; margin-top: 4px; }
 
 
 
-/* ============================================================
-   DASHBOARDS & ANALYTICS
-   ============================================================ */
+
 .analytics-page { display: flex; flex-direction: column; gap: 16px; }
 .analytics-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 16px; }
 .second-grid { grid-template-columns: 1.05fr .95fr; }
