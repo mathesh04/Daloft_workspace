@@ -53,7 +53,7 @@ export default function DailyWorkReportsAdmin() {
     setLoadingReports(true);
     setError("");
     try {
-      // Specific date is expressed as a from/to range so the backend filter applies cleanly
+    
       const rangeFrom = f.date || f.from;
       const rangeTo = f.date || f.to;
       const data = await api.getAdminDailyReports({
@@ -62,7 +62,7 @@ export default function DailyWorkReportsAdmin() {
         to: rangeTo,
       });
       let rows = Array.isArray(data) ? data : [];
-      // Department filtering (applied on the employee's department of each report)
+
       if (f.departmentId) {
         const dep = departments.find(
           (d) => String(d.id) === String(f.departmentId),
@@ -87,7 +87,7 @@ export default function DailyWorkReportsAdmin() {
 
   useEffect(() => {
     loadDailyReports(filters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   const handleApplyReportFilters = (e) => {
