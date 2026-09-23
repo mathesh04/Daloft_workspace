@@ -2,9 +2,24 @@ import React, { useEffect, useMemo, useState } from "react";
 import api from "../api/api";
 import { StatusBadge } from "./StatusBadges";
 
-function fmtTime(iso) { if (!iso) return "—"; return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
-function fmtDate(d) { if (!d) return "—"; return new Date(d).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }); }
-function employeeName(r){ return r?.employee?.name || r?.employee?.employeeId || "Unknown employee"; }
+function fmtTime(iso) {
+  if (!iso) return "—";
+  return new Date(iso).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+function fmtDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString([], {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+function employeeName(r) {
+  return r?.employee?.name || r?.employee?.employeeId || "Unknown employee";
+}
 
 export default function AttendanceTable() {
   const [view, setView] = useState("today");
@@ -15,65 +30,147 @@ export default function AttendanceTable() {
   const [loading, setLoading] = useState(true);
   const [correctionLoading, setCorrectionLoading] = useState(false);
 
-  const loadToday = async () => { setLoading(true); setError(""); 
-    try { setTodayRows(await api.todayAttendance()); 
-
-    } 
-    catch(e){ 
-      setError(e.message || "Unable to load today's attendance"); 
-    } 
-    finally { 
-      setLoading(false); 
-    } 
+  const loadToday = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      setTodayRows(await api.todayAttendance());
+    } catch (e) {
+      setError(e.message || "Unable to load today's attendance");
+    } finally {
+      setLoading(false);
+    }
   };
-  const loadHistory = async () => { setLoading(true); setError(""); 
-    try { 
-      setAllRows(await api.allAttendance()); 
-    } 
-    catch(e){ setError(e.message || "Unable to load attendance history"); 
-
-    } 
-    finally { setLoading(false); 
-
-    } 
+  const loadHistory = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      setAllRows(await api.allAttendance());
+    } catch (e) {
+      setError(e.message || "Unable to load attendance history");
+    } finally {
+      setLoading(false);
+    }
   };
-  const loadCorrections = async () => { setCorrectionLoading(true); setError(""); 
-    try { setCorrections(await api.adminAttendanceCorrections() || []); 
-
-    } 
-    catch(e){ setError(e.message || "Unable to load attendance corrections"); 
-
-    } 
-    finally { setCorrectionLoading(false); 
-
-    } 
+  const loadCorrections = async () => {
+    setCorrectionLoading(true);
+    setError("");
+    try {
+      setCorrections((await api.adminAttendanceCorrections()) || []);
+    } catch (e) {
+      setError(e.message || "Unable to load attendance corrections");
+    } finally {
+      setCorrectionLoading(false);
+    }
   };
-  useEffect(() => { loadToday(); }, []);
-  useEffect(() => { if(view === "all" && !allRows.length) loadHistory(); if(view === "corrections") loadCorrections(); }, [view]);
+  useEffect(() => {
+    loadToday();
+  }, []);
+  useEffect(() => {
+    if (view === "all" && !allRows.length) loadHistory();
+    if (view === "corrections") loadCorrections();
+  }, [view]);
 
-  const presentToday = todayRows.filter(r => r.checkInTime).length;
-  const stillIn = todayRows.filter(r => r.checkInTime && !r.checkOutTime).length;
-  const pendingCorrections = corrections.filter(r => String(r.status || "").toUpperCase() === "PENDING").length;
+  const presentToday = todayRows.filter((r) => r.checkInTime).length;
+  const stillIn = todayRows.filter(
+    (r) => r.checkInTime && !r.checkOutTime,
+  ).length;
+  const pendingCorrections = corrections.filter(
+    (r) => String(r.status || "").toUpperCase() === "PENDING",
+  ).length;
 
-  return <div className="attendance-workspace">
-    {error && <div className="error-banner">{error}</div>}
-    <div className="attendance-hero"><div><span className="eyebrow">TIME & ATTENDANCE</span><h2>Attendance control</h2><p>Monitor attendance and resolve employee correction requests with an auditable approval flow.</p></div><button className="btn btn-ghost" onClick={() => view === "today" ? loadToday() : view === "all" ? loadHistory() : loadCorrections()}>↻ Refresh</button></div>
-    <div className="grid grid-3 attendance-stats"><div className="stat-card"><span className="stat-label">Checked in today</span><div className="stat-value">{presentToday}</div><small>Employees with a start time</small></div><div className="stat-card"><span className="stat-label">Currently on the clock</span><div className="stat-value">{stillIn}</div><small>Not checked out yet</small></div><div className="stat-card"><span className="stat-label">Pending corrections</span><div className="stat-value">{pendingCorrections}</div><small>Awaiting admin decision</small></div></div>
-    <div className="tabs"><button className={`tab-btn ${view === "today" ? "active" : ""}`} onClick={() => setView("today")}>Today</button><button className={`tab-btn ${view === "all" ? "active" : ""}`} onClick={() => setView("all")}>Full history</button><button className={`tab-btn ${view === "corrections" ? "active" : ""}`} onClick={() => setView("corrections")}>Corrections {pendingCorrections ? `(${pendingCorrections})` : ""}</button></div>
-    {view === "corrections" ? <CorrectionQueue rows={corrections} loading={correctionLoading} reload={loadCorrections}/> : <AttendanceRows rows={view === "today" ? todayRows : allRows} loading={loading} today={view === "today"}/>} 
-  </div>;
+  return (
+    <div className="attendance-workspace">
+      {error && <div className="error-banner">{error}</div>}
+      <div className="attendance-hero">
+        <div>
+          <span className="eyebrow">TIME & ATTENDANCE</span>
+          <h2>Attendance control</h2>
+          <p>
+            Monitor attendance and resolve employee correction requests with an
+            auditable approval flow.
+          </p>
+        </div>
+        <button
+          className="btn btn-ghost"
+          onClick={() =>
+            view === "today"
+              ? loadToday()
+              : view === "all"
+                ? loadHistory()
+                : loadCorrections()
+          }
+        >
+          ↻ Refresh
+        </button>
+      </div>
+      <div className="grid grid-3 attendance-stats">
+        <div className="stat-card">
+          <span className="stat-label">Checked in today</span>
+          <div className="stat-value">{presentToday}</div>
+          <small>Employees with a start time</small>
+        </div>
+        <div className="stat-card">
+          <span className="stat-label">Currently on the clock</span>
+          <div className="stat-value">{stillIn}</div>
+          <small>Not checked out yet</small>
+        </div>
+        <div className="stat-card">
+          <span className="stat-label">Pending corrections</span>
+          <div className="stat-value">{pendingCorrections}</div>
+          <small>Awaiting admin decision</small>
+        </div>
+      </div>
+      <div className="tabs">
+        <button
+          className={`tab-btn ${view === "today" ? "active" : ""}`}
+          onClick={() => setView("today")}
+        >
+          Today
+        </button>
+        <button
+          className={`tab-btn ${view === "all" ? "active" : ""}`}
+          onClick={() => setView("all")}
+        >
+          Full history
+        </button>
+        <button
+          className={`tab-btn ${view === "corrections" ? "active" : ""}`}
+          onClick={() => setView("corrections")}
+        >
+          Corrections {pendingCorrections ? `(${pendingCorrections})` : ""}
+        </button>
+      </div>
+      {view === "corrections" ? (
+        <CorrectionQueue
+          rows={corrections}
+          loading={correctionLoading}
+          reload={loadCorrections}
+        />
+      ) : (
+        <AttendanceRows
+          rows={view === "today" ? todayRows : allRows}
+          loading={loading}
+          today={view === "today"}
+        />
+      )}
+    </div>
+  );
 }
 
-function AttendanceRows({rows,loading,today}) {
+function AttendanceRows({ rows, loading, today }) {
   const PAGE_SIZE = 10;
   const [page, setPage] = useState(0);
 
-  useEffect(() => { setPage(0); }, [rows, today]);
+  useEffect(() => {
+    setPage(0);
+  }, [rows, today]);
 
   const pages = Math.ceil(rows.length / PAGE_SIZE);
-  const currentRows = (!today || rows.length > PAGE_SIZE) 
-    ? rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
-    : rows;
+  const currentRows =
+    !today || rows.length > PAGE_SIZE
+      ? rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+      : rows;
 
   return (
     <div className="card attendance-table-card">
@@ -81,31 +178,81 @@ function AttendanceRows({rows,loading,today}) {
         <table>
           <thead>
             <tr>
-              <th>Employee</th><th>Department</th><th>Date</th><th>Check-in</th><th>Check-out</th><th>Status</th>
+              <th>Employee</th>
+              <th>Department</th>
+              <th>Date</th>
+              <th>Check-in</th>
+              <th>Check-out</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {currentRows.map(row => (
+            {currentRows.map((row) => (
               <tr key={row.id}>
-                <td><b>{employeeName(row)}</b><span className="muted"> {row.employee?.employeeId ? `(${row.employee.employeeId})` : ""}</span></td>
+                <td>
+                  <b>{employeeName(row)}</b>
+                  <span className="muted">
+                    {" "}
+                    {row.employee?.employeeId
+                      ? `(${row.employee.employeeId})`
+                      : ""}
+                  </span>
+                </td>
                 <td>{row.employee?.department || "—"}</td>
                 <td>{fmtDate(row.workDate)}</td>
                 <td>{fmtTime(row.checkInTime)}</td>
                 <td>{fmtTime(row.checkOutTime)}</td>
-                <td><StatusBadge status={row.status}/></td>
+                <td>
+                  <StatusBadge status={row.status} />
+                </td>
               </tr>
             ))}
-            {!loading && !rows.length && <tr><td colSpan="6" className="empty-state">No attendance records for {today ? "today" : "this history view"}.</td></tr>}
-            {loading && <tr><td colSpan="6" className="table-loading">Loading attendance…</td></tr>}
+            {!loading && !rows.length && (
+              <tr>
+                <td colSpan="6" className="empty-state">
+                  No attendance records for{" "}
+                  {today ? "today" : "this history view"}.
+                </td>
+              </tr>
+            )}
+            {loading && (
+              <tr>
+                <td colSpan="6" className="table-loading">
+                  Loading attendance…
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
       {pages > 1 && (
-        <div className="pagination" style={{ padding: "14px 18px", borderTop: "1px solid var(--border, #edf2ee)" }}>
-          <span>Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} of {rows.length} records (Page {page + 1} of {pages})</span>
+        <div
+          className="pagination"
+          style={{
+            padding: "14px 18px",
+            borderTop: "1px solid var(--border, #edf2ee)",
+          }}
+        >
+          <span>
+            Showing {page * PAGE_SIZE + 1}–
+            {Math.min((page + 1) * PAGE_SIZE, rows.length)} of {rows.length}{" "}
+            records (Page {page + 1} of {pages})
+          </span>
           <div style={{ display: "flex", gap: "6px" }}>
-            <button className="btn btn-ghost btn-sm" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>← Previous</button>
-            <button className="btn btn-ghost btn-sm" disabled={page >= pages - 1} onClick={() => setPage(p => Math.min(pages - 1, p + 1))}>Next →</button>
+            <button
+              className="btn btn-ghost btn-sm"
+              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+            >
+              ← Previous
+            </button>
+            <button
+              className="btn btn-ghost btn-sm"
+              disabled={page >= pages - 1}
+              onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}
+            >
+              Next →
+            </button>
           </div>
         </div>
       )}
@@ -113,60 +260,272 @@ function AttendanceRows({rows,loading,today}) {
   );
 }
 
-function CorrectionQueue({rows,loading,reload}) {
- const [busyId,setBusyId]=useState(null),[modal,setModal]=useState(null);
- const pending=useMemo(()=>rows.filter(r=>String(r.status||"").toUpperCase()==="PENDING"),[rows]);
- const PAGE_SIZE = 10;
- const [page, setPage] = useState(0);
+function CorrectionQueue({ rows, loading, reload }) {
+  const [busyId, setBusyId] = useState(null),
+    [modal, setModal] = useState(null);
+  const pending = useMemo(
+    () =>
+      rows.filter((r) => String(r.status || "").toUpperCase() === "PENDING"),
+    [rows],
+  );
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(0);
 
- useEffect(() => { setPage(0); }, [rows.length]);
+  useEffect(() => {
+    setPage(0);
+  }, [rows.length]);
 
- const pages = Math.ceil(rows.length / PAGE_SIZE);
- const currentRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  const pages = Math.ceil(rows.length / PAGE_SIZE);
+  const currentRows = rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
- const review=async(status)=>{if(!modal)return; if(status==="REJECTED"&&!modal.reason.trim())return setModal({...modal,error:"A rejection reason is required."}); setBusyId(modal.id); try{await api.reviewAdminAttendanceCorrection(modal.id,status,modal.reason.trim());setModal(null);await reload();}catch(e){setModal({...modal,error:e.message||"Unable to process correction"});}finally{setBusyId(null)}};
- return <div className="correction-workspace">
-  <div className="correction-summary">
-    <div><span>Approval queue</span><strong>{pending.length}</strong>
-    <small>pending requests</small></div>
-    <div><span>Review standard</span>
-    <strong>2-step</strong><small>validate time + reason</small>
-    </div><div><span>Audit trail</span><strong>ON</strong><small>decision is logged</small></div>
-    </div><div className="card"><div className="card-head"><div>
-      <h3>Attendance correction requests</h3><p className="section-sub">Review the requested time against the original attendance record before approving.</p></div>
-      </div>{loading?<div className="table-loading">Loading correction queue…</div>:!rows.length?<div className="empty-state">No attendance correction requests.</div>:<><div className="correction-list">{currentRows.map(r=>{const a=r.attendance||{};
-      const status=String(r.status||"PENDING").toUpperCase();
-      return <article className={`correction-card correction-${status.toLowerCase()}`} key={r.id}>
-        <div className="correction-main"><div className="correction-person">
-          <div className="avatar correction-avatar">{employeeName(r).split(" ").map(x=>x[0]).slice(0,2).join("").toUpperCase()}
-            </div>
-            <div><b>{employeeName(r)}</b><small>{r.employee?.employeeId || ""} · {r.employee?.department || "No department"}</small>
-            </div></div><div className="correction-date"><span>Attendance date</span><b>{fmtDate(a.workDate)}</b></div>
-            <div className="correction-times"><div>
-              <span>Current</span><b>{fmtTime(a.checkInTime)} → {fmtTime(a.checkOutTime)}</b></div>
-              <div><span>Requested</span><b>{fmtTime(r.requestedCheckIn || a.checkInTime)} → {fmtTime(r.requestedCheckOut || a.checkOutTime)}</b></div>
-              </div>
-              <div className="correction-reason"><span>Employee reason</span><p>{r.reason || "No reason provided"}</p></div>
-              </div><div className="correction-footer"><StatusBadge status={status}/><small>{r.createdAt ? `Submitted ${new Date(r.createdAt).toLocaleString()}` : ""}{r.reviewedBy ? ` · Reviewed by ${r.reviewedBy}` : ""}</small>{status === "PENDING" ? <div className="correction-actions">
-                <button className="btn btn-danger" disabled={busyId===r.id} 
-              onClick={()=>setModal({id:r.id,status:"REJECTED",reason:"",error:""})}>Reject</button><button className="btn btn-accent" disabled={busyId===r.id} onClick={()=>setModal({id:r.id,status:"APPROVED",reason:"",error:""})}>Approve correction</button>
-              </div>:<span className="muted">{r.reviewReason || "Decision recorded"}</span>}</div></article>})}</div>{pages > 1 && (
-        <div className="pagination" style={{ padding: "14px 18px", borderTop: "1px solid var(--border, #edf2ee)", marginTop: "14px" }}>
-          <span>Showing {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, rows.length)} of {rows.length} requests (Page {page + 1} of {pages})</span>
-          <div style={{ display: "flex", gap: "6px" }}>
-            <button className="btn btn-ghost btn-sm" disabled={page === 0} onClick={() => setPage(p => Math.max(0, p - 1))}>← Previous</button>
-            <button className="btn btn-ghost btn-sm" disabled={page >= pages - 1} onClick={() => setPage(p => Math.min(pages - 1, p + 1))}>Next →</button>
+  const review = async (status) => {
+    if (!modal) return;
+    if (status === "REJECTED" && !modal.reason.trim())
+      return setModal({ ...modal, error: "A rejection reason is required." });
+    setBusyId(modal.id);
+    try {
+      await api.reviewAdminAttendanceCorrection(
+        modal.id,
+        status,
+        modal.reason.trim(),
+      );
+      setModal(null);
+      await reload();
+    } catch (e) {
+      setModal({
+        ...modal,
+        error: e.message || "Unable to process correction",
+      });
+    } finally {
+      setBusyId(null);
+    }
+  };
+  return (
+    <div className="correction-workspace">
+      <div className="correction-summary">
+        <div>
+          <span>Approval queue</span>
+          <strong>{pending.length}</strong>
+          <small>pending requests</small>
+        </div>
+        <div>
+          <span>Review standard</span>
+          <strong>2-step</strong>
+          <small>validate time + reason</small>
+        </div>
+        <div>
+          <span>Audit trail</span>
+          <strong>ON</strong>
+          <small>decision is logged</small>
+        </div>
+      </div>
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <h3>Attendance correction requests</h3>
+            <p className="section-sub">
+              Review the requested time against the original attendance record
+              before approving.
+            </p>
           </div>
         </div>
-      )}</>}</div>{modal&&<div className="modal-backdrop" onMouseDown={e=>e.target===e.currentTarget&&setModal(null)}>
-                <div className="modal correction-modal"><div className="modal-header"><div>
-                <h3>{modal.status === "APPROVED" ? "Approve attendance correction" : "Reject attendance correction"}
-                </h3><p className="section-sub">{modal.status === "APPROVED" ? "The requested times will replace the attendance record." : "Give the employee a clear reason for the rejection."}</p></div>
-                <button className="modal-close" onClick={()=>setModal(null)}>×</button></div>{modal.status === "REJECTED" && <div className="field">
-                  <label>Rejection reason *</label><textarea autoFocus value={modal.reason} onChange={e=>setModal({...modal,reason:e.target.value,error:""})} 
-                  placeholder="Example: Requested time conflicts with approved leave."/></div>}
-                  {modal.error&&<div className="error-banner">{modal.error}</div>}<div className="modal-actions"><button className="btn btn-ghost" onClick={()=>setModal(null)}>Cancel</button>
-                  <button className={`btn ${modal.status === "APPROVED" ? "btn-accent" : "btn-danger-solid"}`} 
-                  disabled={busyId===modal.id} 
-                  onClick={()=>review(modal.status)}>{busyId===modal.id?"Processing…":modal.status === "APPROVED"?"Approve & update":"Reject request"}</button></div></div></div>}</div>;
+        {loading ? (
+          <div className="table-loading">Loading correction queue…</div>
+        ) : !rows.length ? (
+          <div className="empty-state">No attendance correction requests.</div>
+        ) : (
+          <>
+            <div className="correction-list">
+              {currentRows.map((r) => {
+                const a = r.attendance || {};
+                const status = String(r.status || "PENDING").toUpperCase();
+                return (
+                  <article
+                    className={`correction-card correction-${status.toLowerCase()}`}
+                    key={r.id}
+                  >
+                    <div className="correction-main">
+                      <div className="correction-person">
+                        <div className="avatar correction-avatar">
+                          {employeeName(r)
+                            .split(" ")
+                            .map((x) => x[0])
+                            .slice(0, 2)
+                            .join("")
+                            .toUpperCase()}
+                        </div>
+                        <div>
+                          <b>{employeeName(r)}</b>
+                          <small>
+                            {r.employee?.employeeId || ""} ·{" "}
+                            {r.employee?.department || "No department"}
+                          </small>
+                        </div>
+                      </div>
+                      <div className="correction-date">
+                        <span>Attendance date</span>
+                        <b>{fmtDate(a.workDate)}</b>
+                      </div>
+                      <div className="correction-times">
+                        <div>
+                          <span>Current</span>
+                          <b>
+                            {fmtTime(a.checkInTime)} → {fmtTime(a.checkOutTime)}
+                          </b>
+                        </div>
+                        <div>
+                          <span>Requested</span>
+                          <b>
+                            {fmtTime(r.requestedCheckIn || a.checkInTime)} →{" "}
+                            {fmtTime(r.requestedCheckOut || a.checkOutTime)}
+                          </b>
+                        </div>
+                      </div>
+                      <div className="correction-reason">
+                        <span>Employee reason</span>
+                        <p>{r.reason || "No reason provided"}</p>
+                      </div>
+                    </div>
+                    <div className="correction-footer">
+                      <StatusBadge status={status} />
+                      <small>
+                        {r.createdAt
+                          ? `Submitted ${new Date(r.createdAt).toLocaleString()}`
+                          : ""}
+                        {r.reviewedBy ? ` · Reviewed by ${r.reviewedBy}` : ""}
+                      </small>
+                      {status === "PENDING" ? (
+                        <div className="correction-actions">
+                          <button
+                            className="btn btn-danger"
+                            disabled={busyId === r.id}
+                            onClick={() =>
+                              setModal({
+                                id: r.id,
+                                status: "REJECTED",
+                                reason: "",
+                                error: "",
+                              })
+                            }
+                          >
+                            Reject
+                          </button>
+                          <button
+                            className="btn btn-accent"
+                            disabled={busyId === r.id}
+                            onClick={() =>
+                              setModal({
+                                id: r.id,
+                                status: "APPROVED",
+                                reason: "",
+                                error: "",
+                              })
+                            }
+                          >
+                            Approve correction
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="muted">
+                          {r.reviewReason || "Decision recorded"}
+                        </span>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            {pages > 1 && (
+              <div
+                className="pagination"
+                style={{
+                  padding: "14px 18px",
+                  borderTop: "1px solid var(--border, #edf2ee)",
+                  marginTop: "14px",
+                }}
+              >
+                <span>
+                  Showing {page * PAGE_SIZE + 1}–
+                  {Math.min((page + 1) * PAGE_SIZE, rows.length)} of{" "}
+                  {rows.length} requests (Page {page + 1} of {pages})
+                </span>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    disabled={page === 0}
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  >
+                    ← Previous
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    disabled={page >= pages - 1}
+                    onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+      {modal && (
+        <div
+          className="modal-backdrop"
+          onMouseDown={(e) => e.target === e.currentTarget && setModal(null)}
+        >
+          <div className="modal correction-modal">
+            <div className="modal-header">
+              <div>
+                <h3>
+                  {modal.status === "APPROVED"
+                    ? "Approve attendance correction"
+                    : "Reject attendance correction"}
+                </h3>
+                <p className="section-sub">
+                  {modal.status === "APPROVED"
+                    ? "The requested times will replace the attendance record."
+                    : "Give the employee a clear reason for the rejection."}
+                </p>
+              </div>
+              <button className="modal-close" onClick={() => setModal(null)}>
+                ×
+              </button>
+            </div>
+            {modal.status === "REJECTED" && (
+              <div className="field">
+                <label>Rejection reason *</label>
+                <textarea
+                  autoFocus
+                  value={modal.reason}
+                  onChange={(e) =>
+                    setModal({ ...modal, reason: e.target.value, error: "" })
+                  }
+                  placeholder="Example: Requested time conflicts with approved leave."
+                />
+              </div>
+            )}
+            {modal.error && <div className="error-banner">{modal.error}</div>}
+            <div className="modal-actions">
+              <button className="btn btn-ghost" onClick={() => setModal(null)}>
+                Cancel
+              </button>
+              <button
+                className={`btn ${modal.status === "APPROVED" ? "btn-accent" : "btn-danger-solid"}`}
+                disabled={busyId === modal.id}
+                onClick={() => review(modal.status)}
+              >
+                {busyId === modal.id
+                  ? "Processing…"
+                  : modal.status === "APPROVED"
+                    ? "Approve & update"
+                    : "Reject request"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

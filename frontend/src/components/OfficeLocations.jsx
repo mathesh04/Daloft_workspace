@@ -1,1 +1,107 @@
-import React,{useEffect,useState}from'react';import api from'../api/api';export default function OfficeLocations(){const [rows,setRows]=useState([]),[f,setF]=useState({name:'',address:'',latitude:'',longitude:'',radiusMeters:150});const load=()=>api.offices().then(setRows);useEffect(()=>{load()},[]);async function submit(e){e.preventDefault();await api.createOffice({...f,latitude:Number(f.latitude),longitude:Number(f.longitude),radiusMeters:Number(f.radiusMeters)});setF({name:'',address:'',latitude:'',longitude:'',radiusMeters:150});load()}return <div className="card"><h3>Multi-Office Geofencing</h3><form onSubmit={submit} className="form-grid"><input placeholder="Office name" value={f.name} onChange={e=>setF({...f,name:e.target.value})} required/><input placeholder="Address" value={f.address} onChange={e=>setF({...f,address:e.target.value})}/><input placeholder="Latitude" type="number" step="any" value={f.latitude} onChange={e=>setF({...f,latitude:e.target.value})} required/><input placeholder="Longitude" type="number" step="any" value={f.longitude} onChange={e=>setF({...f,longitude:e.target.value})} required/><input placeholder="Radius meters" type="number" value={f.radiusMeters} onChange={e=>setF({...f,radiusMeters:e.target.value})}/><button className="btn btn-accent">Add Office</button></form><table><thead><tr><th>Name</th><th>Coordinates</th><th>Radius</th><th></th></tr></thead><tbody>{rows.map(o=><tr key={o.id}><td>{o.name}<br/><small>{o.address}</small></td><td>{o.latitude}, {o.longitude}</td><td>{o.radiusMeters} m</td><td><button className="btn btn-sm" onClick={()=>api.deleteOffice(o.id).then(load)}>Delete</button></td></tr>)}</tbody></table></div>}
+import React, { useEffect, useState } from "react";
+import api from "../api/api";
+export default function OfficeLocations() {
+  const [rows, setRows] = useState([]),
+    [f, setF] = useState({
+      name: "",
+      address: "",
+      latitude: "",
+      longitude: "",
+      radiusMeters: 150,
+    });
+  const load = () => api.offices().then(setRows);
+  useEffect(() => {
+    load();
+  }, []);
+  async function submit(e) {
+    e.preventDefault();
+    await api.createOffice({
+      ...f,
+      latitude: Number(f.latitude),
+      longitude: Number(f.longitude),
+      radiusMeters: Number(f.radiusMeters),
+    });
+    setF({
+      name: "",
+      address: "",
+      latitude: "",
+      longitude: "",
+      radiusMeters: 150,
+    });
+    load();
+  }
+  return (
+    <div className="card">
+      <h3>Multi-Office Geofencing</h3>
+      <form onSubmit={submit} className="form-grid">
+        <input
+          placeholder="Office name"
+          value={f.name}
+          onChange={(e) => setF({ ...f, name: e.target.value })}
+          required
+        />
+        <input
+          placeholder="Address"
+          value={f.address}
+          onChange={(e) => setF({ ...f, address: e.target.value })}
+        />
+        <input
+          placeholder="Latitude"
+          type="number"
+          step="any"
+          value={f.latitude}
+          onChange={(e) => setF({ ...f, latitude: e.target.value })}
+          required
+        />
+        <input
+          placeholder="Longitude"
+          type="number"
+          step="any"
+          value={f.longitude}
+          onChange={(e) => setF({ ...f, longitude: e.target.value })}
+          required
+        />
+        <input
+          placeholder="Radius meters"
+          type="number"
+          value={f.radiusMeters}
+          onChange={(e) => setF({ ...f, radiusMeters: e.target.value })}
+        />
+        <button className="btn btn-accent">Add Office</button>
+      </form>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Coordinates</th>
+            <th>Radius</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((o) => (
+            <tr key={o.id}>
+              <td>
+                {o.name}
+                <br />
+                <small>{o.address}</small>
+              </td>
+              <td>
+                {o.latitude}, {o.longitude}
+              </td>
+              <td>{o.radiusMeters} m</td>
+              <td>
+                <button
+                  className="btn btn-sm"
+                  onClick={() => api.deleteOffice(o.id).then(load)}
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

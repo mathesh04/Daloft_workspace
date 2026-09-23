@@ -1,99 +1,1191 @@
-import React,{useEffect,useState}from 'react';
-import api from '../api/api';
-import OfficeCalendar from './OfficeCalendar';
-const Stat=({label,value})=><div className="sys-stat"><span>{label}</span><b>{value??'—'}</b></div>;
-export default function SystemAdminPanel({section='control'}){
- const [data,setData]=useState({}),[error,setError]=useState(''),[loading,setLoading]=useState(true),[offices,setOffices]=useState([]),[logs,setLogs]=useState(null),[filters,setFilters]=useState({page:0,size:20}),[settings,setSettings]=useState({});
- const load=async()=>{setLoading(true);setError('');try{
-   if(section==='control'){
-     const [summary,health,security]=await Promise.all([api.systemSummary(),api.systemHealth(),api.systemSecurity()]);
-     setData({summary,health,security});
-   } else if(section==='offices'){
-     setOffices(await api.systemOffices());
-   } else if(section==='settings'){
-     setSettings(await api.systemSettings()||{});
-   } else if(section==='organization'){
-   
-   } else if(section==='security'){
-     setData({security:await api.systemSecurity()});
-   } else if(section==='health'){
-     setData({health:await api.systemHealth()});
-   }
- }catch(e){setError(e.message)}finally{setLoading(false)}};
- useEffect(()=>{if(section!=='audit' && section!=='holidays' && section!=='office-calendar' && section!=='organization')load();else setLoading(false)},[section]);
- useEffect(()=>{if(section==='audit'){setLoading(true);api.systemAuditLogs(filters).then(setLogs).catch(e=>setError(e.message)).finally(()=>setLoading(false))}},[section,filters]);
- const saveSettings=async()=>{const result=await api.saveSystemSettings(settings);setSettings(result||{});return result};
- if(loading)return <div className="sys-card"><div className="loading-spinner"/>Loading {section==='control'?'system control center':section}…</div>;
- if(section==='audit')return <Audit logs={logs} filters={filters} setFilters={setFilters}/>;
- if(section==='offices')return <Offices offices={offices} reload={load}/>;
- if(section==='organization')return <Organization reload={load}/>; if(section==='settings')return <Settings section={section} settings={settings} setSettings={setSettings} save={saveSettings}/>; if(section==='holidays'||section==='office-calendar')return <OfficeCalendar/>;
- if(section==='security')return <Security data={data.security}/>;
- if(section==='health')return <Health data={data.health}/>;
- return <div className="sys-page">{error&&<div className="error-banner">{error}</div>}<div className="sys-hero"><div><span>SYSTEM CONTROL</span><h2>Control Center</h2><p>Operational status, security and governance at a glance.</p></div><button className="primary-btn" onClick={load}>Refresh</button></div><div className="sys-grid"> <Stat label="System Admins" value={data.summary?.systemAdmins}/><Stat label="Administrators" value={data.summary?.hrAdmins}/><Stat label="Employees" value={data.summary?.employees}/><Stat label="Offices" value={data.summary?.offices}/></div><div className="sys-grid two"><Health data={data.health}/><Security data={data.security}/></div></div>;
+import React, { useEffect, useState } from "react";
+import api from "../api/api";
+import OfficeCalendar from "./OfficeCalendar";
+const Stat = ({ label, value }) => (
+  <div className="sys-stat">
+    <span>{label}</span>
+    <b>{value ?? "—"}</b>
+  </div>
+);
+export default function SystemAdminPanel({ section = "control" }) {
+  const [data, setData] = useState({}),
+    [error, setError] = useState(""),
+    [loading, setLoading] = useState(true),
+    [offices, setOffices] = useState([]),
+    [logs, setLogs] = useState(null),
+    [filters, setFilters] = useState({ page: 0, size: 20 }),
+    [settings, setSettings] = useState({});
+  const load = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      if (section === "control") {
+        const [summary, health, security] = await Promise.all([
+          api.systemSummary(),
+          api.systemHealth(),
+          api.systemSecurity(),
+        ]);
+        setData({ summary, health, security });
+      } else if (section === "offices") {
+        setOffices(await api.systemOffices());
+      } else if (section === "settings") {
+        setSettings((await api.systemSettings()) || {});
+      } else if (section === "organization") {
+      } else if (section === "security") {
+        setData({ security: await api.systemSecurity() });
+      } else if (section === "health") {
+        setData({ health: await api.systemHealth() });
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (
+      section !== "audit" &&
+      section !== "holidays" &&
+      section !== "office-calendar" &&
+      section !== "organization"
+    )
+      load();
+    else setLoading(false);
+  }, [section]);
+  useEffect(() => {
+    if (section === "audit") {
+      setLoading(true);
+      api
+        .systemAuditLogs(filters)
+        .then(setLogs)
+        .catch((e) => setError(e.message))
+        .finally(() => setLoading(false));
+    }
+  }, [section, filters]);
+  const saveSettings = async () => {
+    const result = await api.saveSystemSettings(settings);
+    setSettings(result || {});
+    return result;
+  };
+  if (loading)
+    return (
+      <div className="sys-card">
+        <div className="loading-spinner" />
+        Loading {section === "control" ? "system control center" : section}…
+      </div>
+    );
+  if (section === "audit")
+    return <Audit logs={logs} filters={filters} setFilters={setFilters} />;
+  if (section === "offices") return <Offices offices={offices} reload={load} />;
+  if (section === "organization") return <Organization reload={load} />;
+  if (section === "settings")
+    return (
+      <Settings
+        section={section}
+        settings={settings}
+        setSettings={setSettings}
+        save={saveSettings}
+      />
+    );
+  if (section === "holidays" || section === "office-calendar")
+    return <OfficeCalendar />;
+  if (section === "security") return <Security data={data.security} />;
+  if (section === "health") return <Health data={data.health} />;
+  return (
+    <div className="sys-page">
+      {error && <div className="error-banner">{error}</div>}
+      <div className="sys-hero">
+        <div>
+          <span>SYSTEM CONTROL</span>
+          <h2>Control Center</h2>
+          <p>Operational status, security and governance at a glance.</p>
+        </div>
+        <button className="primary-btn" onClick={load}>
+          Refresh
+        </button>
+      </div>
+      <div className="sys-grid">
+        {" "}
+        <Stat label="System Admins" value={data.summary?.systemAdmins} />
+        <Stat label="Administrators" value={data.summary?.hrAdmins} />
+        <Stat label="Employees" value={data.summary?.employees} />
+        <Stat label="Offices" value={data.summary?.offices} />
+      </div>
+      <div className="sys-grid two">
+        <Health data={data.health} />
+        <Security data={data.security} />
+      </div>
+    </div>
+  );
 }
-function Health({data={}}){return <section className="sys-card"><div className="sys-card-head"><h3>System Health</h3><small>Latest check</small></div>{[['Backend API',data.backend],['Database',data.database],['Email Service',data.email],['Storage',data.storage]].map(([k,v])=><div className="sys-row" key={k}><span><i className="status-dot"></i>{k}</span><b>{v||'UNKNOWN'}</b></div>)}</section>}
-function Security({data={}}){return <section className="sys-card"><div className="sys-card-head"><h3>Security Overview</h3></div><div className="sys-mini"><Stat label="Failed logins" value={data.failedLogins}/><Stat label="Password resets" value={data.passwordResets}/><Stat label="Inactive accounts" value={data.inactiveAccounts}/></div><div className="sys-events">{(data.recentEvents||[]).slice(0,5).map(x=><div key={x.id} className="sys-row"><span>{x.action}</span><small>{x.actor}</small></div>)||<p>No recent events.</p>}</div></section>}
-function Offices({offices,reload}){const empty={name:'',address:'',latitude:'',longitude:'',radiusMeters:100,active:true};const [form,setForm]=useState(empty);const save=async(e)=>{e.preventDefault();try{if(form.id)await api.updateSystemOffice(form.id,form);else await api.createSystemOffice({...form,latitude:Number(form.latitude),longitude:Number(form.longitude),radiusMeters:Number(form.radiusMeters)});setForm(empty);reload()}catch(err){alert(err.message)}};return <div className="sys-page"><div className="sys-hero"><div><span>GEOFENCE</span><h2>Offices & Geofences</h2><p>Only active offices can be used by attendance rules.</p></div></div><form className="sys-form" onSubmit={save}><input placeholder="Office name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/><input placeholder="Address" value={form.address} onChange={e=>setForm({...form,address:e.target.value})}/><input type="number" step="any" placeholder="Latitude" value={form.latitude} onChange={e=>setForm({...form,latitude:e.target.value})}/><input type="number" step="any" placeholder="Longitude" value={form.longitude} onChange={e=>setForm({...form,longitude:e.target.value})}/><input type="number" placeholder="Radius meters" value={form.radiusMeters} onChange={e=>setForm({...form,radiusMeters:e.target.value})}/><button className="primary-btn">{form.id?'Update Office':'Add Office'}</button></form><div className="sys-table">{offices.map(o=><div className="sys-table-row" key={o.id}><div><b>{o.name}</b><small>{o.address}</small></div><div>{o.latitude}, {o.longitude}</div><div>{o.radiusMeters} m</div><button className="secondary-btn" onClick={()=>setForm(o)}>Edit</button><button className="secondary-btn" onClick={async()=>{await api.setSystemOfficeActive(o.id,!o.active);reload()}}>{o.active?'Disable':'Enable'}</button></div>)}</div></div>}
-function Audit({logs,filters,setFilters}){const [draft,setDraft]=useState(filters);const apply=()=>setFilters({...draft,page:0});return <div className="sys-page"><div className="sys-hero"><div><span>GOVERNANCE</span><h2>Audit Logs</h2><p>Server-side filtering and pagination. Only requested records are loaded.</p></div><button className="secondary-btn" onClick={()=>api.downloadSystemAuditCsv(filters)}>Download CSV</button></div><div className="sys-filters"><input placeholder="User / actor" value={draft.actor||''} onChange={e=>setDraft({...draft,actor:e.target.value})}/><input placeholder="Action" value={draft.action||''} onChange={e=>setDraft({...draft,action:e.target.value})}/><input type="date" value={draft.from||''} onChange={e=>setDraft({...draft,from:e.target.value})}/><input type="date" value={draft.to||''} onChange={e=>setDraft({...draft,to:e.target.value})}/><button className="primary-btn" onClick={apply}>Apply</button><button className="secondary-btn" onClick={()=>{setDraft({page:0,size:20});setFilters({page:0,size:20})}}>Reset</button></div><div className="sys-table audit-table">
-              <div className="audit-head">
-                <span>When</span><span>Actor</span><span>Action</span><span>Details</span>
+function Health({ data = {} }) {
+  return (
+    <section className="sys-card">
+      <div className="sys-card-head">
+        <h3>System Health</h3>
+        <small>Latest check</small>
+      </div>
+      {[
+        ["Backend API", data.backend],
+        ["Database", data.database],
+        ["Email Service", data.email],
+        ["Storage", data.storage],
+      ].map(([k, v]) => (
+        <div className="sys-row" key={k}>
+          <span>
+            <i className="status-dot"></i>
+            {k}
+          </span>
+          <b>{v || "UNKNOWN"}</b>
+        </div>
+      ))}
+    </section>
+  );
+}
+function Security({ data = {} }) {
+  return (
+    <section className="sys-card">
+      <div className="sys-card-head">
+        <h3>Security Overview</h3>
+      </div>
+      <div className="sys-mini">
+        <Stat label="Failed logins" value={data.failedLogins} />
+        <Stat label="Password resets" value={data.passwordResets} />
+        <Stat label="Inactive accounts" value={data.inactiveAccounts} />
+      </div>
+      <div className="sys-events">
+        {(data.recentEvents || []).slice(0, 5).map((x) => (
+          <div key={x.id} className="sys-row">
+            <span>{x.action}</span>
+            <small>{x.actor}</small>
+          </div>
+        )) || <p>No recent events.</p>}
+      </div>
+    </section>
+  );
+}
+function Offices({ offices, reload }) {
+  const empty = {
+    name: "",
+    address: "",
+    latitude: "",
+    longitude: "",
+    radiusMeters: 100,
+    active: true,
+  };
+  const [form, setForm] = useState(empty);
+  const save = async (e) => {
+    e.preventDefault();
+    try {
+      if (form.id) await api.updateSystemOffice(form.id, form);
+      else
+        await api.createSystemOffice({
+          ...form,
+          latitude: Number(form.latitude),
+          longitude: Number(form.longitude),
+          radiusMeters: Number(form.radiusMeters),
+        });
+      setForm(empty);
+      reload();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+  return (
+    <div className="sys-page">
+      <div className="sys-hero">
+        <div>
+          <span>GEOFENCE</span>
+          <h2>Offices & Geofences</h2>
+          <p>Only active offices can be used by attendance rules.</p>
+        </div>
+      </div>
+      <form className="sys-form" onSubmit={save}>
+        <input
+          placeholder="Office name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+        />
+        <input
+          placeholder="Address"
+          value={form.address}
+          onChange={(e) => setForm({ ...form, address: e.target.value })}
+        />
+        <input
+          type="number"
+          step="any"
+          placeholder="Latitude"
+          value={form.latitude}
+          onChange={(e) => setForm({ ...form, latitude: e.target.value })}
+        />
+        <input
+          type="number"
+          step="any"
+          placeholder="Longitude"
+          value={form.longitude}
+          onChange={(e) => setForm({ ...form, longitude: e.target.value })}
+        />
+        <input
+          type="number"
+          placeholder="Radius meters"
+          value={form.radiusMeters}
+          onChange={(e) => setForm({ ...form, radiusMeters: e.target.value })}
+        />
+        <button className="primary-btn">
+          {form.id ? "Update Office" : "Add Office"}
+        </button>
+      </form>
+      <div className="sys-table">
+        {offices.map((o) => (
+          <div className="sys-table-row" key={o.id}>
+            <div>
+              <b>{o.name}</b>
+              <small>{o.address}</small>
+            </div>
+            <div>
+              {o.latitude}, {o.longitude}
+            </div>
+            <div>{o.radiusMeters} m</div>
+            <button className="secondary-btn" onClick={() => setForm(o)}>
+              Edit
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={async () => {
+                await api.setSystemOfficeActive(o.id, !o.active);
+                reload();
+              }}
+            >
+              {o.active ? "Disable" : "Enable"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+function Audit({ logs, filters, setFilters }) {
+  const [draft, setDraft] = useState(filters);
+  const apply = () => setFilters({ ...draft, page: 0 });
+  return (
+    <div className="sys-page">
+      <div className="sys-hero">
+        <div>
+          <span>GOVERNANCE</span>
+          <h2>Audit Logs</h2>
+          <p>
+            Server-side filtering and pagination. Only requested records are
+            loaded.
+          </p>
+        </div>
+        <button
+          className="secondary-btn"
+          onClick={() => api.downloadSystemAuditCsv(filters)}
+        >
+          Download CSV
+        </button>
+      </div>
+      <div className="sys-filters">
+        <input
+          placeholder="User / actor"
+          value={draft.actor || ""}
+          onChange={(e) => setDraft({ ...draft, actor: e.target.value })}
+        />
+        <input
+          placeholder="Action"
+          value={draft.action || ""}
+          onChange={(e) => setDraft({ ...draft, action: e.target.value })}
+        />
+        <input
+          type="date"
+          value={draft.from || ""}
+          onChange={(e) => setDraft({ ...draft, from: e.target.value })}
+        />
+        <input
+          type="date"
+          value={draft.to || ""}
+          onChange={(e) => setDraft({ ...draft, to: e.target.value })}
+        />
+        <button className="primary-btn" onClick={apply}>
+          Apply
+        </button>
+        <button
+          className="secondary-btn"
+          onClick={() => {
+            setDraft({ page: 0, size: 20 });
+            setFilters({ page: 0, size: 20 });
+          }}
+        >
+          Reset
+        </button>
+      </div>
+      <div className="sys-table audit-table">
+        <div className="audit-head">
+          <span>When</span>
+          <span>Actor</span>
+          <span>Action</span>
+          <span>Details</span>
+        </div>
+        {(logs?.content || []).map((x) => (
+          <div className="audit-row" key={x.id}>
+            <small>
+              {x.createdAt
+                ? new Date(x.createdAt).toLocaleString("en-IN", {
+                    timeZone: "Asia/Kolkata",
+                    day: "2-digit",
+                    month: "short",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })
+                : "—"}
+            </small>
+            <b>{x.actor}</b>
+            <span className="audit-action">
+              {String(x.action || "")
+                .replaceAll("_", " ")
+                .toLowerCase()}
+            </span>
+            <span className="audit-details">{x.details}</span>
+          </div>
+        ))}
+        {!logs?.content?.length && (
+          <div className="empty-state" style={{ padding: "32px" }}>
+            No audit records match the current filters.
+          </div>
+        )}
+      </div>
+      <div className="pagination">
+        <button
+          disabled={logs?.first}
+          onClick={() =>
+            setFilters({
+              ...filters,
+              page: Math.max(0, (filters.page || 0) - 1),
+            })
+          }
+        >
+          Previous
+        </button>
+        <span>
+          Page {(logs?.number ?? 0) + 1} of {Math.max(logs?.totalPages || 1, 1)}
+        </span>
+        <button
+          disabled={logs?.last}
+          onClick={() =>
+            setFilters({ ...filters, page: (filters.page || 0) + 1 })
+          }
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}
+function Settings({ section, settings, setSettings, save }) {
+  const boolKeys = [
+    "ATTENDANCE_ENABLED",
+    "CHECK_IN_ENABLED",
+    "CHECK_OUT_ENABLED",
+    "GEOFENCE_ENABLED",
+    "MAINTENANCE_MODE",
+    "EMPLOYEE_LOGIN_ENABLED",
+    "MANAGER_LOGIN_ENABLED",
+    "ADMIN_LOGIN_ENABLED",
+    "HR_ADMIN_LOGIN_ENABLED",
+  ];
+  const numberMeta = {
+    GEOFENCE_RADIUS: ["Geofence radius", "meters", 1, 50000],
+    MAX_GPS_ACCURACY: ["Maximum GPS accuracy", "meters", 1, 5000],
+    LATE_GRACE_MINUTES: ["Late grace period", "minutes", 0, 1440],
+    MIN_WORK_MINUTES: ["Minimum work duration", "minutes", 0, 1440],
+    MAX_LOGIN_ATTEMPTS: ["Maximum login attempts", "attempts", 1, 20],
+    ACCOUNT_LOCK_MINUTES: ["Account lock duration", "minutes", 1, 1440],
+    SESSION_TIMEOUT_MINUTES: ["Session timeout", "minutes", 5, 1440],
+  };
+  const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [snapshot, setSnapshot] = useState("");
+  useEffect(() => {
+    if (Object.keys(settings || {}).length && !snapshot)
+      setSnapshot(JSON.stringify(settings));
+  }, [settings, snapshot]);
+  const set = (k, v) => setSettings({ ...settings, [k]: v });
+  const doSave = async () => {
+    setSaving(true);
+    setMessage("");
+    try {
+      const result = await save();
+      setSnapshot(JSON.stringify(result));
+      setMessage("Changes saved successfully.");
+    } catch (e) {
+      setMessage(e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="sys-page">
+      <div className="sys-hero">
+        <div>
+          <span>CONFIGURATION</span>
+          <h2>System Settings</h2>
+          <p>
+            Organization-wide policies are stored centrally and enforced by the
+            backend.
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="secondary-btn"
+            onClick={() => snapshot && setSettings(JSON.parse(snapshot))}
+            disabled={!snapshot || saving}
+          >
+            Reset
+          </button>
+          <button className="primary-btn" onClick={doSave} disabled={saving}>
+            {saving ? "Saving…" : "Save Changes"}
+          </button>
+        </div>
+      </div>
+      {message && (
+        <div
+          className={
+            message.includes("success") ? "success-banner" : "error-banner"
+          }
+        >
+          {message}
+        </div>
+      )}
+      <div className="settings-card-group">
+        <div className="settings-card">
+          <h3>Attendance</h3>
+          <p className="muted">
+            Control whether attendance and location rules are available.
+          </p>
+          {[
+            ["ATTENDANCE_ENABLED", "Attendance enabled"],
+            ["CHECK_IN_ENABLED", "Check-in enabled"],
+            ["CHECK_OUT_ENABLED", "Check-out enabled"],
+            ["GEOFENCE_ENABLED", "Geofence enabled"],
+          ].map(([k, label]) => (
+            <ToggleRow
+              key={k}
+              label={label}
+              checked={!!settings[k]}
+              onChange={(v) => set(k, v)}
+            />
+          ))}
+          <div className="settings-field-grid">
+            {Object.entries(numberMeta)
+              .filter(([k]) => k !== "LATE_GRACE_MINUTES")
+              .slice(0, 3)
+              .map(([k, m]) => (
+                <NumberField
+                  key={k}
+                  label={m[0]}
+                  unit={m[1]}
+                  min={m[2]}
+                  max={m[3]}
+                  value={settings[k] ?? ""}
+                  onChange={(v) => set(k, Number(v))}
+                />
+              ))}
+          </div>
+        </div>
+        <div className="settings-card">
+          <h3>Security</h3>
+          <p className="muted">Authentication policy and session controls.</p>
+          <div className="settings-field-grid">
+            {Object.entries(numberMeta)
+              .slice(4)
+              .map(([k, m]) => (
+                <NumberField
+                  key={k}
+                  label={m[0]}
+                  unit={m[1]}
+                  min={m[2]}
+                  max={m[3]}
+                  value={settings[k] ?? ""}
+                  onChange={(v) => set(k, Number(v))}
+                />
+              ))}
+          </div>
+        </div>
+        <div className="settings-card">
+          <h3>Login Access</h3>
+          <p className="muted">
+            Control login by account category. Organization Admin login is
+            always protected.
+          </p>
+          <ToggleRow
+            label="Employee login"
+            checked={!!settings.EMPLOYEE_LOGIN_ENABLED}
+            onChange={(v) => set("EMPLOYEE_LOGIN_ENABLED", v)}
+          />
+          <ToggleRow
+            label="Manager login"
+            checked={!!settings.MANAGER_LOGIN_ENABLED}
+            onChange={(v) => set("MANAGER_LOGIN_ENABLED", v)}
+          />
+          <ToggleRow
+            label="Administrator login"
+            checked={
+              settings.ADMIN_LOGIN_ENABLED !== undefined
+                ? !!settings.ADMIN_LOGIN_ENABLED
+                : !!settings.HR_ADMIN_LOGIN_ENABLED
+            }
+            onChange={(v) => {
+              set("ADMIN_LOGIN_ENABLED", v);
+              set("HR_ADMIN_LOGIN_ENABLED", v);
+            }}
+          />
+          <div className="protected-row">
+            <span>
+              <b>Organization Admin login</b>
+              <small>Protected to prevent administrator lockout</small>
+            </span>
+            <span className="status-badge">PROTECTED</span>
+          </div>
+        </div>
+        <div className="settings-card office-timing-card">
+          <div className="settings-section-title">
+            <div>
+              <h3>Office timing</h3>
+              <p className="muted">
+                Define the organization work window used by attendance and
+                late-status rules.
+              </p>
+            </div>
+            <span className="status-badge">LIVE POLICY</span>
+          </div>
+          <div className="timing-grid">
+            <label className="settings-text-field">
+              <span>Office opens</span>
+              <input
+                type="time"
+                value={settings.WORK_START_TIME || "09:00"}
+                onChange={(e) => set("WORK_START_TIME", e.target.value)}
+              />
+            </label>
+            <label className="settings-text-field">
+              <span>Office closes</span>
+              <input
+                type="time"
+                value={settings.WORK_END_TIME || "18:00"}
+                onChange={(e) => set("WORK_END_TIME", e.target.value)}
+              />
+            </label>
+            <label className="settings-text-field">
+              <span>Time zone</span>
+              <select
+                value={settings.TIMEZONE || "Asia/Kolkata"}
+                onChange={(e) => set("TIMEZONE", e.target.value)}
+              >
+                <option>Asia/Kolkata</option>
+                <option>UTC</option>
+                <option>Asia/Singapore</option>
+                <option>Europe/London</option>
+                <option>America/New_York</option>
+              </select>
+            </label>
+            <NumberField
+              label="Late grace"
+              unit="minutes"
+              min={0}
+              max={1440}
+              value={settings.LATE_GRACE_MINUTES ?? 10}
+              onChange={(v) => set("LATE_GRACE_MINUTES", Number(v))}
+            />
+          </div>
+          <div className="timing-preview">
+            <span>Attendance rule</span>
+            <b>
+              {settings.WORK_START_TIME || "09:00"} +{" "}
+              {settings.LATE_GRACE_MINUTES ?? 10} min grace
+            </b>
+            <small>Employees after the grace window are marked late.</small>
+          </div>
+        </div>
+        <div className="settings-card">
+          <h3>System</h3>
+          <p className="muted">
+            Temporarily restrict normal users during maintenance.
+          </p>
+          <ToggleRow
+            label="Maintenance mode"
+            checked={!!settings.MAINTENANCE_MODE}
+            onChange={(v) => set("MAINTENANCE_MODE", v)}
+          />
+          <label className="settings-text-field">
+            <span>Working days</span>
+            <select
+              multiple
+              value={(
+                settings.WORKING_DAYS ||
+                "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY"
+              ).split(",")}
+              onChange={(e) =>
+                set(
+                  "WORKING_DAYS",
+                  Array.from(e.target.selectedOptions)
+                    .map((o) => o.value)
+                    .join(","),
+                )
+              }
+            >
+              {[
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY",
+                "SUNDAY",
+              ].map((d) => (
+                <option key={d} value={d}>
+                  {d[0] + d.slice(1).toLowerCase()}
+                </option>
+              ))}
+            </select>
+            <small>Ctrl/Cmd-click to choose multiple days.</small>
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+}
+function ToggleRow({ label, checked, onChange }) {
+  return (
+    <div className="toggle-row">
+      <div>
+        <b>{label}</b>
+        <small>{checked ? "Enabled" : "Disabled"}</small>
+      </div>
+      <button
+        type="button"
+        className={`switch ${checked ? "on" : ""}`}
+        onClick={() => onChange(!checked)}
+        aria-pressed={checked}
+      >
+        <span />
+      </button>
+    </div>
+  );
+}
+function NumberField({ label, unit, min, max, value, onChange }) {
+  return (
+    <label className="settings-number">
+      <span>{label}</span>
+      <div>
+        <input
+          type="number"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <em>{unit}</em>
+      </div>
+    </label>
+  );
+}
+function Organization() {
+  const [deps, setDeps] = useState([]),
+    [people, setPeople] = useState([]),
+    [managers, setManagers] = useState([]),
+    [admins, setAdmins] = useState([]),
+    [form, setForm] = useState({ name: "", code: "", managerId: "" }),
+    [error, setError] = useState("");
+  const load = async () => {
+    try {
+      const [d, p, m, a] = await Promise.all([
+        api.organizationDepartments(),
+        api.organizationEmployees(),
+        api.organizationManagers(),
+        api.getHrAdmins(),
+      ]);
+      setDeps(d);
+      setPeople(p);
+      setManagers(m);
+      setAdmins(a);
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  useEffect(() => {
+    load();
+  }, []);
+  const create = async (e) => {
+    e.preventDefault();
+    try {
+      await api.createDepartment({
+        ...form,
+        managerId: form.managerId ? Number(form.managerId) : null,
+      });
+      setForm({ name: "", code: "", managerId: "" });
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  const make = async (id) => {
+    try {
+      await api.makeManager(id);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  const remove = async (p) => {
+    if (
+      !window.confirm(
+        `Remove Manager role from ${p.name}? They must have no active department assignments or direct reports.`,
+      )
+    )
+      return;
+    try {
+      await api.removeManager(p.id);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  const assign = async (id, managerId) => {
+    try {
+      await api.updateDepartment(
+        id,
+        managerId
+          ? { managerId: Number(managerId), clearManager: false }
+          : { clearManager: true },
+      );
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  const reportTo = async (id, managerId) => {
+    try {
+      await api.setReportingManager(id, managerId ? Number(managerId) : null);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  const managerStatus = async (p) => {
+    try {
+      await api.setManagerActive(p.id, !p.active);
+      load();
+    } catch (e) {
+      setError(e.message);
+    }
+  };
+  return (
+    <div className="sys-page">
+      {error && <div className="error-banner">{error}</div>}
+      <div className="sys-hero">
+        <div>
+          <span>ORGANIZATION GOVERNANCE</span>
+          <h2>Departments, Managers & Delegated Access</h2>
+          <p>
+            Organization Admin controls the structure, manager hierarchy,
+            delegated HR access and organization reporting.
+          </p>
+        </div>
+        <button className="primary-btn" onClick={load}>
+          Refresh
+        </button>
+      </div>
+      <div className="sys-grid">
+        <Stat label="Departments" value={deps.length} />
+        <Stat label="Managers" value={managers.length} />
+        <Stat
+          label="People"
+          value={
+            people.filter(
+              (p) =>
+                p.role === "EMPLOYEE" ||
+                p.role === "MANAGER" ||
+                p.role === "INTERN",
+            ).length
+          }
+        />
+        <Stat label="Administrators" value={admins.length} />
+      </div>
+      <div className="sys-card" style={{ marginTop: 20 }}>
+        <div className="sys-card-head">
+          <div>
+            <h3>Organization reports</h3>
+            <small>Download the current hierarchy and workforce state.</small>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button
+              className="secondary-btn"
+              onClick={() => api.downloadOrganizationPeopleCsv()}
+            >
+              People CSV
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={() => api.downloadOrganizationDepartmentsCsv()}
+            >
+              Departments CSV
+            </button>
+            <button
+              className="secondary-btn"
+              onClick={() => api.downloadOrganizationManagersCsv()}
+            >
+              Managers CSV
+            </button>
+          </div>
+        </div>
+      </div>
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: "1fr 1fr", gap: 20, alignItems: "start" }}
+      >
+        <div className="sys-card">
+          <h3>Create department</h3>
+          <form className="sys-form" onSubmit={create}>
+            <input
+              placeholder="Department name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+            />
+            <input
+              placeholder="Code (optional)"
+              value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })}
+            />
+            <select
+              value={form.managerId}
+              onChange={(e) => setForm({ ...form, managerId: e.target.value })}
+            >
+              <option value="">Assign manager later</option>
+              {managers.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name} ({m.employeeId})
+                </option>
+              ))}
+            </select>
+            <button className="primary-btn">Create Department</button>
+          </form>
+        </div>
+        <div className="sys-card">
+          <h3>Departments</h3>
+          {deps.map((d) => (
+            <div className="sys-row" key={d.id}>
+              <span>
+                <b>{d.name}</b>
+                <small>
+                  {d.code || "No code"} · {d.active ? "Active" : "Inactive"}
+                </small>
+              </span>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <select
+                  value={d.managerId || ""}
+                  onChange={(e) => assign(d.id, e.target.value)}
+                  disabled={!d.active}
+                >
+                  <option value="">No manager</option>
+                  {managers.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="secondary-btn"
+                  onClick={async () => {
+                    try {
+                      await api.updateDepartment(d.id, { active: !d.active });
+                      load();
+                    } catch (e) {
+                      setError(e.message);
+                    }
+                  }}
+                >
+                  {d.active ? "Deactivate" : "Activate"}
+                </button>
               </div>
-              {(logs?.content||[]).map(x=><div className="audit-row" key={x.id}>
-                <small>{x.createdAt ? new Date(x.createdAt).toLocaleString("en-IN",{timeZone:"Asia/Kolkata",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",hour12:true}) : "—"}</small>
-                <b>{x.actor}</b>
-                <span className="audit-action">{String(x.action||"").replaceAll("_"," ").toLowerCase()}</span>
-                <span className="audit-details">{x.details}</span>
-              </div>)}
-              {!logs?.content?.length && <div className="empty-state" style={{padding:"32px"}}>No audit records match the current filters.</div>}
-            </div><div className="pagination"><button disabled={logs?.first} onClick={()=>setFilters({...filters,page:Math.max(0,(filters.page||0)-1)})}>Previous</button><span>Page {(logs?.number??0)+1} of {Math.max(logs?.totalPages||1,1)}</span><button disabled={logs?.last} onClick={()=>setFilters({...filters,page:(filters.page||0)+1})}>Next</button></div></div>}
-function Settings({section,settings,setSettings,save}){
- const boolKeys=['ATTENDANCE_ENABLED','CHECK_IN_ENABLED','CHECK_OUT_ENABLED','GEOFENCE_ENABLED','MAINTENANCE_MODE','EMPLOYEE_LOGIN_ENABLED','MANAGER_LOGIN_ENABLED','ADMIN_LOGIN_ENABLED','HR_ADMIN_LOGIN_ENABLED'];
- const numberMeta={GEOFENCE_RADIUS:['Geofence radius','meters',1,50000],MAX_GPS_ACCURACY:['Maximum GPS accuracy','meters',1,5000],LATE_GRACE_MINUTES:['Late grace period','minutes',0,1440],MIN_WORK_MINUTES:['Minimum work duration','minutes',0,1440],MAX_LOGIN_ATTEMPTS:['Maximum login attempts','attempts',1,20],ACCOUNT_LOCK_MINUTES:['Account lock duration','minutes',1,1440],SESSION_TIMEOUT_MINUTES:['Session timeout','minutes',5,1440]};
- const [message,setMessage]=useState(''); const [saving,setSaving]=useState(false); const [snapshot,setSnapshot]=useState('');
- useEffect(()=>{if(Object.keys(settings||{}).length&&!snapshot)setSnapshot(JSON.stringify(settings))},[settings,snapshot]);
- const set=(k,v)=>setSettings({...settings,[k]:v});
- const doSave=async()=>{setSaving(true);setMessage('');try{const result=await save();setSnapshot(JSON.stringify(result));setMessage('Changes saved successfully.')}catch(e){setMessage(e.message)}finally{setSaving(false)}};
- return <div className="sys-page"><div className="sys-hero"><div><span>CONFIGURATION</span><h2>System Settings</h2><p>Organization-wide policies are stored centrally and enforced by the backend.</p></div><div style={{display:'flex',gap:8}}><button className="secondary-btn" onClick={()=>snapshot&&setSettings(JSON.parse(snapshot))} disabled={!snapshot||saving}>Reset</button><button className="primary-btn" onClick={doSave} disabled={saving}>{saving?'Saving…':'Save Changes'}</button></div></div>{message&&<div className={message.includes('success')?'success-banner':'error-banner'}>{message}</div>}
-   <div className="settings-card-group"><div className="settings-card"><h3>Attendance</h3><p className="muted">Control whether attendance and location rules are available.</p>{[['ATTENDANCE_ENABLED','Attendance enabled'],['CHECK_IN_ENABLED','Check-in enabled'],['CHECK_OUT_ENABLED','Check-out enabled'],['GEOFENCE_ENABLED','Geofence enabled']].map(([k,label])=><ToggleRow key={k} label={label} checked={!!settings[k]} onChange={v=>set(k,v)}/>) }<div className="settings-field-grid">{Object.entries(numberMeta).filter(([k])=>k!=='LATE_GRACE_MINUTES').slice(0,3).map(([k,m])=><NumberField key={k} label={m[0]} unit={m[1]} min={m[2]} max={m[3]} value={settings[k]??''} onChange={v=>set(k,Number(v))}/>)}</div></div>
-   <div className="settings-card"><h3>Security</h3><p className="muted">Authentication policy and session controls.</p><div className="settings-field-grid">{Object.entries(numberMeta).slice(4).map(([k,m])=><NumberField key={k} label={m[0]} unit={m[1]} min={m[2]} max={m[3]} value={settings[k]??''} onChange={v=>set(k,Number(v))}/>)}</div></div>
-   <div className="settings-card"><h3>Login Access</h3><p className="muted">Control login by account category. Organization Admin login is always protected.</p><ToggleRow label="Employee login" checked={!!settings.EMPLOYEE_LOGIN_ENABLED} onChange={v=>set('EMPLOYEE_LOGIN_ENABLED',v)}/><ToggleRow label="Manager login" checked={!!settings.MANAGER_LOGIN_ENABLED} onChange={v=>set('MANAGER_LOGIN_ENABLED',v)}/><ToggleRow label="Administrator login" checked={settings.ADMIN_LOGIN_ENABLED !== undefined ? !!settings.ADMIN_LOGIN_ENABLED : !!settings.HR_ADMIN_LOGIN_ENABLED} onChange={v=>{set('ADMIN_LOGIN_ENABLED',v);set('HR_ADMIN_LOGIN_ENABLED',v)}}/><div className="protected-row"><span><b>Organization Admin login</b><small>Protected to prevent administrator lockout</small></span><span className="status-badge">PROTECTED</span></div></div>
-   <div className="settings-card office-timing-card"><div className="settings-section-title"><div><h3>Office timing</h3><p className="muted">Define the organization work window used by attendance and late-status rules.</p></div><span className="status-badge">LIVE POLICY</span></div><div className="timing-grid"><label className="settings-text-field"><span>Office opens</span><input type="time" value={settings.WORK_START_TIME||'09:00'} onChange={e=>set('WORK_START_TIME',e.target.value)}/></label><label className="settings-text-field"><span>Office closes</span><input type="time" value={settings.WORK_END_TIME||'18:00'} onChange={e=>set('WORK_END_TIME',e.target.value)}/></label><label className="settings-text-field"><span>Time zone</span><select value={settings.TIMEZONE||'Asia/Kolkata'} onChange={e=>set('TIMEZONE',e.target.value)}><option>Asia/Kolkata</option><option>UTC</option><option>Asia/Singapore</option><option>Europe/London</option><option>America/New_York</option></select></label><NumberField label="Late grace" unit="minutes" min={0} max={1440} value={settings.LATE_GRACE_MINUTES??10} onChange={v=>set('LATE_GRACE_MINUTES',Number(v))}/></div><div className="timing-preview"><span>Attendance rule</span><b>{settings.WORK_START_TIME||'09:00'} + {settings.LATE_GRACE_MINUTES??10} min grace</b><small>Employees after the grace window are marked late.</small></div></div>
-   <div className="settings-card"><h3>System</h3><p className="muted">Temporarily restrict normal users during maintenance.</p><ToggleRow label="Maintenance mode" checked={!!settings.MAINTENANCE_MODE} onChange={v=>set('MAINTENANCE_MODE',v)}/><label className="settings-text-field"><span>Working days</span><select multiple value={(settings.WORKING_DAYS||'MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY').split(',')} onChange={e=>set('WORKING_DAYS',Array.from(e.target.selectedOptions).map(o=>o.value).join(','))}>{['MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY'].map(d=><option key={d} value={d}>{d[0]+d.slice(1).toLowerCase()}</option>)}</select><small>Ctrl/Cmd-click to choose multiple days.</small></label></div></div></div>
+            </div>
+          ))}
+          {!deps.length && <p>No departments created yet.</p>}
+        </div>
+      </div>
+      <div className="sys-card" style={{ marginTop: 20 }}>
+        <h3>People & reporting hierarchy</h3>
+        <p className="muted">
+          Promote employees to Manager, assign department ownership, and define
+          each employee's direct reporting manager.
+        </p>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Role</th>
+                <th>Department</th>
+                <th>Reporting manager</th>
+                <th>Lifecycle</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {people
+                .filter(
+                  (p) =>
+                    p.role !== "SYSTEM_ADMIN" &&
+                    p.role !== "ADMIN" &&
+                    p.role !== "HR_ADMIN",
+                )
+                .map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <b>{p.name}</b>
+                      <div className="muted">{p.employeeId}</div>
+                    </td>
+                    <td>
+                      {p.role === "EMPLOYEE"
+                        ? "Employee"
+                        : p.role === "MANAGER"
+                          ? "Manager"
+                          : p.role === "INTERN"
+                            ? "Intern"
+                            : p.role === "HR_ADMIN" || p.role === "ADMIN"
+                              ? "Administrator"
+                              : p.role === "SYSTEM_ADMIN"
+                                ? "System Administrator"
+                                : p.role}
+                    </td>
+                    <td>{p.department || "—"}</td>
+                    <td>
+                      <select
+                        value={p.reportingManagerId || ""}
+                        onChange={(e) => reportTo(p.id, e.target.value)}
+                        disabled={
+                          p.role === "MANAGER" && p.id === p.reportingManagerId
+                        }
+                      >
+                        <option value="">No direct manager</option>
+                        {managers
+                          .filter((m) => m.id !== p.id)
+                          .map((m) => (
+                            <option key={m.id} value={m.id}>
+                              {m.name}
+                            </option>
+                          ))}
+                      </select>
+                    </td>
+                    <td>
+                      <span
+                        className={`badge ${p.active ? "badge-success" : "badge-danger"}`}
+                      >
+                        {p.active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td>
+                      {p.role === "MANAGER" ? (
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => managerStatus(p)}
+                          >
+                            {p.active ? "Deactivate" : "Activate"}
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => remove(p)}
+                          >
+                            Remove Manager
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn btn-accent btn-sm"
+                          onClick={() => make(p.id)}
+                          disabled={!p.active}
+                        >
+                          Make Manager
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="sys-card" style={{ marginTop: 20 }}>
+        <h3>Delegated administrator access</h3>
+        <p className="muted">
+          Access is organization-wide until department-level data filtering is
+          implemented. Each administrator receives only the selected functional
+          permissions.
+        </p>
+        {admins.map((a) => (
+          <AdminAccessEditor key={a.id} admin={a} />
+        ))}
+      </div>
+    </div>
+  );
 }
-function ToggleRow({label,checked,onChange}){return <div className="toggle-row"><div><b>{label}</b><small>{checked?'Enabled':'Disabled'}</small></div><button type="button" className={`switch ${checked?'on':''}`} onClick={()=>onChange(!checked)} aria-pressed={checked}><span/></button></div>}
-function NumberField({label,unit,min,max,value,onChange}){return <label className="settings-number"><span>{label}</span><div><input type="number" min={min} max={max} value={value} onChange={e=>onChange(e.target.value)}/><em>{unit}</em></div></label>}
-function Organization(){
- const [deps,setDeps]=useState([]),[people,setPeople]=useState([]),[managers,setManagers]=useState([]),[admins,setAdmins]=useState([]),[form,setForm]=useState({name:'',code:'',managerId:''}),[error,setError]=useState('');
- const load=async()=>{try{const[d,p,m,a]=await Promise.all([api.organizationDepartments(),api.organizationEmployees(),api.organizationManagers(),api.getHrAdmins()]);setDeps(d);setPeople(p);setManagers(m);setAdmins(a)}catch(e){setError(e.message)}};
- useEffect(()=>{load()},[]);
- const create=async e=>{e.preventDefault();try{await api.createDepartment({...form,managerId:form.managerId?Number(form.managerId):null});setForm({name:'',code:'',managerId:''});load()}catch(e){setError(e.message)}};
- const make=async id=>{try{await api.makeManager(id);load()}catch(e){setError(e.message)}};
- const remove=async p=>{if(!window.confirm(`Remove Manager role from ${p.name}? They must have no active department assignments or direct reports.`))return;try{await api.removeManager(p.id);load()}catch(e){setError(e.message)}};
- const assign=async(id,managerId)=>{try{await api.updateDepartment(id,managerId?{managerId:Number(managerId),clearManager:false}:{clearManager:true});load()}catch(e){setError(e.message)}};
- const reportTo=async(id,managerId)=>{try{await api.setReportingManager(id,managerId?Number(managerId):null);load()}catch(e){setError(e.message)}};
- const managerStatus=async(p)=>{try{await api.setManagerActive(p.id,!p.active);load()}catch(e){setError(e.message)}};
- return <div className="sys-page">{error&&<div className="error-banner">{error}</div>}
-  <div className="sys-hero"><div><span>ORGANIZATION GOVERNANCE</span><h2>Departments, Managers & Delegated Access</h2><p>Organization Admin controls the structure, manager hierarchy, delegated HR access and organization reporting.</p></div><button className="primary-btn" onClick={load}>Refresh</button></div>
-  <div className="sys-grid">
-   <Stat label="Departments" value={deps.length}/><Stat label="Managers" value={managers.length}/><Stat label="People" value={people.filter(p=>p.role==='EMPLOYEE'||p.role==='MANAGER'||p.role==='INTERN').length}/><Stat label="Administrators" value={admins.length}/>
-  </div>
-  <div className="sys-card" style={{marginTop:20}}><div className="sys-card-head"><div><h3>Organization reports</h3><small>Download the current hierarchy and workforce state.</small></div><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><button className="secondary-btn" onClick={()=>api.downloadOrganizationPeopleCsv()}>People CSV</button><button className="secondary-btn" onClick={()=>api.downloadOrganizationDepartmentsCsv()}>Departments CSV</button><button className="secondary-btn" onClick={()=>api.downloadOrganizationManagersCsv()}>Managers CSV</button></div></div></div>
-  <div className="grid" style={{gridTemplateColumns:'1fr 1fr',gap:20,alignItems:'start'}}>
-   <div className="sys-card"><h3>Create department</h3><form className="sys-form" onSubmit={create}><input placeholder="Department name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required/><input placeholder="Code (optional)" value={form.code} onChange={e=>setForm({...form,code:e.target.value})}/><select value={form.managerId} onChange={e=>setForm({...form,managerId:e.target.value})}><option value="">Assign manager later</option>{managers.map(m=><option key={m.id} value={m.id}>{m.name} ({m.employeeId})</option>)}</select><button className="primary-btn">Create Department</button></form></div>
-   <div className="sys-card"><h3>Departments</h3>{deps.map(d=><div className="sys-row" key={d.id}><span><b>{d.name}</b><small>{d.code||'No code'} · {d.active?'Active':'Inactive'}</small></span><div style={{display:'flex',gap:8,alignItems:'center'}}><select value={d.managerId||''} onChange={e=>assign(d.id,e.target.value)} disabled={!d.active}><option value="">No manager</option>{managers.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}</select><button className="secondary-btn" onClick={async()=>{try{await api.updateDepartment(d.id,{active:!d.active});load()}catch(e){setError(e.message)}}}>{d.active?'Deactivate':'Activate'}</button></div></div>)}{!deps.length&&<p>No departments created yet.</p>}</div>
-  </div>
-  <div className="sys-card" style={{marginTop:20}}><h3>People & reporting hierarchy</h3><p className="muted">Promote employees to Manager, assign department ownership, and define each employee's direct reporting manager.</p><div className="table-wrap"><table><thead><tr><th>Employee</th><th>Role</th><th>Department</th><th>Reporting manager</th><th>Lifecycle</th><th>Action</th></tr></thead><tbody>{people.filter(p=>p.role!=='SYSTEM_ADMIN'&&p.role!=='ADMIN'&&p.role!=='HR_ADMIN').map(p=><tr key={p.id}><td><b>{p.name}</b><div className="muted">{p.employeeId}</div></td><td>{p.role==='EMPLOYEE'?'Employee':p.role==='MANAGER'?'Manager':p.role==='INTERN'?'Intern':(p.role==='HR_ADMIN'||p.role==='ADMIN')?'Administrator':p.role==='SYSTEM_ADMIN'?'System Administrator':p.role}</td><td>{p.department||'—'}</td><td><select value={p.reportingManagerId||''} onChange={e=>reportTo(p.id,e.target.value)} disabled={p.role==='MANAGER'&&p.id===p.reportingManagerId}><option value="">No direct manager</option>{managers.filter(m=>m.id!==p.id).map(m=><option key={m.id} value={m.id}>{m.name}</option>)}</select></td><td><span className={`badge ${p.active?'badge-success':'badge-danger'}`}>{p.active?'Active':'Inactive'}</span></td><td>{p.role==='MANAGER'?<div style={{display:'flex',gap:6}}><button className="btn btn-ghost btn-sm" onClick={()=>managerStatus(p)}>{p.active?'Deactivate':'Activate'}</button><button className="btn btn-danger btn-sm" onClick={()=>remove(p)}>Remove Manager</button></div>:<button className="btn btn-accent btn-sm" onClick={()=>make(p.id)} disabled={!p.active}>Make Manager</button>}</td></tr>)}</tbody></table></div></div>
-  <div className="sys-card" style={{marginTop:20}}><h3>Delegated administrator access</h3><p className="muted">Access is organization-wide until department-level data filtering is implemented. Each administrator receives only the selected functional permissions.</p>{admins.map(a=><AdminAccessEditor key={a.id} admin={a}/>)}</div>
- </div>
-}
-function AdminAccessEditor({admin}){
- const permissions=['PEOPLE','ATTENDANCE','LEAVE','INVENTORY','TASKS','COMMUNICATION','REPORTS','OFFICE','HOLIDAY_CALENDAR'];
- const labels={PEOPLE:'People',ATTENDANCE:'Attendance',LEAVE:'Leave',INVENTORY:'Inventory',TASKS:'Tasks',COMMUNICATION:'Announcements',REPORTS:'Reports & Analytics',OFFICE:'Office Locations',HOLIDAY_CALENDAR:'Holiday Calendar'};
- const [selected,setSelected]=useState([]),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[message,setMessage]=useState('');
- const load=()=>{setLoading(true);setMessage('');api.getAdminAccess(admin.id).then(x=>{const active=(x||[]).filter(a=>a.active).map(a=>String(a.permission||'').toUpperCase());setSelected(active.includes('ALL')?['ALL']:Array.from(new Set(active.filter(p=>permissions.includes(p)))))}).catch(e=>setMessage(e.message||'Unable to load delegated access.')).finally(()=>setLoading(false));};
- useEffect(()=>{load()},[admin.id]);
- const all=selected.includes('ALL');
- const toggle=p=>{setSelected(current=>{if(p==='ALL')return current.includes('ALL')?[]:['ALL'];const withoutAll=current.filter(x=>x!=='ALL');return withoutAll.includes(p)?withoutAll.filter(x=>x!==p):[...withoutAll,p]})};
- const save=async()=>{setSaving(true);setMessage('');try{const normalized=all?['ALL']:Array.from(new Set(selected.filter(p=>permissions.includes(p))));await api.saveAdminAccess(admin.id,normalized.map(p=>({permission:p,scopeType:'ORGANIZATION'})));setSelected(normalized);setMessage('Access updated successfully.');}catch(e){setMessage(e.message||'Unable to save delegated access.')}finally{setSaving(false)}};
- return <div className="access-editor"><div className="access-editor-head"><div className="access-admin-meta"><strong>{admin.name}</strong><small>{admin.employeeId} · Administrator</small></div><div style={{display:'flex',gap:8}}><button className="secondary-btn" onClick={load} disabled={loading||saving}>↻</button><button className="primary-btn" onClick={save} disabled={loading||saving}>{saving?'Saving…':'Save access'}</button></div></div>{message&&<div className={message.includes('successfully')?'success-banner':'error-banner'} style={{marginTop:10}}>{message}</div>}<div className="access-summary">{all?<span className="access-chip">ALL FUNCTIONS</span>:selected.length?selected.map(p=><span className="access-chip" key={p}>{labels[p]}</span>):<span className="access-chip none">NO FUNCTIONAL ACCESS</span>}</div><div className="access-permissions"><label className={`access-permission ${all?'selected':''}`}><input type="checkbox" checked={all} onChange={()=>toggle('ALL')} disabled={loading||saving}/>All functions</label>{permissions.map(p=><label key={p} className={`access-permission ${selected.includes(p)?'selected':''}`}><input type="checkbox" checked={selected.includes(p)} onChange={()=>toggle(p)} disabled={loading||saving}/>{labels[p]}</label>)}</div><div className="access-scope-note"><b>Scope:</b> Organization-wide. Functional permission controls which module endpoints and navigation items this administrator can use.</div></div>
+function AdminAccessEditor({ admin }) {
+  const permissions = [
+    "PEOPLE",
+    "ATTENDANCE",
+    "LEAVE",
+    "INVENTORY",
+    "TASKS",
+    "COMMUNICATION",
+    "REPORTS",
+    "OFFICE",
+    "HOLIDAY_CALENDAR",
+  ];
+  const labels = {
+    PEOPLE: "People",
+    ATTENDANCE: "Attendance",
+    LEAVE: "Leave",
+    INVENTORY: "Inventory",
+    TASKS: "Tasks",
+    COMMUNICATION: "Announcements",
+    REPORTS: "Reports & Analytics",
+    OFFICE: "Office Locations",
+    HOLIDAY_CALENDAR: "Holiday Calendar",
+  };
+  const [selected, setSelected] = useState([]),
+    [saving, setSaving] = useState(false),
+    [loading, setLoading] = useState(true),
+    [message, setMessage] = useState("");
+  const load = () => {
+    setLoading(true);
+    setMessage("");
+    api
+      .getAdminAccess(admin.id)
+      .then((x) => {
+        const active = (x || [])
+          .filter((a) => a.active)
+          .map((a) => String(a.permission || "").toUpperCase());
+        setSelected(
+          active.includes("ALL")
+            ? ["ALL"]
+            : Array.from(
+                new Set(active.filter((p) => permissions.includes(p))),
+              ),
+        );
+      })
+      .catch((e) => setMessage(e.message || "Unable to load delegated access."))
+      .finally(() => setLoading(false));
+  };
+  useEffect(() => {
+    load();
+  }, [admin.id]);
+  const all = selected.includes("ALL");
+  const toggle = (p) => {
+    setSelected((current) => {
+      if (p === "ALL") return current.includes("ALL") ? [] : ["ALL"];
+      const withoutAll = current.filter((x) => x !== "ALL");
+      return withoutAll.includes(p)
+        ? withoutAll.filter((x) => x !== p)
+        : [...withoutAll, p];
+    });
+  };
+  const save = async () => {
+    setSaving(true);
+    setMessage("");
+    try {
+      const normalized = all
+        ? ["ALL"]
+        : Array.from(new Set(selected.filter((p) => permissions.includes(p))));
+      await api.saveAdminAccess(
+        admin.id,
+        normalized.map((p) => ({ permission: p, scopeType: "ORGANIZATION" })),
+      );
+      setSelected(normalized);
+      setMessage("Access updated successfully.");
+    } catch (e) {
+      setMessage(e.message || "Unable to save delegated access.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="access-editor">
+      <div className="access-editor-head">
+        <div className="access-admin-meta">
+          <strong>{admin.name}</strong>
+          <small>{admin.employeeId} · Administrator</small>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            className="secondary-btn"
+            onClick={load}
+            disabled={loading || saving}
+          >
+            ↻
+          </button>
+          <button
+            className="primary-btn"
+            onClick={save}
+            disabled={loading || saving}
+          >
+            {saving ? "Saving…" : "Save access"}
+          </button>
+        </div>
+      </div>
+      {message && (
+        <div
+          className={
+            message.includes("successfully") ? "success-banner" : "error-banner"
+          }
+          style={{ marginTop: 10 }}
+        >
+          {message}
+        </div>
+      )}
+      <div className="access-summary">
+        {all ? (
+          <span className="access-chip">ALL FUNCTIONS</span>
+        ) : selected.length ? (
+          selected.map((p) => (
+            <span className="access-chip" key={p}>
+              {labels[p]}
+            </span>
+          ))
+        ) : (
+          <span className="access-chip none">NO FUNCTIONAL ACCESS</span>
+        )}
+      </div>
+      <div className="access-permissions">
+        <label className={`access-permission ${all ? "selected" : ""}`}>
+          <input
+            type="checkbox"
+            checked={all}
+            onChange={() => toggle("ALL")}
+            disabled={loading || saving}
+          />
+          All functions
+        </label>
+        {permissions.map((p) => (
+          <label
+            key={p}
+            className={`access-permission ${selected.includes(p) ? "selected" : ""}`}
+          >
+            <input
+              type="checkbox"
+              checked={selected.includes(p)}
+              onChange={() => toggle(p)}
+              disabled={loading || saving}
+            />
+            {labels[p]}
+          </label>
+        ))}
+      </div>
+      <div className="access-scope-note">
+        <b>Scope:</b> Organization-wide. Functional permission controls which
+        module endpoints and navigation items this administrator can use.
+      </div>
+    </div>
+  );
 }
