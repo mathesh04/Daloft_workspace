@@ -1,7 +1,13 @@
 package com.ems.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "audit_logs")
@@ -26,7 +32,8 @@ public class AuditLog {
     public void setAction(String v){action=v;}
     public String getDetails(){return details;}
     public void setDetails(String v){details=v;}
-    public String getActorEmployeeId(){return actorEmployeeId;} public void setActorEmployeeId(String v){actorEmployeeId=v;}
+    public String getActorEmployeeId(){return actorEmployeeId;} 
+    public void setActorEmployeeId(String v){actorEmployeeId=v;}
     public String getActorRole(){return actorRole;} public void setActorRole(String v){actorRole=v;}
     public String getEntityType(){return entityType;} public void setEntityType(String v){entityType=v;}
     public String getEntityId(){return entityId;} public void setEntityId(String v){entityId=v;}

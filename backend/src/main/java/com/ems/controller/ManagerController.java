@@ -4,8 +4,12 @@ import com.ems.model.*;
 import com.ems.dto.EmployeeResponse;
 import com.ems.dto.LeaveRequestResponse;
 import com.ems.dto.DepartmentResponse;
+import com.ems.dto.ManagerDepartmentResponse;
 import com.ems.repository.*;
 import com.ems.service.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +30,8 @@ public class ManagerController {
     private final SystemSettingsService settings;
     private final LeaveBalanceService balanceService;
     private final AttendanceRegularizationService regularization;
+    private final DailyWorkReportRepository reportRepository;
+    private final DailyWorkReportService reportService;
 
     public ManagerController(
             EmployeeRepository e,
@@ -36,7 +42,9 @@ public class ManagerController {
             AuditService a,
             SystemSettingsService s,
             LeaveBalanceService bs,
-            AttendanceRegularizationService ar) {
+            AttendanceRegularizationService ar,
+            DailyWorkReportRepository rr,
+            DailyWorkReportService rs) {
 
         employees = e;
         attendance = at;
@@ -47,6 +55,8 @@ public class ManagerController {
         settings = s;
         balanceService = bs;
         regularization = ar;
+        reportRepository = rr;
+        reportService = rs;
     }
 
     private Employee me(Authentication a) {
@@ -61,56 +71,103 @@ public class ManagerController {
         return e;
     }
 
-    private boolean manages(Employee m, Employee e) {
+    private boolean departmentMatches(Employee employee, Department department) {
+        if (employee == null || department == null || employee.getDepartment() == null) {
+            return false;
+        }
+        String normalized = employee.getDepartment().trim();
+        return (department.getName() != null && department.getName().trim().equalsIgnoreCase(normalized))
+                || (department.getCode() != null && department.getCode().trim().equalsIgnoreCase(normalized));
+    }
 
-        if (e == null) {
+    private boolean manages(Employee m, Employee e) {
+        if (m == null || e == null) {
             return false;
         }
 
         if (e.getReportingManager() != null
-                && e.getReportingManager().getId().equals(m.getId())) {
+                && Objects.equals(e.getReportingManager().getId(), m.getId())) {
             return true;
         }
 
         return departments
                 .findByManagerId(m.getId())
                 .stream()
-                .anyMatch(d ->
-                        d.isActive()
-                                && d.getName().equalsIgnoreCase(e.getDepartment())
-                );
+                .filter(Department::isActive)
+                .anyMatch(d -> departmentMatches(e, d));
     }
 
     @GetMapping("/team")
-    public List<EmployeeResponse> team(Authentication a) {
+    public List<EmployeeResponse> team(
+            @RequestParam(required = false) Long departmentId,
+            Authentication a) {
 
         Employee m = me(a);
+
+        List<Department> managedDepartments = departments.findByManagerId(m.getId())
+                .stream()
+                .filter(Department::isActive)
+                .toList();
+
+        Department targetDept = null;
+        if (departmentId != null) {
+            targetDept = managedDepartments.stream()
+                    .filter(d -> Objects.equals(d.getId(), departmentId))
+                    .findFirst()
+                    .orElseThrow(() -> new SecurityException("Department not managed by you"));
+        }
+        final Department scopedDept = targetDept;
 
         return employees.findAll()
                 .stream()
                 .filter(e ->
-                        e.isActive()
-                                && e.getRole() == Role.EMPLOYEE
-                                && !e.getId().equals(m.getId())
+                        (e.getRole() == Role.EMPLOYEE || e.getRole() == Role.INTERN)
+                                && !Objects.equals(e.getId(), m.getId())
                                 && manages(m, e)
                 )
-                .sorted(Comparator.comparing(Employee::getName))
+                .filter(e -> {
+                    if (scopedDept == null) return true;
+                    return departmentMatches(e, scopedDept);
+                })
+                .sorted(Comparator.comparing(Employee::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .map(EmployeeResponse::new)
                 .toList();
     }
 
     @GetMapping("/departments")
-    public List<DepartmentResponse> departments(Authentication a) {
+    public List<ManagerDepartmentResponse> departments(Authentication a) {
 
         Employee m = me(a);
 
-        return departments
+        List<Department> managedList = departments
                 .findByManagerId(m.getId())
                 .stream()
                 .filter(Department::isActive)
-                .sorted(Comparator.comparing(Department::getName))
-                .map(DepartmentResponse::new)
+                .sorted(Comparator.comparing(Department::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
                 .toList();
+
+        List<Employee> allEmployees = employees.findAll();
+
+        return managedList.stream().map(d -> {
+            List<Employee> deptEmployees = allEmployees.stream()
+                    .filter(e -> (e.getRole() == Role.EMPLOYEE || e.getRole() == Role.INTERN)
+                            && !Objects.equals(e.getId(), m.getId())
+                            && departmentMatches(e, d))
+                    .toList();
+            long total = deptEmployees.size();
+            long active = deptEmployees.stream().filter(Employee::isActive).count();
+
+            return new ManagerDepartmentResponse(
+                    d.getId(),
+                    d.getName(),
+                    d.getCode(),
+                    d.getManager() == null ? null : d.getManager().getId(),
+                    d.getManager() == null ? null : d.getManager().getName(),
+                    d.isActive(),
+                    total,
+                    active
+            );
+        }).toList();
     }
 
     @GetMapping("/attendance")
@@ -135,6 +192,7 @@ public class ManagerController {
                 .filter(x ->
                         x.getEmployee() != null
                                 && x.getEmployee().isActive()
+                                && !Objects.equals(x.getEmployee().getId(), m.getId())
                                 && manages(m, x.getEmployee())
                 )
                 .toList();
@@ -206,22 +264,14 @@ public class ManagerController {
                 );
             }
 
-            /*
-             * APPROVAL
-             * --------
-             * Reserve the leave balance before changing the status.
-             */
+           
             if (st.equals("APPROVED")) {
 
                 balanceService.reserveOnApproval(r);
 
             } else {
 
-                /*
-                 * REJECTION
-                 * ----------
-                 * Store the manager's rejection reason.
-                 */
+               
                 r.setRejectionReason(reason);
             }
 
@@ -232,19 +282,11 @@ public class ManagerController {
             LeaveRequest saved =
                     leaves.save(r);
 
-            /*
-             * =========================================================
-             * EMAIL / NOTIFICATION
-             * =========================================================
-             */
+           
 
             String msg;
 
-            /*
-             * =========================================================
-             * LEAVE APPROVED
-             * =========================================================
-             */
+            
             if (st.equals("APPROVED")) {
 
                 msg =
@@ -282,11 +324,7 @@ public class ManagerController {
 
             }
 
-            /*
-             * =========================================================
-             * LEAVE REJECTED
-             * =========================================================
-             */
+            
             else {
 
                 msg =
@@ -329,12 +367,6 @@ public class ManagerController {
                         true
                 );
             }
-
-            /*
-             * =========================================================
-             * AUDIT LOG
-             * =========================================================
-             */
 
             audit.log(
                     a,
@@ -415,5 +447,110 @@ public class ManagerController {
                             )
                     );
         }
+    }
+
+    @GetMapping("/daily-reports")
+    public List<DailyWorkReport> dailyReports(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String employeeId,
+            @RequestParam(required = false) Long departmentId,
+            Authentication a) {
+
+        Employee m = me(a);
+        return getScopedDailyReports(m, date, from, to, employeeId, departmentId);
+    }
+
+    @GetMapping("/daily-reports/employees")
+    public List<Map<String, Object>> dailyReportEmployees(Authentication a) {
+        Employee m = me(a);
+        return employees.findAll().stream()
+                .filter(e -> (e.getRole() == Role.EMPLOYEE || e.getRole() == Role.INTERN)
+                        && !Objects.equals(e.getId(), m.getId())
+                        && manages(m, e))
+                .sorted(Comparator.comparing(Employee::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)))
+                .map(e -> {
+                    Map<String, Object> map = new LinkedHashMap<>();
+                    map.put("id", e.getId());
+                    map.put("employeeId", e.getEmployeeId());
+                    map.put("name", e.getName());
+                    map.put("department", e.getDepartment());
+                    map.put("role", e.getRole().name());
+                    map.put("active", e.isActive());
+                    return map;
+                })
+                .toList();
+    }
+
+    @GetMapping("/daily-reports/export")
+    public ResponseEntity<byte[]> exportDailyReports(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String employeeId,
+            @RequestParam(required = false) Long departmentId,
+            Authentication a) throws Exception {
+
+        Employee m = me(a);
+        List<DailyWorkReport> list = getScopedDailyReports(m, date, from, to, employeeId, departmentId);
+        byte[] excel = reportService.exportReportsToExcel(list, "Daily Reports - " + m.getName());
+        String filename = "daily-work-reports-" + (date != null ? date : (from != null ? from + "-to-" + to : "all")) + ".xlsx";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
+
+    private List<DailyWorkReport> getScopedDailyReports(
+            Employee m,
+            LocalDate date,
+            LocalDate from,
+            LocalDate to,
+            String employeeId,
+            Long departmentId) {
+
+        List<Department> managedDepartments = departments.findByManagerId(m.getId())
+                .stream()
+                .filter(Department::isActive)
+                .toList();
+
+        Department targetDept = null;
+        if (departmentId != null) {
+            targetDept = managedDepartments.stream()
+                    .filter(d -> Objects.equals(d.getId(), departmentId))
+                    .findFirst()
+                    .orElseThrow(() -> new SecurityException("Department not managed by you"));
+        }
+        final Department scopedDept = targetDept;
+
+        LocalDate startDate = date != null ? date : from;
+        LocalDate endDate = date != null ? date : to;
+
+        List<DailyWorkReport> list;
+        if (startDate != null && endDate != null) {
+            list = reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(startDate, endDate);
+        } else if (startDate != null) {
+            list = reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(startDate, LocalDate.now());
+        } else {
+            list = reportRepository.findAllByOrderByReportDateDescCreatedAtDesc();
+        }
+
+        final String reqEmpId = (employeeId != null && !employeeId.isBlank()) ? employeeId.trim() : null;
+
+        return list.stream()
+                .filter(r -> r.getEmployee() != null
+                        && !Objects.equals(r.getEmployee().getId(), m.getId())
+                        && manages(m, r.getEmployee()))
+                .filter(r -> {
+                    if (scopedDept == null) return true;
+                    return departmentMatches(r.getEmployee(), scopedDept);
+                })
+                .filter(r -> {
+                    if (reqEmpId == null) return true;
+                    return r.getEmployee().getEmployeeId().equalsIgnoreCase(reqEmpId);
+                })
+                .toList();
     }
 }

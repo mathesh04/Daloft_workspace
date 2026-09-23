@@ -19,7 +19,7 @@ public class AdminAccessFilter extends OncePerRequestFilter {
         String path=r.getRequestURI();
         if(auth!=null && auth.isAuthenticated()
                 && path.startsWith("/api/admin/")
-                && auth.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_HR_ADMIN"))){
+                && auth.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_ADMIN") || x.getAuthority().equals("ROLE_HR_ADMIN"))){
             String perm=permission(path);
             if(perm!=null && !access.allowed(auth.getName(),perm)){
                 p.setStatus(403);
@@ -31,13 +31,9 @@ public class AdminAccessFilter extends OncePerRequestFilter {
         c.doFilter(r,p);
     }
 
-    /**
-     * More-specific module paths must win over generic report/analytics paths.
-     * This is important because inventory contains its own reports/analytics endpoints.
-     */
     private String permission(String p){
         if(p.contains("/inventory")) return "INVENTORY";
-        if(p.contains("/holidays")) return "HOLIDAY_CALENDAR";
+        if(p.contains("/holidays") || p.contains("/office-calendar")) return "HOLIDAY_CALENDAR";
         if(p.contains("/attendance")) return "ATTENDANCE";
         if(p.contains("/leave")) return "LEAVE";
         if(p.contains("/employees") || p.contains("/damage")) return "PEOPLE";

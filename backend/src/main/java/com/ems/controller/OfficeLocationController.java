@@ -1,1 +1,32 @@
-package com.ems.controller; import com.ems.model.*; import com.ems.repository.*; import org.springframework.web.bind.annotation.*; import java.util.*; @RestController @RequestMapping("/api/admin/offices") public class OfficeLocationController { final OfficeLocationRepository repo; OfficeLocationController(OfficeLocationRepository r){repo=r;} @GetMapping public List<OfficeLocation> all(){return repo.findAll();} @PostMapping public OfficeLocation create(@RequestBody OfficeLocation o){return repo.save(o);} @PutMapping("/{id}") public OfficeLocation update(@PathVariable Long id,@RequestBody OfficeLocation x){OfficeLocation o=repo.findById(id).orElseThrow();o.setName(x.getName());o.setAddress(x.getAddress());o.setLatitude(x.getLatitude());o.setLongitude(x.getLongitude());o.setRadiusMeters(x.getRadiusMeters());o.setActive(x.isActive());return repo.save(o);} @DeleteMapping("/{id}") public void del(@PathVariable Long id){repo.deleteById(id);} }
+package com.ems.controller; 
+import com.ems.model.*; 
+import com.ems.repository.*; 
+import org.springframework.web.bind.annotation.*; 
+import java.util.*; 
+@RestController 
+@RequestMapping("/api/admin/offices") 
+public class OfficeLocationController { 
+    final OfficeLocationRepository repo; 
+    OfficeLocationController(OfficeLocationRepository r){
+        repo=r;
+    } 
+    @GetMapping public List<OfficeLocation> all(){
+        return repo.findAll();
+    } 
+    @PostMapping public OfficeLocation create(@RequestBody OfficeLocation o){
+        return repo.save(o);
+    } 
+    @PutMapping("/{id}") 
+    public OfficeLocation update(@PathVariable Long id,@RequestBody OfficeLocation x){
+        OfficeLocation o=repo.findById(id).orElseThrow();o.setName(x.getName());
+        o.setAddress(x.getAddress());
+        o.setLatitude(x.getLatitude());
+        o.setLongitude(x.getLongitude());
+        o.setRadiusMeters(x.getRadiusMeters());
+        o.setActive(x.isActive());return repo.save(o);
+    } 
+    @DeleteMapping("/{id}") 
+    public void del(@PathVariable Long id){
+        repo.deleteById(id);
+    } 
+}

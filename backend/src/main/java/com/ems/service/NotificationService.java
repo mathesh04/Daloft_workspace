@@ -1,15 +1,17 @@
 package com.ems.service;
 
-import com.ems.model.Employee;
-import com.ems.model.Notification;
-import com.ems.repository.NotificationRepository;
-import com.ems.repository.EmployeeRepository;
-import com.ems.model.Role;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.ems.model.Employee;
+import com.ems.model.Notification;
+import com.ems.model.Role;
+import com.ems.repository.EmployeeRepository;
+import com.ems.repository.NotificationRepository;
 
 @Service
 public class NotificationService {
@@ -34,10 +36,10 @@ public class NotificationService {
     @Transactional
     public void notifyAdmins(String title, String message, String type) {
         List<Employee> admins = new java.util.ArrayList<>();
-        admins.addAll(employeeRepository.findByRole(Role.HR_ADMIN));
+        admins.addAll(employeeRepository.findByRoleIn(List.of(Role.ADMIN, Role.HR_ADMIN)));
         admins.addAll(employeeRepository.findByRole(Role.SYSTEM_ADMIN));
         if (admins.isEmpty()) {
-            log.warn("No HR_ADMIN employee found; admin notification was not created: {}", title);
+            log.warn("No ADMIN employee found; admin notification was not created: {}", title);
             return;
         }
         for (Employee admin : admins) {
@@ -61,8 +63,6 @@ public class NotificationService {
             try {
                 emailService.send(employee, title, message);
             } catch (Exception ex) {
-                // A Brevo/network failure must not undo a successful leave/damage update
-                // or prevent the in-app notification from being stored.
                 log.error("Notification email failed for employee {}: {}",
                         employee.getEmployeeId(), ex.getMessage(), ex);
             }

@@ -23,8 +23,6 @@ public class DailyWorkReportController {
         this.reportService = reportService;
     }
 
-    // ── Employee Endpoints ───────────────────────────────────────────────────
-
     @PostMapping("/api/daily-reports")
     public ResponseEntity<?> submitReport(Authentication auth, @RequestBody Map<String, String> body) {
         try {
@@ -55,8 +53,6 @@ public class DailyWorkReportController {
         Optional<DailyWorkReport> report = reportService.getMyReportForDate(auth.getName(), LocalDate.now());
         return ResponseEntity.ok(report.orElse(null));
     }
-
-    // ── HR Admin / Manager Endpoints ─────────────────────────────────────────
 
     @GetMapping("/api/admin/daily-reports")
     public List<DailyWorkReport> getFilteredReports(

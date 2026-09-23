@@ -44,9 +44,6 @@ public class NotificationSchemaInitializer {
 
             statement.execute("ALTER TABLE notifications ALTER COLUMN read_status SET DEFAULT false");
             statement.execute("ALTER TABLE notifications ALTER COLUMN read_status SET NOT NULL");
-
-            // Remove the legacy column. Keeping it NOT NULL without a default makes
-            // Hibernate inserts fail because Notification maps only read_status.
             statement.execute("ALTER TABLE notifications DROP COLUMN IF EXISTS \"read\"");
 
         } catch (Exception ex) {

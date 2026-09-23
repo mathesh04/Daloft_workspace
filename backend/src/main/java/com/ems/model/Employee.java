@@ -15,7 +15,7 @@ public class Employee {
 
     @Column(name = "employee_id", nullable = false, unique = true)
     @NotBlank
-    private String employeeId; // login username, e.g. EMP001
+    private String employeeId;
 
     @Column(nullable = false)
     @NotBlank
@@ -24,7 +24,7 @@ public class Employee {
     @JsonIgnore
     @Column(nullable = false)
     @NotBlank
-    private String password; // BCrypt hashed, never returned to client
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -34,7 +34,7 @@ public class Employee {
     private String department;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "reporting_manager_id")
     private Employee reportingManager;
 
@@ -61,7 +61,7 @@ public class Employee {
 
     public Employee() {}
 
-    // Getters and setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -74,8 +74,8 @@ public class Employee {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
+    public Role getRole() { return role == Role.HR_ADMIN ? Role.ADMIN : role; }
+    public void setRole(Role role) { this.role = (role == Role.HR_ADMIN) ? Role.ADMIN : role; }
 
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }

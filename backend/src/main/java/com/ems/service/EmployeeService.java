@@ -30,14 +30,18 @@ public class EmployeeService {
         Authentication a=SecurityContextHolder.getContext().getAuthentication();
         if(a==null) throw new IllegalStateException("Authentication required");
         if(a.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_SYSTEM_ADMIN"))) return Role.SYSTEM_ADMIN;
-        if(a.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_HR_ADMIN"))) return Role.HR_ADMIN;
+        if(a.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_ADMIN")||x.getAuthority().equals("ROLE_HR_ADMIN"))) return Role.ADMIN;
         if(a.getAuthorities().stream().anyMatch(x->x.getAuthority().equals("ROLE_MANAGER"))) return Role.MANAGER;
         return Role.EMPLOYEE;
     }
 
     private Role requestedRole(EmployeeRequest req) {
         if(req.getRole()==null||req.getRole().isBlank()) return Role.EMPLOYEE;
-        try { return Role.valueOf(req.getRole().trim().toUpperCase()); }
+        try {
+            String r = req.getRole().trim().toUpperCase();
+            if("HR_ADMIN".equals(r)) return Role.ADMIN;
+            return Role.valueOf(r);
+        }
         catch(Exception e) { throw new IllegalArgumentException("Invalid role"); }
     }
 
@@ -45,8 +49,12 @@ public class EmployeeService {
         return employeeRepository.findByRoleIn(List.of(Role.EMPLOYEE,Role.MANAGER,Role.INTERN)).stream().map(EmployeeResponse::new).toList();
     }
 
+    public List<EmployeeResponse> getAdminsForSystemAdmin() {
+        return employeeRepository.findByRoleIn(List.of(Role.ADMIN, Role.HR_ADMIN)).stream().map(EmployeeResponse::new).toList();
+    }
+
     public List<EmployeeResponse> getHrAdminsForSystemAdmin() {
-        return employeeRepository.findByRole(Role.HR_ADMIN).stream().map(EmployeeResponse::new).toList();
+        return getAdminsForSystemAdmin();
     }
 
     public List<com.ems.dto.DepartmentOption> getActiveDepartmentsForHr() {
@@ -60,16 +68,20 @@ public class EmployeeService {
     }
 
     public EmployeeResponse createEmployee(EmployeeRequest req) {
-        if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can create employees through this operation.");
+        if(currentRole()!=Role.ADMIN) throw new IllegalArgumentException("Only ADMIN can create employees through this operation.");
         Role requested=requestedRole(req);
-        if(requested!=Role.EMPLOYEE && requested!=Role.INTERN) throw new IllegalArgumentException("HR_ADMIN can create EMPLOYEE or INTERN accounts only.");
+        if(requested!=Role.EMPLOYEE && requested!=Role.INTERN) throw new IllegalArgumentException("ADMIN can create EMPLOYEE or INTERN accounts only.");
         return create(req,requested);
     }
 
+    public EmployeeResponse createAdmin(EmployeeRequest req) {
+        if(currentRole()!=Role.SYSTEM_ADMIN) throw new IllegalArgumentException("Only SYSTEM_ADMIN can create ADMIN accounts.");
+        if(requestedRole(req)!=Role.ADMIN) throw new IllegalArgumentException("SYSTEM_ADMIN can create ADMIN accounts only. SYSTEM_ADMIN is bootstrap-only.");
+        return create(req,Role.ADMIN);
+    }
+
     public EmployeeResponse createHrAdmin(EmployeeRequest req) {
-        if(currentRole()!=Role.SYSTEM_ADMIN) throw new IllegalArgumentException("Only SYSTEM_ADMIN can create HR_ADMIN accounts.");
-        if(requestedRole(req)!=Role.HR_ADMIN) throw new IllegalArgumentException("SYSTEM_ADMIN can create HR_ADMIN accounts only. SYSTEM_ADMIN is bootstrap-only.");
-        return create(req,Role.HR_ADMIN);
+        return createAdmin(req);
     }
 
     private EmployeeResponse create(EmployeeRequest req,Role role) {
@@ -78,52 +90,41 @@ public class EmployeeService {
         Employee e=new Employee();
         e.setEmployeeId(req.getEmployeeId().trim()); 
         e.setName(req.getName().trim()); 
+        e.setRole(role);
         e.setPassword(passwordEncoder.encode(req.getPassword()));
-        e.setRole(role); 
-        copyEditableFields(e,req); 
+        copyEditableFields(e,req);
         validateDepartment(e.getDepartment());
-         e.setReportingManager(null);
-          e.setActive(true);
-        
         Employee saved=employeeRepository.save(e);
         try {
-            emailService.send(
-                    saved,
-                    "Welcome to DALOFT AEROSPACE",
-                    "Dear " + saved.getName() + ",\n\n" +
-                            "Welcome to DALOFT AEROSPACE PRIVATE LIMITED.\n\n" +
-                            "We are pleased to welcome you to our organization. Your employee account has been successfully created, and you may now access the DALOFT People platform using the credentials below.\n\n" +
-                            "Employee ID: " + saved.getEmployeeId() + "\n" +
-                            "Password: " + req.getPassword() + "\n" +
-                            "Login: https://daloft-workspace.vercel.app/login\n\n" +
-                            "Please keep your login credentials confidential and change your password after your first login if required.\n\n" +
-                            "We look forward to your contribution and wish you a successful journey with DALOFT AEROSPACE.\n\n" +
-                            "Warm regards,\n" +
-                            "HR & People Operations\n" +
-                            "DALOFT AEROSPACE PRIVATE LIMITED"
-            );
-    } catch(Exception ignored){}
+            if(saved.getEmail()!=null && !saved.getEmail().isBlank()) {
+                emailService.sendAccountCreationEmail(saved.getEmail(), saved.getName(), saved.getEmployeeId(), req.getPassword(), saved.getRole().name());
+            }
+        } catch(Exception ignored){}
         return new EmployeeResponse(saved);
     }
 
     public EmployeeResponse updateEmployee(Long id,EmployeeRequest req) {
-        if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can update employee records.");
+        if(currentRole()!=Role.ADMIN) throw new IllegalArgumentException("Only ADMIN can update employee records.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));
-        if(e.getRole()!=Role.EMPLOYEE && e.getRole()!=Role.MANAGER && e.getRole()!=Role.INTERN) throw new IllegalArgumentException("HR_ADMIN cannot modify administrator accounts.");
-        if(requestedRole(req)!=e.getRole()) throw new IllegalArgumentException("HR_ADMIN cannot change roles.");
+        if(e.getRole()!=Role.EMPLOYEE && e.getRole()!=Role.MANAGER && e.getRole()!=Role.INTERN) throw new IllegalArgumentException("ADMIN cannot modify administrator accounts.");
+        if(requestedRole(req)!=e.getRole()) throw new IllegalArgumentException("ADMIN cannot change roles.");
         copyEditableFields(e,req); validateDepartment(e.getDepartment());
         if(req.getPassword()!=null&&!req.getPassword().isBlank()) e.setPassword(passwordEncoder.encode(req.getPassword()));
         return new EmployeeResponse(employeeRepository.save(e));
     }
 
-    public EmployeeResponse updateHrAdmin(Long id,EmployeeRequest req) {
-        if(currentRole()!=Role.SYSTEM_ADMIN) throw new IllegalArgumentException("Only SYSTEM_ADMIN can manage HR_ADMIN accounts.");
+    public EmployeeResponse updateAdmin(Long id,EmployeeRequest req) {
+        if(currentRole()!=Role.SYSTEM_ADMIN) throw new IllegalArgumentException("Only SYSTEM_ADMIN can manage ADMIN accounts.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Administrator not found"));
-        if(e.getRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN accounts can be managed here.");
-        if(requestedRole(req)!=Role.HR_ADMIN) throw new IllegalArgumentException("Role changes are not allowed here.");
+        if(e.getRole()!=Role.ADMIN) throw new IllegalArgumentException("Only ADMIN accounts can be managed here.");
+        if(requestedRole(req)!=Role.ADMIN) throw new IllegalArgumentException("Role changes are not allowed here.");
         copyEditableFields(e,req); validateDepartment(e.getDepartment());
         EmployeeResponse out=new EmployeeResponse(employeeRepository.save(e));
         return out;
+    }
+
+    public EmployeeResponse updateHrAdmin(Long id,EmployeeRequest req) {
+        return updateAdmin(id, req);
     }
 
     private void validateDepartment(String department) {
@@ -139,22 +140,26 @@ public class EmployeeService {
     }
 
     public void setEmployeeActive(Long id,boolean active) {
-        if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can activate or deactivate employees.");
+        if(currentRole()!=Role.ADMIN) throw new IllegalArgumentException("Only ADMIN can activate or deactivate employees.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));
         if(e.getRole()!=Role.EMPLOYEE&&e.getRole()!=Role.MANAGER&&e.getRole()!=Role.INTERN) throw new IllegalArgumentException("Administrator accounts cannot be changed here.");
         if(!active&&e.getRole()==Role.MANAGER) throw new IllegalArgumentException("Manager lifecycle is controlled by Organization Admin. Reassign departments and direct reports first.");
         e.setActive(active); employeeRepository.save(e);
     }
 
-    public void setHrAdminActive(Long id,boolean active) {
-        if(currentRole()!=Role.SYSTEM_ADMIN) throw new IllegalArgumentException("Only SYSTEM_ADMIN can manage HR_ADMIN accounts.");
+    public void setAdminActive(Long id,boolean active) {
+        if(currentRole()!=Role.SYSTEM_ADMIN) throw new IllegalArgumentException("Only SYSTEM_ADMIN can manage ADMIN accounts.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Administrator not found"));
-        if(e.getRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN accounts can be changed here.");
+        if(e.getRole()!=Role.ADMIN) throw new IllegalArgumentException("Only ADMIN accounts can be changed here.");
         e.setActive(active); employeeRepository.save(e);
     }
 
+    public void setHrAdminActive(Long id,boolean active) {
+        setAdminActive(id, active);
+    }
+
     public void archiveEmployee(Long id) {
-        if(currentRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR_ADMIN can archive employees.");
+        if(currentRole()!=Role.ADMIN) throw new IllegalArgumentException("Only ADMIN can archive employees.");
         Employee e=employeeRepository.findById(id).orElseThrow(()->new IllegalArgumentException("Employee not found"));
         if(e.getRole()!=Role.EMPLOYEE && e.getRole()!=Role.INTERN) throw new IllegalArgumentException("Managers must be retired by Organization Admin after hierarchy is reassigned.");
         e.setActive(false); employeeRepository.save(e);

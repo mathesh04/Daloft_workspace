@@ -526,666 +526,321 @@ table tbody tr:hover { background: #FAFBFC; }
 @keyframes dp-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 /* ============================================================
-   DALOFT PEOPLE — LOGIN
-   Clean enterprise authentication screen
+   LOGIN & AUTH — Daloft People workspace
+   Clean · Light · Enterprise · Responsive
    ============================================================ */
-
 .daloft-login {
   min-height: 100vh;
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  position: relative;
-
-  background: #ffffff;
-
-  color: #101828;
-
-  overflow: hidden;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: #F6F7F9;
+  color: var(--ink);
+  overflow-x: hidden;
 }
-
-
-/* ============================================================
-   HEADER
-   ============================================================ */
 
 .login-header {
   width: 100%;
-  height: 72px;
-
+  padding: 26px 40px 10px;
   display: flex;
   align-items: center;
-
-  padding: 0 7.5vw;
-
-  flex-shrink: 0;
+  justify-content: flex-start;
 }
 
 .login-company-logo {
   display: flex;
   align-items: center;
-}
-
-.login-company-logo .daloft-brand {
-  display: flex;
-  align-items: center;
+  min-height: 36px;
 }
 
 .login-company-logo .daloft-logo-image {
-  width: 112px;
-  height: 30px;
-
+  width: 128px;
+  height: 36px;
   object-fit: contain;
-  object-position: left center;
-
-  display: block;
 }
-
-
-/* ============================================================
-   MAIN
-   ============================================================ */
 
 .login-main {
-  flex: 1;
-
   width: 100%;
-
   display: flex;
+  align-items: center;
   justify-content: center;
-  align-items: flex-start;
-
-  padding-top: 58px;
-  padding-bottom: 90px;
-
-  overflow-y: auto;
+  padding: 28px 24px 42px;
 }
-
-
-/* ============================================================
-   LOGIN CONTAINER
-   ============================================================ */
 
 .login-container {
   width: 100%;
-  max-width: 390px;
-
-  padding: 0 20px;
-
-  animation: daloft-login-enter 0.28s ease-out both;
+  max-width: 430px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 34px 34px 30px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 14px 36px -18px rgba(16, 24, 40, 0.16);
+  animation: dp-login-rise .24s ease-out both;
 }
-
-
-/* ============================================================
-   BRAND MARK
-   ============================================================ */
-
-/*
-   We use the actual Daloft logo here.
-   No fake logo / no invented company symbol.
-*/
 
 .login-brand-mark {
   display: flex;
-  justify-content: center;
   align-items: center;
-
-  margin-bottom: 17px;
-}
-
-.login-brand-mark .daloft-brand {
-  display: flex;
   justify-content: center;
-  align-items: center;
+  margin-bottom: 28px;
 }
 
 .login-brand-mark .daloft-logo-image {
-  width: 48px;
+  width: 142px;
   height: 40px;
-
   object-fit: contain;
-
-  /*
-    If your company logo is a complete wordmark,
-    this keeps it visually compact.
-  */
 }
-
-
-/* ============================================================
-   HEADING
-   ============================================================ */
 
 .login-heading {
   text-align: center;
-
-  margin-bottom: 27px;
+  margin-bottom: 26px;
 }
 
 .login-heading h1 {
-  margin: 0 0 7px;
-
-  color: #101828;
-
-  font-family:
-    "Inter",
-    "Segoe UI",
-    system-ui,
-    -apple-system,
-    sans-serif;
-
-  font-size: 22px;
-
-  line-height: 1.3;
-
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 24px;
   font-weight: 650;
-
+  line-height: 1.25;
   letter-spacing: -0.02em;
 }
 
 .login-heading p {
-  margin: 0;
-
-  color: #667085;
-
-  font-size: 12px;
-
+  margin: 7px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
   line-height: 1.5;
 }
 
-
-/* ============================================================
-   ERROR
-   ============================================================ */
-
 .login-error {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-
-  margin-bottom: 16px;
-
+  margin: 0 0 16px;
   padding: 10px 12px;
-
-  border: 1px solid #f5c6c1;
-
-  border-radius: 6px;
-
-  background: #fef0ee;
-
-  color: #b42318;
-
-  font-size: 12px;
-
+  border: 1px solid var(--danger-border);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: var(--danger-strong);
+  font-size: 12.5px;
   line-height: 1.45;
 }
 
-
-/* ============================================================
-   FORM
-   ============================================================ */
-
 .login-form {
+  display: flex;
+  flex-direction: column;
   width: 100%;
 }
 
-
-/* ============================================================
-   FIELD
-   ============================================================ */
-
 .login-field {
-  width: 100%;
-
-  margin-bottom: 17px;
+  margin-bottom: 16px;
 }
 
 .login-field label {
   display: block;
-
-  margin-bottom: 6px;
-
-  color: #344054;
-
-  font-size: 11px;
-
-  line-height: 1.3;
-
+  margin-bottom: 7px;
+  color: var(--ink-soft);
+  font-size: 12.5px;
   font-weight: 600;
+  line-height: 1.35;
 }
 
 .login-field input {
+  display: block;
   width: 100%;
-
-  height: 42px;
-  min-height: 42px;
-
-  padding: 0 12px;
-
-  border: 1px solid #d0d5dd;
-
-  border-radius: 6px;
-
-  background: #ffffff;
-
-  color: #101828;
-
-  font-family: inherit;
-
-  font-size: 12px;
-
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: #FFFFFF;
+  color: var(--text);
+  font-size: 13.5px;
+  line-height: 1.4;
   outline: none;
-
   box-shadow: none;
-
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background-color 0.15s ease;
 }
 
 .login-field input::placeholder {
-  color: #98a2b3;
+  color: #98A0AC;
 }
 
 .login-field input:hover {
-  border-color: #b8c0cc;
+  border-color: #C7CDD5;
 }
 
 .login-field input:focus {
-  border-color: #2563eb;
-
-  background: #ffffff;
-
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.10);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
-
-/* ============================================================
-   REMEMBER
-   ============================================================ */
-
 .login-remember-row {
-  width: 100%;
-
   display: flex;
   align-items: center;
-
-  margin-top: -1px;
-  margin-bottom: 17px;
+  justify-content: flex-start;
+  margin: -1px 0 18px;
 }
 
 .login-remember {
   display: inline-flex;
   align-items: center;
-
-  gap: 7px;
-
-  color: #475467;
-
-  font-size: 10.5px;
-
-  line-height: 1.3;
-
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.4;
   cursor: pointer;
-
   user-select: none;
 }
 
 .login-remember input {
-  width: 12px;
-  height: 12px;
-
+  width: 15px;
+  height: 15px;
   margin: 0;
-
   padding: 0;
-
-  accent-color: #2563eb;
-
+  accent-color: var(--accent);
   cursor: pointer;
+  flex: none;
 }
 
-
-/* ============================================================
-   SIGN IN
-   ============================================================ */
+.login-remember span {
+  color: var(--text-secondary);
+}
 
 .login-submit {
   width: 100%;
-
-  height: 40px;
-  min-height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0 16px;
-
-  border: 1px solid #2563eb;
-
-  border-radius: 6px;
-
-  background: #2563eb;
-
-  color: #ffffff;
-
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #FFFFFF;
   font-family: inherit;
-
-  font-size: 12px;
-
-  line-height: 1;
-
+  font-size: 13.5px;
   font-weight: 600;
-
+  line-height: 1.35;
+  letter-spacing: 0;
   cursor: pointer;
-
-  box-shadow: none;
-
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.1s ease;
+  box-shadow: var(--shadow-xs);
 }
 
-.login-submit:hover {
-  background: #1d4ed8;
-
-  border-color: #1d4ed8;
+.login-submit:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
-.login-submit:active {
-  transform: translateY(1px);
+.login-submit:active:not(:disabled) {
+  background: var(--accent-active);
+  border-color: var(--accent-active);
 }
 
 .login-submit:focus-visible {
-  outline: none;
-
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.16);
+  box-shadow: var(--focus-ring);
 }
 
 .login-submit:disabled {
-  opacity: 0.65;
-
+  opacity: 0.62;
   cursor: not-allowed;
-
-  transform: none;
 }
-
-
-/* ============================================================
-   DIVIDER
-   ============================================================ */
-
-.login-divider {
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  margin: 19px 0;
-}
-
-.login-divider span {
-  flex: 1;
-
-  height: 1px;
-
-  background: #eaecf0;
-}
-
-.login-divider em {
-  margin: 0;
-
-  color: #98a2b3;
-
-  font-size: 10px;
-
-  font-style: normal;
-
-  line-height: 1;
-}
-
-
-/* ============================================================
-   GOOGLE BUTTON
-   ============================================================ */
-
-.login-google {
-  width: 100%;
-
-  height: 40px;
-  min-height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 8px;
-
-  padding: 0 16px;
-
-  border: 1px solid #d0d5dd;
-
-  border-radius: 6px;
-
-  background: #ffffff;
-
-  color: #344054;
-
-  font-family: inherit;
-
-  font-size: 11.5px;
-
-  font-weight: 500;
-
-  cursor: not-allowed;
-
-  opacity: 1;
-
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.login-google:disabled {
-  cursor: not-allowed;
-
-  opacity: 1;
-}
-
-.google-logo {
-  width: 17px;
-  height: 17px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-family: Arial, sans-serif;
-
-  font-size: 14px;
-
-  font-weight: 700;
-
-  color: #4285f4;
-}
-
-
-/* ============================================================
-   FORGOT PASSWORD
-   ============================================================ */
 
 .login-forgot {
-  width: 100%;
-
   display: flex;
+  align-items: center;
   justify-content: center;
-
-  margin-top: 16px;
+  margin-top: 17px;
 }
 
 .login-forgot a {
-  color: #667085;
-
-  font-size: 10.5px;
-
-  font-weight: 500;
-
-  text-decoration: underline;
-
-  text-underline-offset: 2px;
-
-  transition: color 0.15s ease;
+  color: var(--accent-ink);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
 }
 
 .login-forgot a:hover {
-  color: #2563eb;
+  color: var(--accent);
+  text-decoration: underline;
 }
-
-
-/* ============================================================
-   FOOTER
-   ============================================================ */
 
 .login-footer {
-  position: absolute;
-
-  left: 50%;
-  bottom: 20px;
-
-  transform: translateX(-50%);
-
-  color: #98a2b3;
-
-  font-size: 8.5px;
-
-  line-height: 1;
-
-  letter-spacing: 0.08em;
-
-  text-transform: uppercase;
-
-  white-space: nowrap;
+  width: 100%;
+  padding: 0 24px 24px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 10.5px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
 }
 
-
-/* ============================================================
-   ANIMATION
-   ============================================================ */
-
-@keyframes daloft-login-enter {
+@keyframes dp-login-rise {
   from {
     opacity: 0;
-
-    transform: translateY(7px);
+    transform: translateY(6px);
   }
-
   to {
     opacity: 1;
-
     transform: translateY(0);
   }
 }
 
-
-/* ============================================================
-   TABLET
-   ============================================================ */
-
-@media (max-width: 768px) {
-
+@media (max-width: 640px) {
   .login-header {
-    padding: 0 32px;
-  }
-
-  .login-main {
-    padding-top: 48px;
-  }
-}
-
-
-/* ============================================================
-   MOBILE
-   ============================================================ */
-
-@media (max-width: 560px) {
-
-  .daloft-login {
-    min-height: 100dvh;
-  }
-
-  .login-header {
-    height: 64px;
-
-    padding: 0 20px;
+    padding: 20px 20px 4px;
   }
 
   .login-company-logo .daloft-logo-image {
-    width: 100px;
-    height: 28px;
+    width: 116px;
+    height: 32px;
   }
 
   .login-main {
-    padding-top: 40px;
-    padding-bottom: 70px;
+    align-items: flex-start;
+    padding: 24px 16px 34px;
   }
 
   .login-container {
-    max-width: 390px;
+    max-width: 430px;
+    padding: 28px 22px 24px;
+    border-radius: 12px;
+  }
 
-    padding: 0 22px;
+  .login-brand-mark {
+    margin-bottom: 22px;
+  }
+
+  .login-brand-mark .daloft-logo-image {
+    width: 132px;
+    height: 37px;
+  }
+
+  .login-heading {
+    margin-bottom: 22px;
+  }
+
+  .login-heading h1 {
+    font-size: 22px;
+  }
+
+  .login-heading p {
+    font-size: 12.5px;
+  }
+
+  .login-footer {
+    padding: 0 16px 18px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-container {
+    padding: 24px 18px 22px;
+  }
+
+  .login-main {
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .login-heading h1 {
     font-size: 21px;
-  }
-
-  .login-heading p {
-    font-size: 11.5px;
-  }
-
-  .login-footer {
-    bottom: 14px;
-
-    font-size: 7.5px;
-  }
-}
-
-
-/* ============================================================
-   SMALL PHONES
-   ============================================================ */
-
-@media (max-width: 380px) {
-
-  .login-header {
-    padding: 0 16px;
-  }
-
-  .login-main {
-    padding-top: 32px;
-  }
-
-  .login-container {
-    padding: 0 18px;
-  }
-
-  .login-field input {
-    height: 43px;
-  }
-
-  .login-submit,
-  .login-google {
-    height: 41px;
   }
 }
 

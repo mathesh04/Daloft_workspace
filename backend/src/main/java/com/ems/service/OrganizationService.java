@@ -28,10 +28,12 @@ public class OrganizationService {
             throw new SecurityException("Organization Admin access required");
     }
 
+    @Transactional(readOnly = true)
     public List<Employee> allEmployees() {
         return employees.findAll().stream().sorted(Comparator.comparing(Employee::getName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))).toList();
     }
 
+    @Transactional(readOnly = true)
     public List<Department> listDepartments() {
         return departments.findAll(org.springframework.data.domain.Sort.by("name"));
     }
@@ -48,6 +50,7 @@ public class OrganizationService {
         d.setCode(normalizedCode);
         if(managerId!=null) setManager(d,managerId);
         Department saved=departments.save(d);
+        if(saved.getManager()!=null) org.hibernate.Hibernate.initialize(saved.getManager());
         audit.log(auth,"DEPARTMENT_CREATED","Created department "+saved.getName(),"DEPARTMENT",saved.getId(),"SUCCESS",null);
         return saved;
     }
@@ -73,13 +76,14 @@ public class OrganizationService {
         else if(managerId!=null) setManager(d,managerId);
 
         if(active!=null && !active && d.isActive()) {
-            boolean hasEmployees=employees.findByDepartmentIgnoreCaseAndActiveTrue(d.getName()).stream().anyMatch(e->e.getRole()!=Role.SYSTEM_ADMIN && e.getRole()!=Role.HR_ADMIN);
+            boolean hasEmployees=employees.findByDepartmentIgnoreCaseAndActiveTrue(d.getName()).stream().anyMatch(e->e.getRole()!=Role.SYSTEM_ADMIN && e.getRole()!=Role.ADMIN);
             if(hasEmployees) throw new IllegalArgumentException("Reassign active employees before deactivating this department");
             if(d.getManager()!=null && d.getManager().isActive()) throw new IllegalArgumentException("Remove or reassign the department manager before deactivating this department");
         }
         d.setActive(active==null ? d.isActive() : active);
 
         Department saved=departments.save(d);
+        if(saved.getManager()!=null) org.hibernate.Hibernate.initialize(saved.getManager());
         if(oldName!=null && !oldName.equals(saved.getName())) {
             // Keep the legacy department string synchronized with the canonical Department record.
             employees.findAll().stream()
@@ -97,6 +101,7 @@ public class OrganizationService {
         d.setManager(m);
     }
 
+    @Transactional(readOnly = true)
     public List<Employee> eligibleManagers() {
         return employees.findAll().stream().filter(e->e.isActive()&&e.getRole()==Role.MANAGER)
                 .sorted(Comparator.comparing(Employee::getName,Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER))).toList();
@@ -106,7 +111,7 @@ public class OrganizationService {
     public Employee makeManager(Long employeeId,Authentication auth) {
         system(auth);
         Employee e=employees.findById(employeeId).orElseThrow(()->new IllegalArgumentException("Employee not found"));
-        if(e.getRole()==Role.SYSTEM_ADMIN || e.getRole()==Role.HR_ADMIN)
+        if(e.getRole()==Role.SYSTEM_ADMIN || e.getRole()==Role.ADMIN)
             throw new IllegalArgumentException("Only normal employees can be promoted to Manager");
         if(!e.isActive()) throw new IllegalArgumentException("Inactive employees cannot be promoted to Manager");
         if(e.getRole()==Role.MANAGER) return e;
@@ -152,7 +157,7 @@ public class OrganizationService {
     public Employee assignReportingManager(Long employeeId,Long managerId,Authentication auth) {
         system(auth);
         Employee e=employees.findById(employeeId).orElseThrow(()->new IllegalArgumentException("Employee not found"));
-        if(e.getRole()==Role.SYSTEM_ADMIN || e.getRole()==Role.HR_ADMIN) throw new IllegalArgumentException("Administrators do not use employee reporting hierarchy");
+        if(e.getRole()==Role.SYSTEM_ADMIN || e.getRole()==Role.ADMIN) throw new IllegalArgumentException("Administrators do not use employee reporting hierarchy");
         if(managerId==null) { e.setReportingManager(null); }
         else {
             Employee m=employees.findById(managerId).orElseThrow(()->new IllegalArgumentException("Manager not found"));
@@ -168,6 +173,7 @@ public class OrganizationService {
             e.setReportingManager(m);
         }
         Employee saved=employees.save(e);
+        if(saved.getReportingManager()!=null) org.hibernate.Hibernate.initialize(saved.getReportingManager());
         audit.log(auth,"REPORTING_MANAGER_UPDATED","Updated reporting manager for "+e.getName(),"EMPLOYEE",e.getId(),"SUCCESS",null);
         return saved;
     }
@@ -175,7 +181,7 @@ public class OrganizationService {
     public List<AdminAccess> getAccess(Long employeeId,Authentication auth) {
         system(auth);
         Employee e=employees.findById(employeeId).orElseThrow(()->new IllegalArgumentException("Administrator not found"));
-        if(e.getRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR administrators have delegated access");
+        if(e.getRole()!=Role.ADMIN) throw new IllegalArgumentException("Only HR administrators have delegated access");
         return access.findByEmployeeOrderByPermissionAsc(e);
     }
 
@@ -183,7 +189,7 @@ public class OrganizationService {
     public void replaceAccess(Long employeeId,List<Map<String,Object>> entries,Authentication auth) {
         system(auth);
         Employee e=employees.findByIdForUpdate(employeeId).orElseThrow(()->new IllegalArgumentException("Administrator not found"));
-        if(e.getRole()!=Role.HR_ADMIN) throw new IllegalArgumentException("Only HR administrators can receive delegated access");
+        if(e.getRole()!=Role.ADMIN) throw new IllegalArgumentException("Only HR administrators can receive delegated access");
         if(entries==null) entries=List.of();
 
         Set<String> seen=new HashSet<>();
