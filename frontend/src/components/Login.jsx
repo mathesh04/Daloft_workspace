@@ -55,8 +55,6 @@ export default function Login() {
          
           <div className="login-brand-mark">
             <DaloftBrand />
-            <div className="login-brand-name">Daloft People</div>
-            <div className="login-brand-tagline">Employee workspace</div>
           </div>
 
           
