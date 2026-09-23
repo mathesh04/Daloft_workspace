@@ -31,7 +31,6 @@ const MODULES = [
   { key:"damage", permission:"PEOPLE", label:"Damage Reports", icon:"report", component:DamageReports },
   { key:"offices", permission:"OFFICE", label:"Office Locations", icon:"location", component:OfficeLocations },
   { key:"reports", permission:"REPORTS", label:"Reports & Analytics", icon:"report", component:Reports },
-  { key:"office-calendar", permission:"HOLIDAY_CALENDAR", label:"Office Calendar", icon:"calendar", component:OfficeCalendar },
 ];
 
 const SYSTEM_NAV = [
@@ -46,7 +45,6 @@ const SYSTEM_NAV = [
   {key:"audit",label:"Audit Logs",icon:"audit"},
   {key:"offices",label:"Offices & Geofences",icon:"location"},
   {key:"settings",label:"Configuration",icon:"settings"},
-  {key:"office-calendar",label:"Office Calendar",icon:"calendar"},
   {key:"health",label:"System Health",icon:"report"},
 ];
 
@@ -74,7 +72,10 @@ export default function AdminDashboard(){
       : system
         ? "Govern organization policy, security, people and platform health."
         : "A focused, data-first workspace for people operations.";
-  const nav = system ? SYSTEM_NAV : [{key:"dashboard",label:"Overview",icon:"home"},...allowed.map(m=>({key:m.key,label:m.label,icon:m.icon})),{key:"notifications",label:"Notifications",icon:"bell",badge:notificationCount||null}];
+  const nav = system ? SYSTEM_NAV : [
+    {key:"dashboard",label:"Overview",icon:"home"},
+    ...allowed.map(m=>({key:m.key,label:m.label,icon:m.icon})),
+    {key:"notifications",label:"Notifications",icon:"bell",badge:notificationCount||null}];
   const actions = !system ? [{label:"My Workspace",icon:"home",onClick:()=>navigate("/employee")}]:[];
 
   return <WorkspaceShell title={title} subtitle={subtitle} navItems={nav} active={tab} onNavigate={select} workspaceActions={actions}>

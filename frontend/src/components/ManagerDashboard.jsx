@@ -249,7 +249,7 @@ export default function ManagerDashboard() {
             </div>
 
             {departments.length === 0 ? (
-              <div className="card" style={{ padding: 24, textAlign: 'center', color: '#65746e' }}>
+              <div className="card" style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)' }}>
                 No departments are currently assigned to your manager account. Please contact your Organization Admin.
               </div>
             ) : (
@@ -264,27 +264,27 @@ export default function ManagerDashboard() {
                       style={{
                         padding: 18,
                         cursor: 'pointer',
-                        border: isSelected ? '2px solid #059669' : '1px solid var(--border, #edf2ee)',
-                        backgroundColor: isSelected ? 'rgba(5, 150, 105, 0.04)' : 'var(--card-bg, #ffffff)',
+                        border: isSelected ? '2px solid #2563EB' : '1px solid var(--line)',
+                        backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.05)' : '#FFFFFF',
                         transition: 'all 0.15s ease',
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div>
-                          <b style={{ fontSize: '1.05rem', color: isSelected ? '#059669' : 'inherit' }}>{d.name}</b>
+                          <b style={{ fontSize: '1.05rem', color: isSelected ? '#1E4FBF' : 'inherit' }}>{d.name}</b>
                           {d.code && <div className="muted" style={{ fontSize: '0.8rem', marginTop: 2 }}>Code: {d.code}</div>}
                         </div>
                         <span className={`badge ${d.active ? 'badge-success' : 'badge-danger'}`}>
                           {d.active ? 'Active' : 'Inactive'}
                         </span>
                       </div>
-                      <div style={{ display: 'flex', gap: 16, marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border, #f1f5f2)' }}>
+                      <div style={{ display: 'flex', gap: 16, marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--line)' }}>
                         <div>
                           <div style={{ fontSize: '1.2rem', fontWeight: 700 }}>{d.totalEmployees ?? 0}</div>
                           <small className="muted">Total Members</small>
                         </div>
                         <div>
-                          <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#059669' }}>{d.activeEmployees ?? 0}</div>
+                          <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1E4FBF' }}>{d.activeEmployees ?? 0}</div>
                           <small className="muted">Active</small>
                         </div>
                       </div>
@@ -395,7 +395,7 @@ export default function ManagerDashboard() {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
                 gap: 12,
                 padding: '14px 16px',
-                backgroundColor: 'var(--bg-subtle, #f8faf9)',
+                backgroundColor: 'var(--surface-2)',
                 borderRadius: 8,
                 marginBottom: 20,
               }}
@@ -469,7 +469,7 @@ export default function ManagerDashboard() {
 
             {/* Reports List / Table */}
             {loadingReports ? (
-              <div style={{ padding: 40, textAlign: 'center', color: '#65746e' }}>
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
                 <div className="loading-spinner" style={{ marginBottom: 10 }} />
                 Loading daily reports…
               </div>
@@ -503,7 +503,7 @@ export default function ManagerDashboard() {
                         </td>
                         <td style={{ whiteSpace: 'pre-wrap', minWidth: 150 }}>
                           {r.blockers && r.blockers !== 'None' ? (
-                            <span style={{ color: '#dc2626' }}>{r.blockers}</span>
+                            <span style={{ color: '#B42318' }}>{r.blockers}</span>
                           ) : (
                             <span className="muted">None</span>
                           )}

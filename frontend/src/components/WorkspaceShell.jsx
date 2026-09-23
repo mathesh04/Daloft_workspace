@@ -108,7 +108,7 @@ export default function WorkspaceShell({ title, subtitle, navItems, active, onNa
           {workspaceActions.map(action => <button key={action.label} className="side-nav-item workspace-action" onClick={action.onClick} title={collapsed ? action.label : undefined} aria-label={action.label}><Icon name={action.icon || "home"}/><span className="nav-label">{action.label}</span></button>)}
           <button className="side-nav-item workspace-action" onClick={signOut} title={collapsed ? "Sign out" : undefined} aria-label="Sign out"><Icon name="logout"/><span className="nav-label">Sign out</span></button>
           <div className="sidebar-footer"><span>DALOFT PEOPLE</span>
-            <small>Enterprise HR platform</small>
+            <small>Enterprise people platform</small>
           </div>
         </div>
 
