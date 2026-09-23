@@ -8,7 +8,6 @@
   --line-strong: #D9DDE3;
   --line-soft: #F2F4F7;
 
-
   --ink: #14161A;
   --ink-soft: #343A43;
   --text: #14161A;
@@ -17,14 +16,12 @@
   --text-faint: #8B93A0;
   --text-on-accent: #FFFFFF;
 
-
   --accent: #2563EB;
   --accent-hover: #1D4FD7;
   --accent-active: #1A46BC;
   --accent-soft: #EFF4FE;
   --accent-border: #C6D7F8;
   --accent-ink: #1E4FBF;
-
 
   --success: #067647;
   --success-strong: #056039;
@@ -40,7 +37,6 @@
   --info-soft: #EFF4FE;
   --info-border: #C6D7F8;
 
-
   --green: #067647;
   --amber: #F79009;
   --green-soft: #E9F6EF;
@@ -53,7 +49,6 @@
   --surface-2x: #F9FAFB;
   --muted-2: #67707F;
   --border: #E7E9ED;
-
 
   --font-display: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -69,7 +64,6 @@
   --shadow-premium: var(--shadow-sm);
   --focus-ring: 0 0 0 3px rgba(37, 99, 235, 0.22);
 }
-
 
 * {
   box-sizing: border-box;
@@ -174,7 +168,6 @@ button:disabled {
   transform: none !important;
   cursor: not-allowed;
 }
-
 
 *::-webkit-scrollbar {
   width: 10px;
@@ -299,7 +292,6 @@ button:disabled {
 .btn:focus-visible {
   box-shadow: var(--focus-ring);
 }
-
 
 .field {
   margin-bottom: 15px;
@@ -441,7 +433,6 @@ button:disabled {
   font-size: 13px;
 }
 
-
 .switch {
   width: 44px;
   height: 26px;
@@ -502,7 +493,6 @@ button:disabled {
   border-top: 1px solid var(--line-soft);
 }
 
-
 .stock-switch {
   display: flex;
   gap: 4px;
@@ -549,7 +539,6 @@ button:disabled {
 .stock-available strong {
   color: var(--ink);
 }
-
 
 .card,
 .premium-card,
@@ -612,7 +601,6 @@ button:disabled {
   align-items: center;
   flex-wrap: wrap;
 }
-
 
 .stat-card {
   background: var(--surface);
@@ -764,7 +752,6 @@ button:disabled {
   color: var(--text-muted);
 }
 
-
 .table-wrap {
   overflow-x: auto;
   border-radius: var(--radius);
@@ -841,7 +828,6 @@ table tbody tr:hover {
   color: var(--text-muted);
   font-size: 12.5px;
 }
-
 
 .badge {
   display: inline-block;
@@ -988,7 +974,6 @@ table tbody tr:hover {
   line-height: 1.55;
 }
 
-
 .error-banner {
   background: var(--danger-soft);
   color: var(--danger-strong);
@@ -1075,7 +1060,6 @@ table tbody tr:hover {
   color: var(--text-muted);
   cursor: pointer;
 }
-
 
 .modal-backdrop {
   position: fixed;
@@ -1164,7 +1148,6 @@ table tbody tr:hover {
   justify-content: flex-end;
 }
 
-
 .tabs {
   display: flex;
   gap: 4px;
@@ -1203,7 +1186,6 @@ table tbody tr:hover {
 .system-tabs {
   align-items: center;
 }
-
 
 .spinner,
 .loading-spinner {
@@ -1262,7 +1244,6 @@ table tbody tr:hover {
   }
 }
 
-
 .grid>*,
 .grid-2>*,
 .grid-3>*,
@@ -1297,7 +1278,6 @@ table tbody tr:hover {
   min-width: 0;
 }
 
-
 @media (max-width: 420px) {
   .office-calendar-dark-container {
     padding: 10px !important;
@@ -1323,7 +1303,6 @@ table tbody tr:hover {
   white-space: nowrap;
 }
 
-
 .btn,
 .tab-btn,
 .dwr-preset-btn,
@@ -1337,7 +1316,6 @@ table tbody tr:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 
 .grid {
   display: grid;
@@ -1434,7 +1412,6 @@ table tbody tr:hover {
 .access-denied h2 {
   margin-top: 10px;
 }
-
 
 .enterprise-shell {
   min-height: 100vh;
@@ -1895,10 +1872,6 @@ table tbody tr:hover {
   }
 }
 
-/* ============================================================
-   LOGIN & AUTH — Daloft People workspace
-   Clean · Light · Enterprise · Responsive
-   ============================================================ */
 .daloft-login {
   min-height: 100vh;
   min-height: 100dvh;
@@ -2272,9 +2245,6 @@ table tbody tr:hover {
   }
 }
 
-/* ============================================================
-   DASHBOARDS & ANALYTICS
-   ============================================================ */
 .analytics-page {
   display: flex;
   flex-direction: column;
@@ -2486,7 +2456,6 @@ table tbody tr:hover {
   text-transform: uppercase;
 }
 
-/* bar / line / donut charts */
 .line-svg {
   width: 100%;
   height: 210px;
@@ -2845,7 +2814,6 @@ table tbody tr:hover {
   font-size: 11px;
 }
 
-/* lists: attention / activity / audit / watch */
 .attention-list,
 .activity-list,
 .audit-list {
@@ -3051,7 +3019,6 @@ table tbody tr:hover {
   color: var(--ink);
 }
 
-/* employee dashboard bits */
 .employee-hero {
   display: flex;
   justify-content: space-between;
@@ -3320,7 +3287,6 @@ table tbody tr:hover {
   position: relative;
 }
 
-/* manager dashboard */
 .manager-hero-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
@@ -3409,7 +3375,6 @@ table tbody tr:hover {
   font-weight: 600;
 }
 
-/* production analytics */
 .production-dashboard {
   display: flex;
   flex-direction: column;
@@ -3493,7 +3458,6 @@ table tbody tr:hover {
   letter-spacing: -0.02em;
 }
 
-/* report cards */
 .report-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3554,7 +3518,6 @@ table tbody tr:hover {
   padding: 20px;
 }
 
-/* module cards (delegated overview) */
 .module-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -3583,9 +3546,6 @@ table tbody tr:hover {
   color: var(--text-muted);
 }
 
-/* ============================================================
-   ATTENDANCE & CORRECTIONS
-   ============================================================ */
 .attendance-workspace {
   display: flex;
   flex-direction: column;
@@ -3747,9 +3707,6 @@ table tbody tr:hover {
   max-width: 560px;
 }
 
-/* ============================================================
-   LEAVE
-   ============================================================ */
 .leave-page {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
@@ -3842,9 +3799,6 @@ table tbody tr:hover {
   margin-top: 0;
 }
 
-/* ============================================================
-   NOTIFICATIONS / PROFILE / TASKS
-   ============================================================ */
 .notif-head {
   display: flex;
   justify-content: space-between;
@@ -4071,9 +4025,6 @@ table tbody tr:hover {
   min-width: 0;
 }
 
-/* ============================================================
-   SYSTEM ADMIN / SETTINGS / TIMING / ACCESS
-   ============================================================ */
 .sys-page {
   display: flex;
   flex-direction: column;
@@ -4509,7 +4460,6 @@ table tbody tr:hover {
   font-weight: 600;
 }
 
-/* holiday calendar mini */
 .holiday-toolbar {
   display: flex;
   gap: 8px;
@@ -4598,9 +4548,6 @@ table tbody tr:hover {
   resize: vertical;
 }
 
-/* ============================================================
-   INVENTORY
-   ============================================================ */
 .inventory-workspace {
   position: relative;
   display: flex;
@@ -4910,9 +4857,6 @@ table tbody tr:hover {
   height: 160px;
 }
 
-/* ============================================================
-   DAILY WORK REPORTS (admin)
-   ============================================================ */
 .daily-reports-admin-workspace,
 .daily-report-workspace {
   display: flex;
@@ -5432,9 +5376,6 @@ table tbody tr:hover {
   color: var(--text-muted);
 }
 
-/* ============================================================
-   OFFICE CALENDAR CONTAINER (module is inline-styled)
-   ============================================================ */
 .office-calendar-dark-container {
   display: flex;
   flex-direction: column;
@@ -5442,9 +5383,6 @@ table tbody tr:hover {
   width: 100%;
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
 @media (max-width: 1100px) {
   .quick-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6091,7 +6029,6 @@ table tbody tr:hover {
   }
 }
 
-/* ---------- late additions ---------- */
 .login-form {
   display: flex;
   flex-direction: column;

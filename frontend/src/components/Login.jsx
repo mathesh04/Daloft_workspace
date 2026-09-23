@@ -48,18 +48,18 @@ export default function Login() {
   return (
     <div className="daloft-login">
 
-      {/* Login content */}
+     
       <main className="login-main">
         <section className="login-container">
 
-          {/* Daloft logo */}
+         
           <div className="login-brand-mark">
             <DaloftBrand />
             <div className="login-brand-name">Daloft People</div>
             <div className="login-brand-tagline">Employee workspace</div>
           </div>
 
-          {/* Heading */}
+          
           <div className="login-heading">
             <h1>
               Welcome back
@@ -67,7 +67,7 @@ export default function Login() {
             <p>Sign in to continue to your Daloft People workspace.</p>
           </div>
 
-          {/* Error */}
+          
           {error && (
             <div
               className="login-error"
@@ -77,7 +77,7 @@ export default function Login() {
             </div>
           )}
 
-          {/* Session Expiration Notice */}
+          
           {!error && sessionNotice && (
             <div
               className="login-session-notice"
@@ -128,7 +128,7 @@ export default function Login() {
               />
             </div>
 
-            {/* Password */}
+            
             <div className="login-field login-field-password">
               <label htmlFor="login-password">
                 Password
@@ -172,7 +172,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Forgot password */}
+            
             <div className="login-forgot">
               <Link to="/forgot-password">
                 Forgot password?
@@ -198,7 +198,7 @@ export default function Login() {
               </label>
             </div>
 
-            {/* Sign in */}
+            
             <button
               type="submit"
               className="login-submit"
