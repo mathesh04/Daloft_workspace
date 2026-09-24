@@ -325,6 +325,8 @@ const api = {
     get(`/admin/holidays?year=${year}&includeInactive=${includeInactive}`),
   officeCalendar: (year, month) =>
     get(`/admin/office-calendar?year=${year}&month=${month}`),
+  managerCalendar: (year, month) =>
+    get(`/manager/office-calendar?year=${year}&month=${month}`),
   employeeCalendar: (year, month) =>
     get(`/calendar/holidays?year=${year}&month=${month}`),
   createHoliday: (payload) => post("/admin/holidays", payload),

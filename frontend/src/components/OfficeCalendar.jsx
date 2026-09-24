@@ -56,7 +56,8 @@ function formatIso(d) {
   return `${y}-${m}-${day}`;
 }
 
-export default function OfficeCalendar({ readOnlyMode = false }) {
+export default function OfficeCalendar({ viewMode = "admin", readOnlyMode = false }) {
+  const effectiveMode = readOnlyMode ? "employee" : viewMode;
   const today = useMemo(() => new Date(), []);
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1); // 1-12
@@ -80,9 +81,14 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
     setLoading(true);
     setError("");
     try {
-      const data = readOnlyMode
-        ? await api.employeeCalendar(currentYear, currentMonth)
-        : await api.officeCalendar(currentYear, currentMonth);
+      let data;
+      if (effectiveMode === "manager") {
+        data = await api.managerCalendar(currentYear, currentMonth);
+      } else if (effectiveMode === "employee") {
+        data = await api.employeeCalendar(currentYear, currentMonth);
+      } else {
+        data = await api.officeCalendar(currentYear, currentMonth);
+      }
 
       if (data) {
         const approvedLeaves = (Array.isArray(data.leaves) ? data.leaves : []).filter(
@@ -97,8 +103,7 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
         });
       }
     } catch (err) {
-      if (!readOnlyMode) {
-
+      if (effectiveMode === "admin") {
         try {
           const [hols, allLvs, settings] = await Promise.all([
             api.holidays(currentYear, true),
@@ -125,7 +130,7 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
     } finally {
       setLoading(false);
     }
-  }, [currentYear, currentMonth, readOnlyMode]);
+  }, [currentYear, currentMonth, effectiveMode]);
 
   useEffect(() => {
     loadData();
@@ -483,7 +488,9 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
                 type="text"
                 autoFocus
                 placeholder={
-                  readOnlyMode ? "Search holiday..." : "Search person or holiday..."
+                  effectiveMode === "employee"
+                    ? "Search holiday..."
+                    : "Search person or holiday..."
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -556,7 +563,7 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
             </button>
           )}
 
-          {!readOnlyMode && (
+          {effectiveMode === "admin" && (
             <button
               type="button"
               onClick={() => api.downloadHolidayReportCsv(currentYear)}
@@ -582,7 +589,7 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
             </button>
           )}
 
-          {!readOnlyMode && (
+          {effectiveMode === "admin" && (
             <button
               type="button"
               onClick={() => setHolidayDrawerOpen(true)}
@@ -832,7 +839,7 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
             }}
           />
           <span style={{ color: "#47505E" }}>
-            {readOnlyMode ? "My Leave" : "Approved Leave"}
+            {effectiveMode === "employee" ? "My Leave" : "Approved Leave"}
           </span>
         </div>
 
@@ -846,7 +853,7 @@ export default function OfficeCalendar({ readOnlyMode = false }) {
             }}
           />
           <span style={{ color: "#47505E" }}>
-            {readOnlyMode ? "My WFH" : "Approved WFH"}
+            {effectiveMode === "employee" ? "My WFH" : "Approved WFH"}
           </span>
         </div>
 
