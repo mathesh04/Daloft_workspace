@@ -56,7 +56,7 @@ function formatIso(d) {
   return `${y}-${m}-${day}`;
 }
 
-export default function OfficeCalendar() {
+export default function OfficeCalendar({ readOnlyMode = false }) {
   const today = useMemo(() => new Date(), []);
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth() + 1); // 1-12
@@ -64,7 +64,7 @@ export default function OfficeCalendar() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [calendarData, setCalendarData] = useState({
-    workingDays: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+    workingDays: ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY","SATURDAY"],
     holidays: [],
     leaves: [],
   });
@@ -80,45 +80,52 @@ export default function OfficeCalendar() {
     setLoading(true);
     setError("");
     try {
-      const data = await api.officeCalendar(currentYear, currentMonth);
+      const data = readOnlyMode
+        ? await api.employeeCalendar(currentYear, currentMonth)
+        : await api.officeCalendar(currentYear, currentMonth);
+
       if (data) {
-        setCalendarData({
-          workingDays: Array.isArray(data.workingDays)
-            ? data.workingDays
-            : ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
-          holidays: Array.isArray(data.holidays) ? data.holidays : [],
-          leaves: Array.isArray(data.leaves) ? data.leaves : [],
-        });
-      }
-    } catch (err) {
-      try {
-        const [hols, allLvs, settings] = await Promise.all([
-          api.holidays(currentYear, true),
-          api.allLeaves(),
-          api.systemSettings().catch(() => ({})),
-        ]);
-        const wDays = (
-          settings?.WORKING_DAYS || "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY"
-        ).split(",");
-        const approvedLeaves = (Array.isArray(allLvs) ? allLvs : []).filter(
+        const approvedLeaves = (Array.isArray(data.leaves) ? data.leaves : []).filter(
           (l) => l.status === "APPROVED",
         );
         setCalendarData({
-          workingDays: wDays,
-          holidays: Array.isArray(hols) ? hols : [],
+          workingDays: Array.isArray(data.workingDays)
+            ? data.workingDays
+            : ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY","SATURDAY"],
+          holidays: Array.isArray(data.holidays) ? data.holidays : [],
           leaves: approvedLeaves,
         });
-      } catch (fallbackErr) {
-        setError(
-          err.message ||
-            fallbackErr.message ||
-            "Failed to load office calendar data",
-        );
       }
+    } catch (err) {
+      if (!readOnlyMode) {
+
+        try {
+          const [hols, allLvs, settings] = await Promise.all([
+            api.holidays(currentYear, true),
+            api.allLeaves(),
+            api.systemSettings().catch(() => ({})),
+          ]);
+          const wDays = (
+            settings?.WORKING_DAYS || "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY"
+          ).split(",");
+          const approvedLeaves = (Array.isArray(allLvs) ? allLvs : []).filter(
+            (l) => l.status === "APPROVED",
+          );
+          setCalendarData({
+            workingDays: wDays,
+            holidays: Array.isArray(hols) ? hols : [],
+            leaves: approvedLeaves,
+          });
+          return;
+        } catch {
+         
+        }
+      }
+      setError(err.message || "Failed to load office calendar data");
     } finally {
       setLoading(false);
     }
-  }, [currentYear, currentMonth]);
+  }, [currentYear, currentMonth, readOnlyMode]);
 
   useEffect(() => {
     loadData();
@@ -475,7 +482,9 @@ export default function OfficeCalendar() {
               <input
                 type="text"
                 autoFocus
-                placeholder="Search person or holiday..."
+                placeholder={
+                  readOnlyMode ? "Search holiday..." : "Search person or holiday..."
+                }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 style={{
@@ -547,48 +556,52 @@ export default function OfficeCalendar() {
             </button>
           )}
 
-          <button
-            type="button"
-            onClick={() => api.downloadHolidayReportCsv(currentYear)}
-            title="Export holiday schedule as CSV"
-            style={{
-              background: "transparent",
-              border: "1px solid #D9DDE3",
-              color: "#47505E",
-              padding: "6px 12px",
-              borderRadius: "8px",
-              fontSize: "12px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F7FA")}
-            onMouseLeave={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
-          >
-            <span>📥 Export CSV</span>
-          </button>
+          {!readOnlyMode && (
+            <button
+              type="button"
+              onClick={() => api.downloadHolidayReportCsv(currentYear)}
+              title="Export holiday schedule as CSV"
+              style={{
+                background: "transparent",
+                border: "1px solid #D9DDE3",
+                color: "#47505E",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#F5F7FA")}
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
+            >
+              <span>📥 Export CSV</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            onClick={() => setHolidayDrawerOpen(true)}
-            style={{
-              background: "#EFF4FE",
-              border: "1px solid #C6D7F8",
-              color: "#1E4FBF",
-              padding: "6px 14px",
-              borderRadius: "8px",
-              fontSize: "12px",
-              fontWeight: "600",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#DBEAFE")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "#EFF4FE")}
-          >
-            + Manage Holidays
-          </button>
+          {!readOnlyMode && (
+            <button
+              type="button"
+              onClick={() => setHolidayDrawerOpen(true)}
+              style={{
+                background: "#EFF4FE",
+                border: "1px solid #C6D7F8",
+                color: "#1E4FBF",
+                padding: "6px 14px",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "#DBEAFE")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "#EFF4FE")}
+            >
+              + Manage Holidays
+            </button>
+          )}
         </div>
       </div>
 
@@ -818,7 +831,9 @@ export default function OfficeCalendar() {
               background: THEME.leave.bg,
             }}
           />
-          <span style={{ color: "#47505E" }}>Approved Leave</span>
+          <span style={{ color: "#47505E" }}>
+            {readOnlyMode ? "My Leave" : "Approved Leave"}
+          </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -830,7 +845,9 @@ export default function OfficeCalendar() {
               background: THEME.wfh.bg,
             }}
           />
-          <span style={{ color: "#47505E" }}>Approved WFH</span>
+          <span style={{ color: "#47505E" }}>
+            {readOnlyMode ? "My WFH" : "Approved WFH"}
+          </span>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
