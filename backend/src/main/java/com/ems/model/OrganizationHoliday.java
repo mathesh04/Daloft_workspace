@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,13 +18,13 @@ public class OrganizationHoliday {
     @Column(nullable = false, length = 50) private String type = "PUBLIC";
     @Column(nullable = false) private boolean recurring = false;
     @Column(nullable = false) private boolean active = true;
-    @Column(name = "created_at", nullable = false, updatable = false) private LocalDateTime createdAt = LocalDateTime.now();
-    @Column(name = "updated_at", nullable = false) private LocalDateTime updatedAt = LocalDateTime.now();
+    @Column(name = "created_at", nullable = false, updatable = false) private LocalDateTime createdAt = TimeUtil.now();
+    @Column(name = "updated_at", nullable = false) private LocalDateTime updatedAt = TimeUtil.now();
     @Column(name = "created_by") private String createdBy;
     @Column(name = "updated_by") private String updatedBy;
 
-    @PrePersist void prePersist() { createdAt = LocalDateTime.now(); updatedAt = createdAt; }
-    @PreUpdate void preUpdate() { updatedAt = LocalDateTime.now(); }
+    @PrePersist void prePersist() { createdAt = TimeUtil.now(); updatedAt = createdAt; }
+    @PreUpdate void preUpdate() { updatedAt = TimeUtil.now(); }
 
     public Long getId(){return id;} public String getName(){return name;} public void setName(String v){name=v;}
     public LocalDate getHolidayDate(){return holidayDate;} public void setHolidayDate(LocalDate v){holidayDate=v;}
@@ -34,3 +36,4 @@ public class OrganizationHoliday {
     public String getCreatedBy(){return createdBy;} public void setCreatedBy(String v){createdBy=v;}
     public String getUpdatedBy(){return updatedBy;} public void setUpdatedBy(String v){updatedBy=v;}
 }
+

@@ -1,5 +1,7 @@
 package com.ems.service;
 
+import com.ems.util.TimeUtil;
+
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -55,7 +57,7 @@ public class DailyWorkReportService {
         Employee emp = employeeRepository.findByEmployeeId(employeeId)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
 
-        LocalDate date = (reportDate != null) ? reportDate : LocalDate.now();
+        LocalDate date = (reportDate != null) ? reportDate : TimeUtil.today();
 
         Optional<DailyWorkReport> existing = reportRepository.findByEmployeeEmployeeIdAndReportDate(emp.getEmployeeId(), date);
         if (existing.isPresent()) {
@@ -105,7 +107,7 @@ public class DailyWorkReportService {
         } else if (!hasEmp && hasFrom && hasTo) {
             return reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(from, to);
         } else if (!hasEmp && hasFrom && !hasTo) {
-            return reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(from, LocalDate.now());
+            return reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(from, TimeUtil.today());
         } else {
             return reportRepository.findAllByOrderByReportDateDescCreatedAtDesc();
         }
@@ -203,8 +205,8 @@ public class DailyWorkReportService {
     }
 
     public byte[] exportDateWiseExcel(LocalDate date, LocalDate from, LocalDate to) throws Exception {
-        LocalDate startDate = (date != null) ? date : ((from != null) ? from : LocalDate.now());
-        LocalDate endDate = (date != null) ? date : ((to != null) ? to : LocalDate.now());
+        LocalDate startDate = (date != null) ? date : ((from != null) ? from : TimeUtil.today());
+        LocalDate endDate = (date != null) ? date : ((to != null) ? to : TimeUtil.today());
 
         List<DailyWorkReport> reports = reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(startDate, endDate);
 
@@ -327,3 +329,4 @@ public class DailyWorkReportService {
         }
     }
 }
+

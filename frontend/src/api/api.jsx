@@ -246,6 +246,7 @@ const api = {
   myLeaves: () => get("/leaves/me"),
   cancelLeave: (id) => put(`/leaves/${id}/cancel`, {}),
   createLeave: (payload) => post("/leaves", payload),
+  leaveWorkingDays: (start, end) => get(`/leaves/working-days?start=${start}&end=${end}`),
   allLeaves: () => get("/admin/leaves"),
   reviewLeave: (id, status, reason) => put(`/admin/leaves/${id}/status`, { status, ...(reason?{reason}: {}) }),
   myNotifications: (filters={}) => get(`/notifications/me?${new URLSearchParams(Object.entries(filters).filter(([,v])=>v!==""&&v!==undefined&&v!==null))}`),

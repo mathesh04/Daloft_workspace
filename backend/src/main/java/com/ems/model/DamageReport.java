@@ -1,4 +1,6 @@
-package com.ems.model; 
+package com.ems.model;
+
+import com.ems.util.TimeUtil; 
 import jakarta.persistence.*; 
 import java.time.*; 
 
@@ -17,7 +19,7 @@ public class DamageReport {
        private String description;
         private String severity; 
         private String status="REPORTED";
-         private LocalDateTime createdAt=LocalDateTime.now(); 
+         private LocalDateTime createdAt=TimeUtil.now(); 
          public Long getId(){return id;} 
          public Employee getEmployee(){return employee;} 
          public void setEmployee(Employee e){employee=e;} 
@@ -35,3 +37,4 @@ public class DamageReport {
                 return createdAt;
             } 
         }
+

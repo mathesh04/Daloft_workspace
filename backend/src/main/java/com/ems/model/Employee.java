@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotBlank;
@@ -57,7 +59,7 @@ public class Employee {
     private LocalDateTime lockedUntil;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = TimeUtil.now();
 
     public Employee() {}
 
@@ -104,3 +106,4 @@ public class Employee {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
+

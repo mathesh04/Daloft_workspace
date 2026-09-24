@@ -1,4 +1,6 @@
 package com.ems.model;
+
+import com.ems.util.TimeUtil;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -44,7 +46,7 @@ public class InventoryUsageUpdate {
     private String notes;
 
     @Column(name="created_at",nullable=false) 
-    private LocalDateTime createdAt=LocalDateTime.now();
+    private LocalDateTime createdAt=TimeUtil.now();
     public Long getId(){
         return id;
     } 
@@ -66,3 +68,4 @@ public class InventoryUsageUpdate {
     public void setNotes(String v){notes=v;} 
     public LocalDateTime getCreatedAt(){return createdAt;}
 }
+

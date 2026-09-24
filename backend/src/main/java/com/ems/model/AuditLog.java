@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -23,7 +25,7 @@ public class AuditLog {
     @Column(name="entity_id") private String entityId;
     @Column private String status;
     @Column(name="ip_address") private String ipAddress;
-    @Column(name="created_at", nullable=false) private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name="created_at", nullable=false) private LocalDateTime createdAt = TimeUtil.now();
 
     public Long getId(){return id;}
     public String getActor(){return actor;}
@@ -41,3 +43,4 @@ public class AuditLog {
     public String getIpAddress(){return ipAddress;} public void setIpAddress(String v){ipAddress=v;}
     public LocalDateTime getCreatedAt(){return createdAt;}
 }
+

@@ -1,5 +1,7 @@
 package com.ems.controller;
 
+import com.ems.util.TimeUtil;
+
 import com.ems.model.*;
 import com.ems.dto.EmployeeResponse;
 import com.ems.dto.LeaveRequestResponse;
@@ -532,7 +534,7 @@ public class ManagerController {
         if (startDate != null && endDate != null) {
             list = reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(startDate, endDate);
         } else if (startDate != null) {
-            list = reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(startDate, LocalDate.now());
+            list = reportRepository.findByReportDateBetweenOrderByReportDateDescCreatedAtDesc(startDate, TimeUtil.today());
         } else {
             list = reportRepository.findAllByOrderByReportDateDescCreatedAtDesc();
         }
@@ -554,3 +556,4 @@ public class ManagerController {
                 .toList();
     }
 }
+

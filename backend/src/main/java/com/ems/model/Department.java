@@ -1,4 +1,6 @@
 package com.ems.model;
+
+import com.ems.util.TimeUtil;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 @Entity 
@@ -17,7 +19,7 @@ public class Department {
  @Column(nullable=false) 
  private boolean active=true;
  @Column(name="created_at",nullable=false,updatable=false) 
- private LocalDateTime createdAt=LocalDateTime.now();
+ private LocalDateTime createdAt=TimeUtil.now();
  public Long getId(){return id;} 
  public void setId(Long v){id=v;} 
  public String getName(){return name;} 
@@ -30,3 +32,4 @@ public class Department {
   public void setActive(boolean v){active=v;} 
   public LocalDateTime getCreatedAt(){return createdAt;}
 }
+

@@ -1,5 +1,7 @@
 package com.ems.controller;
 
+import com.ems.util.TimeUtil;
+
 import com.ems.model.DailyWorkReport;
 import com.ems.service.DailyWorkReportService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,7 +29,7 @@ public class DailyWorkReportController {
     public ResponseEntity<?> submitReport(Authentication auth, @RequestBody Map<String, String> body) {
         try {
             String dateStr = body.get("reportDate");
-            LocalDate date = (dateStr != null && !dateStr.isBlank()) ? LocalDate.parse(dateStr) : LocalDate.now();
+            LocalDate date = (dateStr != null && !dateStr.isBlank()) ? LocalDate.parse(dateStr) : TimeUtil.today();
 
             String tasks = body.get("tasksCompleted");
             String blockers = body.get("blockers");
@@ -50,7 +52,7 @@ public class DailyWorkReportController {
 
     @GetMapping("/api/daily-reports/today")
     public ResponseEntity<?> myReportToday(Authentication auth) {
-        Optional<DailyWorkReport> report = reportService.getMyReportForDate(auth.getName(), LocalDate.now());
+        Optional<DailyWorkReport> report = reportService.getMyReportForDate(auth.getName(), TimeUtil.today());
         return ResponseEntity.ok(report.orElse(null));
     }
 
@@ -89,7 +91,7 @@ public class DailyWorkReportController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) throws Exception {
         
         byte[] bytes = reportService.exportDateWiseExcel(date, from, to);
-        String filename = "daily-work-report-" + (date != null ? date : (from != null ? from + "-to-" + to : LocalDate.now())) + ".xlsx";
+        String filename = "daily-work-report-" + (date != null ? date : (from != null ? from + "-to-" + to : TimeUtil.today())) + ".xlsx";
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
@@ -97,3 +99,4 @@ public class DailyWorkReportController {
                 .body(bytes);
     }
 }
+
