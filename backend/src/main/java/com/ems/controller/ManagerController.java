@@ -1,23 +1,53 @@
 package com.ems.controller;
 
-import com.ems.util.TimeUtil;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
-import com.ems.model.*;
-import com.ems.dto.EmployeeResponse;
-import com.ems.dto.LeaveRequestResponse;
-import com.ems.dto.DepartmentResponse;
-import com.ems.dto.ManagerDepartmentResponse;
-import com.ems.repository.*;
-import com.ems.service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.time.*;
-import java.util.*;
+import com.ems.dto.EmployeeResponse;
+import com.ems.dto.LeaveRequestResponse;
+import com.ems.dto.ManagerDepartmentResponse;
+import com.ems.model.Attendance;
+import com.ems.model.AttendanceRegularizationRequest;
+import com.ems.model.DailyWorkReport;
+import com.ems.model.Department;
+import com.ems.model.Employee;
+import com.ems.model.LeaveRequest;
+import com.ems.model.LeaveStatus;
+import com.ems.model.OrganizationHoliday;
+import com.ems.model.Role;
+import com.ems.repository.AttendanceRepository;
+import com.ems.repository.DailyWorkReportRepository;
+import com.ems.repository.DepartmentRepository;
+import com.ems.repository.EmployeeRepository;
+import com.ems.repository.LeaveRequestRepository;
+import com.ems.service.AttendanceRegularizationService;
+import com.ems.service.AuditService;
+import com.ems.service.DailyWorkReportService;
+import com.ems.service.HolidayService;
+import com.ems.service.LeaveBalanceService;
+import com.ems.service.NotificationService;
+import com.ems.service.SystemSettingsService;
+import com.ems.util.TimeUtil;
 
 @RestController
 @RequestMapping("/api/manager")
@@ -34,6 +64,7 @@ public class ManagerController {
     private final AttendanceRegularizationService regularization;
     private final DailyWorkReportRepository reportRepository;
     private final DailyWorkReportService reportService;
+    private final HolidayService holidays;
 
     public ManagerController(
             EmployeeRepository e,
@@ -46,7 +77,8 @@ public class ManagerController {
             LeaveBalanceService bs,
             AttendanceRegularizationService ar,
             DailyWorkReportRepository rr,
-            DailyWorkReportService rs) {
+            DailyWorkReportService rs,
+            HolidayService h) {
 
         employees = e;
         attendance = at;
@@ -59,6 +91,7 @@ public class ManagerController {
         regularization = ar;
         reportRepository = rr;
         reportService = rs;
+        holidays = h;
     }
 
     private Employee me(Authentication a) {
@@ -211,6 +244,57 @@ public class ManagerController {
                 .filter(r -> manages(m, r.getEmployee()))
                 .map(LeaveRequestResponse::new)
                 .toList();
+    }
+
+    @GetMapping("/office-calendar")
+    public Map<String, Object> officeCalendar(
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
+            Authentication a) {
+
+        Employee m = me(a);
+
+        LocalDate today = settings.today();
+        int reqYear = (year == null || year < 2000 || year > 2100) ? today.getYear() : year;
+        int reqMonth = (month == null || month < 1 || month > 12) ? today.getMonthValue() : month;
+
+        YearMonth ym = YearMonth.of(reqYear, reqMonth);
+        LocalDate startOfMonth = ym.atDay(1);
+        LocalDate endOfMonth = ym.atEndOfMonth();
+
+        String workingDaysRaw = settings.getString(
+                "WORKING_DAYS",
+                "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY"
+        );
+        List<String> workingDays = Arrays.stream(workingDaysRaw.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(s -> s.toUpperCase(Locale.ROOT))
+                .toList();
+
+        List<OrganizationHoliday> yearHolidays = holidays.byYear(reqYear, true);
+
+        List<LeaveRequest> approvedLeaves = leaves
+                .findByStatusAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                        LeaveStatus.APPROVED, endOfMonth, startOfMonth
+                );
+
+        List<LeaveRequestResponse> leaveResponses = approvedLeaves.stream()
+                .filter(l -> l.getEmployee() != null && (
+                        Objects.equals(l.getEmployee().getId(), m.getId()) || manages(m, l.getEmployee())
+                ))
+                .sorted(Comparator.comparing(LeaveRequest::getStartDate, Comparator.nullsLast(Comparator.naturalOrder())))
+                .map(LeaveRequestResponse::new)
+                .toList();
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("year", reqYear);
+        response.put("month", reqMonth);
+        response.put("workingDays", workingDays);
+        response.put("holidays", yearHolidays);
+        response.put("leaves", leaveResponses);
+
+        return response;
     }
 
     @PutMapping("/leaves/{id}/status")

@@ -930,7 +930,7 @@ export default function ManagerDashboard() {
             </div>
           }
         >
-          <OfficeCalendar readOnlyMode />
+          <OfficeCalendar viewMode="manager" />
         </Suspense>
       )}
     </WorkspaceShell>

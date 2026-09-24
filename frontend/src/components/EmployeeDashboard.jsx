@@ -451,7 +451,7 @@ export default function EmployeeDashboard() {
             </div>
           }
         >
-          <OfficeCalendar readOnlyMode />
+          <OfficeCalendar viewMode="employee" />
         </Suspense>
       )}
 
