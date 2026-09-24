@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import Tasks from "./Tasks";
 import WorkspaceShell from "./WorkspaceShell";
+
+const OfficeCalendar = lazy(() => import("./OfficeCalendar"));
 
 export default function ManagerDashboard() {
   const { user, logout } = useAuth();
@@ -171,6 +173,7 @@ export default function ManagerDashboard() {
               tasks: "Department Tasks",
               attendance: "Department Attendance",
               corrections: "Attendance Corrections",
+              calendar: "Office Calendar",
             }[tab] || "My Departments"
       }
       subtitle="Oversee your assigned departments, workforce roster, daily work reports, approvals and tasks."
@@ -198,6 +201,7 @@ export default function ManagerDashboard() {
           icon: "calendar",
           badge: corrections.length || null,
         },
+        { key: "calendar", label: "Office Calendar", icon: "calendar" },
       ]}
       workspaceActions={[
         {
@@ -913,6 +917,21 @@ export default function ManagerDashboard() {
             </div>
           </div>
         </KeepAlive>
+      )}
+
+      {tab === "calendar" && (
+        <Suspense
+          fallback={
+            <div
+              style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}
+            >
+              <div className="loading-spinner" style={{ marginBottom: 10 }} />
+              Loading calendar…
+            </div>
+          }
+        >
+          <OfficeCalendar readOnlyMode />
+        </Suspense>
       )}
     </WorkspaceShell>
   );

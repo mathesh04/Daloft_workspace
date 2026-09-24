@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, lazy, Suspense } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
@@ -10,6 +10,8 @@ import Profile from "./Profile";
 import DailyWorkReport from "./DailyWorkReport";
 import { StatusBadge, TaskBadge } from "./StatusBadges";
 import WorkspaceShell from "./WorkspaceShell";
+
+const OfficeCalendar = lazy(() => import("./OfficeCalendar"));
 
 const IST = "Asia/Kolkata";
 function fmtTime(iso) {
@@ -232,6 +234,7 @@ export default function EmployeeDashboard() {
               corrections: "Attendance Corrections",
               notifications: "Notifications",
               "daily-report": "Daily Work Report",
+              calendar: "Office Calendar",
             }[tab] || "My Workspace"
       }
       subtitle={
@@ -258,6 +261,7 @@ export default function EmployeeDashboard() {
         },
         { key: "inventory", label: "My Inventory", icon: "box" },
         { key: "leave", label: "Leave", icon: "leave" },
+        { key: "calendar", label: "Office Calendar", icon: "calendar" },
         { key: "damage", label: "Damage Reports", icon: "report" },
         {
           key: "corrections",
@@ -434,6 +438,21 @@ export default function EmployeeDashboard() {
           regularizations={regularizations}
           onSaved={loadAll}
         />
+      )}
+
+      {tab === "calendar" && (
+        <Suspense
+          fallback={
+            <div
+              style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}
+            >
+              <div className="loading-spinner" style={{ marginBottom: 10 }} />
+              Loading calendar…
+            </div>
+          }
+        >
+          <OfficeCalendar readOnlyMode />
+        </Suspense>
       )}
 
       {tab === "home" && (
