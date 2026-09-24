@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -47,7 +49,7 @@ public class Task {
     private String targetRole;
 
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = TimeUtil.now();
 
     public Task() {}
 
@@ -86,3 +88,4 @@ public class Task {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
+

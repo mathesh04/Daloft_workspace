@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
@@ -31,7 +33,7 @@ public class Notification {
     private boolean readStatus = false;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt = TimeUtil.now();
 
     public Long getId(){ return id; }
     public Employee getEmployee(){ return employee; }
@@ -48,3 +50,4 @@ public class Notification {
     public LocalDateTime getCreatedAt(){ return createdAt; }
     public void setCreatedAt(LocalDateTime v){ createdAt=v; }
 }
+

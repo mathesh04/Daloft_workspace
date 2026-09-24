@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import jakarta.persistence.*;
 import java.time.*;
 
@@ -26,7 +28,7 @@ public class AttendanceRegularizationRequest {
     private LocalDateTime reviewedAt;
     @Column(length=2000) 
     private String reviewReason;
-    private LocalDateTime createdAt=LocalDateTime.now();
+    private LocalDateTime createdAt=TimeUtil.now();
 
     public enum RegularizationStatus { PENDING, APPROVED, REJECTED }
     public Long getId(){
@@ -73,3 +75,4 @@ public class AttendanceRegularizationRequest {
     public String getReviewReason(){return reviewReason;} public void setReviewReason(String v){reviewReason=v;}
     public LocalDateTime getCreatedAt(){return createdAt;}
 }
+

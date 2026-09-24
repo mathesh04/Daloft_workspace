@@ -1,5 +1,7 @@
 package com.ems.service;
 
+import com.ems.util.TimeUtil;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -122,7 +124,7 @@ public class EmployeeInventoryService {
         boolean approve = Boolean.TRUE.equals(b.get("approved"));
 
         r.setAdminRemark(text(b.get("remark")));
-        r.setReviewedAt(LocalDateTime.now());
+        r.setReviewedAt(TimeUtil.now());
         r.setReviewedBy(admin);
 
         if (!approve) {

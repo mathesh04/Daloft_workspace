@@ -643,6 +643,17 @@ export default function EmployeeDashboard() {
   );
 }
 
+function fmtFullDate(d) {
+  if (!d) return "—";
+  const x = new Date(`${d}T00:00:00`);
+  if (isNaN(x)) return d;
+  return x.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function AttendanceCorrectionPanel({ history, regularizations, onSaved }) {
   const eligible = (history || []).filter(
     (a) =>
@@ -689,14 +700,19 @@ function AttendanceCorrectionPanel({ history, regularizations, onSaved }) {
       setBusy(false);
     }
   };
+  const statusLabel = (s) => String(s || "").replace(/_/g, " ");
   return (
-    <div className="grid grid-2" style={{ alignItems: "start" }}>
+    <div className="dashboard-stack" style={{ maxWidth: 880 }}>
       <div className="card">
-        <h3>Request attendance correction</h3>
-        <p className="muted">
-          Select the attendance date that needs correction. Your manager must
-          approve the request.
-        </p>
+        <div className="card-head">
+          <div>
+            <h3>Request attendance correction</h3>
+            <p className="section-sub">
+              Select the attendance date that needs correction. Your manager
+              must approve the request.
+            </p>
+          </div>
+        </div>
         {message && (
           <div
             className={
@@ -706,83 +722,162 @@ function AttendanceCorrectionPanel({ history, regularizations, onSaved }) {
             {message}
           </div>
         )}
-        <form className="form-grid" onSubmit={submit}>
-          <label>
-            Attendance date
+        <form onSubmit={submit}>
+          <div className="field">
+            <label htmlFor="correction-date">Attendance date</label>
             <select
+              id="correction-date"
               value={attendanceId}
               onChange={(e) => setAttendanceId(e.target.value)}
               disabled={!eligible.length}
             >
-              <option value="">Select date</option>
+              <option value="">
+                {eligible.length ? "Select date" : "No eligible attendance records"}
+              </option>
               {eligible.map((a) => (
                 <option key={a.id} value={a.id}>
-                  {a.workDate}
-                  {a.status ? ` · ${String(a.status).replace("_", " ")}` : ""}
+                  {fmtFullDate(a.workDate)}
+                  {a.status ? ` · ${statusLabel(a.status)}` : ""}
                 </option>
               ))}
             </select>
-          </label>
-          <label>
-            Requested check-in
-            <input
-              type="datetime-local"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
+          </div>
+
+          {selected && (
+            <div
+              className="leave-range-preview"
+              style={{
+                margin: "0 0 15px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 5,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 10.5,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  fontWeight: 650,
+                  color: "var(--text-muted)",
+                }}
+              >
+                Selected attendance
+              </span>
+              <span
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "baseline",
+                  gap: "2px 14px",
+                  fontSize: 12.5,
+                }}
+              >
+                <b style={{ color: "var(--ink)" }}>
+                  {fmtFullDate(selected.workDate)}
+                  {selected.status ? ` · ${statusLabel(selected.status)}` : ""}
+                </b>
+                <span>Check-in: {fmtTime(selected.checkInTime)}</span>
+                <span>Check-out: {fmtTime(selected.checkOutTime)}</span>
+              </span>
+            </div>
+          )}
+
+          <div className="form-grid" style={{ marginTop: 0 }}>
+            <div className="field">
+              <label htmlFor="correction-check-in">Requested check-in</label>
+              <input
+                id="correction-check-in"
+                type="datetime-local"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="correction-check-out">Requested check-out</label>
+              <input
+                id="correction-check-out"
+                type="datetime-local"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="field">
+            <label htmlFor="correction-reason">Reason for correction</label>
+            <textarea
+              id="correction-reason"
+              required
+              placeholder="Explain why this attendance record needs correction"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
             />
-          </label>
-          <label>
-            Requested check-out
-            <input
-              type="datetime-local"
-              value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-            />
-          </label>
-          <textarea
-            required
-            placeholder="Reason for correction"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-          />
-          <button className="btn btn-accent" disabled={busy || !selected?.id}>
-            {busy ? "Submitting…" : "Submit correction"}
-          </button>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              className="btn btn-accent"
+              disabled={busy || !selected?.id}
+            >
+              {busy ? "Submitting…" : "Submit correction"}
+            </button>
+          </div>
         </form>
       </div>
+
       <div className="card">
-        <h3>My correction requests</h3>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Requested</th>
-                <th>Status</th>
-                <th>Review</th>
-              </tr>
-            </thead>
-            <tbody>
-              {regularizations.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.attendance?.workDate || "—"}</td>
-                  <td>
-                    {r.requestedCheckIn || "—"} → {r.requestedCheckOut || "—"}
-                  </td>
-                  <td>{r.status}</td>
-                  <td>{r.reviewReason || "—"}</td>
-                </tr>
-              ))}
-              {!regularizations.length && (
-                <tr>
-                  <td colSpan="4" className="empty-state">
-                    No correction requests.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="card-head">
+          <div>
+            <h3>My correction requests</h3>
+            <p className="section-sub">
+              {regularizations.length} request
+              {regularizations.length === 1 ? "" : "s"}
+            </p>
+          </div>
         </div>
+        {regularizations.length ? (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Requested</th>
+                  <th>Status</th>
+                  <th>Review</th>
+                </tr>
+              </thead>
+              <tbody>
+                {regularizations.map((r) => (
+                  <tr key={r.id}>
+                    <td>{fmtFullDate(r.attendance?.workDate)}</td>
+                    <td>
+                      {r.requestedCheckIn ? fmtTime(r.requestedCheckIn) : "—"}
+                      {" → "}
+                      {r.requestedCheckOut ? fmtTime(r.requestedCheckOut) : "—"}
+                    </td>
+                    <td>
+                      <span
+                        className={`badge ${
+                          r.status === "APPROVED"
+                            ? "badge-success"
+                            : r.status === "REJECTED" || r.status === "CANCELLED"
+                              ? "badge-danger"
+                              : "badge-neutral"
+                        }`}
+                      >
+                        {r.status}
+                      </span>
+                    </td>
+                    <td>{r.reviewReason || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="empty-state">No correction requests.</div>
+        )}
       </div>
     </div>
   );

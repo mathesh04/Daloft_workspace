@@ -3,6 +3,16 @@ import api from "../api/api";
 
 const TYPES = ["CASUAL", "EARNED", "SICK", "UNPAID", "WORK_FROM_HOME", "OTHER"];
 const PAID = ["CASUAL", "EARNED", "SICK"];
+function fmtDate(d) {
+  if (!d) return "—";
+  const x = new Date(`${d}T00:00:00`);
+  if (isNaN(x)) return d;
+  return x.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 const todayLocal = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -20,6 +30,7 @@ export default function LeaveManagement({ adminMode = false }) {
     [err, setErr] = useState(""),
     [loading, setLoading] = useState(true),
     [saving, setSaving] = useState(false);
+  const [estimate, setEstimate] = useState(null);
   const [refresh, setRefresh] = useState(0);
   const today = todayLocal();
   const load = async () => {
@@ -53,6 +64,21 @@ export default function LeaveManagement({ adminMode = false }) {
       if (day !== 0 && day !== 6) count++;
     }
     return count;
+  }, [f.startDate, f.endDate]);
+  useEffect(() => {
+    let alive = true;
+    setEstimate(null);
+    if (!f.startDate || !f.endDate || f.endDate < f.startDate) return;
+    api
+      .leaveWorkingDays(f.startDate, f.endDate)
+      .then((r) => {
+        if (alive && r && typeof r.workingDays === "number")
+          setEstimate(r.workingDays);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
   }, [f.startDate, f.endDate]);
   const submit = async (e) => {
     e.preventDefault();
@@ -96,7 +122,7 @@ export default function LeaveManagement({ adminMode = false }) {
     }
   };
   return (
-    <div className="leave-page">
+    <div className="leave-page" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
       <div className="leave-hero">
         <div>
           <span className="eyebrow green">PEOPLE OPERATIONS</span>
@@ -190,16 +216,18 @@ export default function LeaveManagement({ adminMode = false }) {
               />
               <small>{f.reason.length}/2000</small>
             </div>
-            <button className="btn btn-accent" disabled={saving}>
-              {saving ? "Submitting…" : "Submit Request"}
-            </button>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button className="btn btn-accent" disabled={saving}>
+                {saving ? "Submitting…" : "Submit Request"}
+              </button>
+            </div>
           </form>
           <div className="leave-range-preview">
             <span>Estimated working days</span>
-            <b>{preview ?? "—"}</b>
+            <b>{estimate ?? preview ?? "—"}</b>
             <small>
-              Weekends are excluded. Active organization holidays are also
-              excluded by the server.
+              Weekends and active organization holidays are excluded — the same
+              calculation the server uses for your request.
             </small>
           </div>
         </div>
@@ -249,7 +277,7 @@ export default function LeaveManagement({ adminMode = false }) {
                     </td>
                     <td>{r.leaveType}</td>
                     <td>
-                      {r.startDate} → {r.endDate}
+                      {fmtDate(r.startDate)} → {fmtDate(r.endDate)}
                     </td>
                     <td>{r.workingDays}</td>
                     <td>

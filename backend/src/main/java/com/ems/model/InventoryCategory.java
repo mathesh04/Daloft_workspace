@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -12,7 +14,7 @@ public class InventoryCategory {
  @Column(length=1000) 
  private String description;
  @Column(name="created_at", updatable=false) 
- private LocalDateTime createdAt=LocalDateTime.now();
+ private LocalDateTime createdAt=TimeUtil.now();
  public Long getId(){
     return id;
 } 
@@ -33,3 +35,4 @@ public LocalDateTime getCreatedAt(){return createdAt;
     this.createdAt=createdAt;
 }
 }
+

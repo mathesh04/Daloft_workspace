@@ -1,5 +1,7 @@
 package com.ems.model;
 
+import com.ems.util.TimeUtil;
+
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -41,14 +43,14 @@ public class Component {
  private String storageLocation;
 
  @Column(name="created_at",updatable=false) 
- private LocalDateTime createdAt=LocalDateTime.now(); 
+ private LocalDateTime createdAt=TimeUtil.now(); 
 
  @Column(name="updated_at") 
- private LocalDateTime updatedAt=LocalDateTime.now();
+ private LocalDateTime updatedAt=TimeUtil.now();
 
  @PreUpdate 
  void updated(){
-    updatedAt=LocalDateTime.now();
+    updatedAt=TimeUtil.now();
 }
  public Long getId(){return id;} 
  public void setId(Long id){
@@ -92,3 +94,4 @@ public class Component {
             public LocalDateTime getUpdatedAt()
             {return updatedAt;}
 }
+
