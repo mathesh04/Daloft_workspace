@@ -16,7 +16,7 @@ export default function DailyWorkReportsAdmin() {
   const [downloadingReports, setDownloadingReports] = useState(false);
   const [error, setError] = useState("");
 
-  // Load department + employee options once
+  
   useEffect(() => {
     (async () => {
       try {
@@ -124,7 +124,7 @@ export default function DailyWorkReportsAdmin() {
     }
   };
 
-  // Employee dropdown options, narrowed by the selected department
+  
   const selectedDepName = filters.departmentId
     ? (
         departments.find((d) => String(d.id) === String(filters.departmentId))
@@ -170,7 +170,7 @@ export default function DailyWorkReportsAdmin() {
         </button>
       </div>
 
-      {/* Filters Form */}
+      {}
       <form
         onSubmit={handleApplyReportFilters}
         style={{
@@ -278,7 +278,7 @@ export default function DailyWorkReportsAdmin() {
         </div>
       )}
 
-      {/* Reports List / Table */}
+      {}
       {loadingReports ? (
         <div
           style={{

@@ -107,6 +107,7 @@ const SYSTEM_NAV = [
   { key: "tasks", label: "Tasks", icon: "tasks" },
   { key: "notifications", label: "Notifications", icon: "bell" },
   { key: "daily-reports", label: "Daily Work Reports", icon: "report" },
+  { key: "fraud-alerts", label: "Location Fraud", icon: "alert" },
   { key: "security", label: "Security Center", icon: "shield" },
   { key: "audit", label: "Audit Logs", icon: "audit" },
   { key: "offices", label: "Offices & Geofences", icon: "location" },
@@ -129,6 +130,7 @@ export default function AdminDashboard() {
   const [loadingAccess, setLoadingAccess] = useState(!system);
   const [accessError, setAccessError] = useState("");
   const [notificationCount, setNotificationCount] = useState(0);
+  const [fraudCount, setFraudCount] = useState(0);
 
   useEffect(() => {
     if (system) return;
@@ -149,7 +151,13 @@ export default function AdminDashboard() {
       .unreadCount()
       .then((r) => setNotificationCount(r?.count || 0))
       .catch(() => {});
-  }, []);
+    if (system) {
+      api
+        .locationFraudUnreviewed()
+        .then((r) => setFraudCount(r?.count || 0))
+        .catch(() => {});
+    }
+  }, [system]);
   const has = (key) =>
     system || permissions.includes("ALL") || permissions.includes(key);
   const allowed = useMemo(
@@ -184,7 +192,11 @@ export default function AdminDashboard() {
           ? "Govern organization policy, security, people and platform health."
           : "A focused, data-first workspace for people operations.";
   const nav = system
-    ? SYSTEM_NAV
+    ? SYSTEM_NAV.map((item) =>
+        item.key === "fraud-alerts"
+          ? { ...item, badge: fraudCount || null }
+          : item,
+      )
     : [
         { key: "dashboard", label: "Overview", icon: "home" },
         ...allowed.map((m) => ({ key: m.key, label: m.label, icon: m.icon })),
@@ -272,6 +284,7 @@ function SystemWorkspace({
       {tab === "offices" && <SystemAdminPanel section="offices" />}
       {tab === "organization" && <SystemAdminPanel section="organization" />}
       {tab === "daily-reports" && <DailyWorkReportsAdmin />}
+      {tab === "fraud-alerts" && <LocationFraudPanel />}
       {tab === "security" && <SystemAdminPanel section="security" />}
       {tab === "audit" && <SystemAdminPanel section="audit" />}
       {tab === "settings" && <SystemAdminPanel section="settings" />}
@@ -344,6 +357,157 @@ function AccessDenied({ onBack }) {
       <button className="btn btn-primary" onClick={onBack}>
         Back to overview
       </button>
+    </div>
+  );
+}
+
+function LocationFraudPanel() {
+  const [alerts, setAlerts] = useState([]);
+  const [filter, setFilter] = useState("unreviewed");
+  const [loading, setLoading] = useState(true);
+  const [reviewingId, setReviewingId] = useState(null);
+  const [adminNotes, setAdminNotes] = useState("");
+  const [message, setMessage] = useState("");
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = filter === "unreviewed"
+        ? await api.locationFraudUnreviewedList()
+        : await api.locationFraudAll();
+      setAlerts(data || []);
+    } catch (e) {
+      setMessage(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, [filter]);
+
+  const handleReview = async (id) => {
+    try {
+      await api.reviewLocationFraud(id, adminNotes);
+      setReviewingId(null);
+      setAdminNotes("");
+      setMessage("Alert marked as reviewed.");
+      await load();
+    } catch (e) {
+      setMessage(e.message);
+    }
+  };
+
+  const severityColor = (s) => {
+    switch ((s || "").toUpperCase()) {
+      case "CRITICAL": return "#dc2626";
+      case "HIGH": return "#ea580c";
+      case "MEDIUM": return "#ca8a04";
+      case "LOW": return "#16a34a";
+      default: return "var(--text-muted)";
+    }
+  };
+
+  const fraudTypeLabel = (t) => (t || "").replace(/_/g, " ");
+
+  return (
+    <div className="dashboard-stack" style={{ maxWidth: 1100 }}>
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <h3>Location Fraud Alerts</h3>
+            <p className="section-sub">Suspicious location activity detected during attendance check-in/check-out.</p>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button className={`btn btn-sm ${filter === "unreviewed" ? "btn-accent" : "btn-ghost"}`} onClick={() => setFilter("unreviewed")}>Unreviewed</button>
+            <button className={`btn btn-sm ${filter === "all" ? "btn-accent" : "btn-ghost"}`} onClick={() => setFilter("all")}>All alerts</button>
+          </div>
+        </div>
+        {message && <div className={message.includes("reviewed") ? "success-banner" : "error-banner"}>{message}</div>}
+        {loading ? (
+          <div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>
+            <div className="loading-spinner" style={{ marginBottom: 10 }} />
+            Loading alerts…
+          </div>
+        ) : alerts.length === 0 ? (
+          <div className="empty-state" style={{ padding: 40 }}>
+            {filter === "unreviewed" ? "No unreviewed fraud alerts. All clear!" : "No fraud alerts recorded yet."}
+          </div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Date</th>
+                  <th>Event</th>
+                  <th>Fraud Type</th>
+                  <th>Severity</th>
+                  <th>Details</th>
+                  <th>IP → GPS Distance</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {alerts.map((a) => (
+                  <tr key={a.id}>
+                    <td style={{ fontWeight: 600 }}>{a.employee?.name || a.employee?.employeeId || "—"}</td>
+                    <td style={{ fontSize: "0.85rem", whiteSpace: "nowrap" }}>
+                      {a.createdAt ? new Date(a.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: "medium", timeStyle: "short" }) : "—"}
+                    </td>
+                    <td>{a.eventType}</td>
+                    <td style={{ fontWeight: 600 }}>{fraudTypeLabel(a.fraudType)}</td>
+                    <td>
+                      <span style={{
+                        color: "#fff",
+                        background: severityColor(a.severity),
+                        padding: "2px 10px",
+                        borderRadius: 20,
+                        fontSize: "0.78rem",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.04em",
+                      }}>{a.severity}</span>
+                    </td>
+                    <td style={{ fontSize: "0.83rem", maxWidth: 260, wordBreak: "break-word" }}>{a.details || "—"}</td>
+                    <td style={{ whiteSpace: "nowrap" }}>
+                      {a.ipGpsDistanceKm != null && a.ipGpsDistanceKm > 0 ? `${Math.round(a.ipGpsDistanceKm)} km` : "—"}
+                      {a.ipCity ? <><br /><small style={{ color: "var(--text-muted)" }}>IP: {a.ipCity}, {a.ipCountry}</small></> : null}
+                    </td>
+                    <td>
+                      {a.reviewed
+                        ? <span style={{ color: "var(--success)", fontWeight: 600 }}>Reviewed</span>
+                        : <span style={{ color: "var(--danger)", fontWeight: 600 }}>Pending</span>}
+                    </td>
+                    <td>
+                      {!a.reviewed && reviewingId !== a.id && (
+                        <button className="btn btn-sm btn-ghost" onClick={() => { setReviewingId(a.id); setAdminNotes(""); }}>Review</button>
+                      )}
+                      {reviewingId === a.id && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 180 }}>
+                          <textarea
+                            placeholder="Admin notes (optional)"
+                            value={adminNotes}
+                            onChange={(e) => setAdminNotes(e.target.value)}
+                            style={{ fontSize: "0.82rem", padding: 6, minHeight: 50, resize: "vertical", borderRadius: 6, border: "1px solid var(--border)" }}
+                          />
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button className="btn btn-sm btn-accent" onClick={() => handleReview(a.id)}>Confirm</button>
+                            <button className="btn btn-sm btn-ghost" onClick={() => setReviewingId(null)}>Cancel</button>
+                          </div>
+                        </div>
+                      )}
+                      {a.reviewed && a.adminNotes && (
+                        <small style={{ color: "var(--text-muted)", display: "block", marginTop: 4 }}>{a.adminNotes}</small>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

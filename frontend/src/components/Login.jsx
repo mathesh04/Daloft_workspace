@@ -105,7 +105,7 @@ export default function Login() {
             className="login-form"
           >
 
-            {/* Employee ID */}
+            {}
             <div className="login-field">
               <label htmlFor="login-employee-id">
                 Employee ID
@@ -177,7 +177,7 @@ export default function Login() {
               </Link>
             </div>
 
-            {/* Remember */}
+            {}
             <div className="login-remember-row">
               <label className="login-remember">
 

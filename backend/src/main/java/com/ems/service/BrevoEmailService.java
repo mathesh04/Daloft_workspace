@@ -17,19 +17,25 @@ import java.util.*;
 
 @Service
 public class BrevoEmailService {
+
     private static final Logger log = LoggerFactory.getLogger(BrevoEmailService.class);
     private final String apiKey, senderEmail, senderName;
     private final ObjectMapper mapper;
     private final HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 
     public BrevoEmailService(@Value("${brevo.api.key:}") String apiKey,
-                             @Value("${brevo.sender.email:}") String senderEmail,
-                             @Value("${brevo.sender.name:EMS Management}") String senderName,
-                             ObjectMapper mapper) {
-        this.apiKey = apiKey; this.senderEmail = senderEmail; this.senderName = senderName; this.mapper = mapper;
+            @Value("${brevo.sender.email:}") String senderEmail,
+            @Value("${brevo.sender.name:EMS Management}") String senderName,
+            ObjectMapper mapper) {
+        this.apiKey = apiKey;
+        this.senderEmail = senderEmail;
+        this.senderName = senderName;
+        this.mapper = mapper;
     }
 
-    public boolean configured() { return StringUtils.hasText(apiKey) && StringUtils.hasText(senderEmail); }
+    public boolean configured() {
+        return StringUtils.hasText(apiKey) && StringUtils.hasText(senderEmail);
+    }
 
     public void send(Employee employee, String subject, String message) {
         if (employee == null || !StringUtils.hasText(employee.getEmail())) {
@@ -41,7 +47,7 @@ public class BrevoEmailService {
             return;
         }
         try {
-            Map<String,Object> payload = new LinkedHashMap<>();
+            Map<String, Object> payload = new LinkedHashMap<>();
             payload.put("sender", Map.of("email", senderEmail, "name", senderName));
             payload.put("to", List.of(Map.of("email", employee.getEmail(), "name", employee.getName())));
             payload.put("subject", subject);
@@ -52,8 +58,9 @@ public class BrevoEmailService {
                     .header("content-type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json)).build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() < 200 || response.statusCode() >= 300)
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 throw new IllegalStateException("Brevo rejected email: HTTP " + response.statusCode() + " - " + response.body());
+            }
             log.info("Brevo email accepted for delivery to {} (HTTP {})", employee.getEmail(), response.statusCode());
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
@@ -62,21 +69,22 @@ public class BrevoEmailService {
             throw new IllegalStateException("Email notification could not be sent", ex);
         }
     }
+
     public void sendPasswordReset(Employee employee, String resetUrl) {
-        String body =
-                "Dear " + employee.getName() + ",\n\n" +
-                        "We received a request to reset the password for your DALOFT People account.\n\n" +
-                        "Reset Password\n" +
-                        "------------------------------\n" +
-                        "Use the secure link below to create a new password:\n" +
-                        resetUrl + "\n\n" +
-                        "This password reset link is valid for 15 minutes and can only be used once.\n\n" +
-                        "If you did not request a password reset, you can safely ignore this email. " +
-                        "Your account will remain secure.\n\n" +
-                        "For security reasons, please do not share this link with anyone.\n\n" +
-                        "Warm regards,\n" +
-                        "HR & People Operations\n" +
-                        "DALOFT AEROSPACE PRIVATE LIMITED";
+        String body
+                = "Dear " + employee.getName() + ",\n\n"
+                + "We received a request to reset the password for your DALOFT People account.\n\n"
+                + "Reset Password\n"
+                + "------------------------------\n"
+                + "Use the secure link below to create a new password:\n"
+                + resetUrl + "\n\n"
+                + "This password reset link is valid for 15 minutes and can only be used once.\n\n"
+                + "If you did not request a password reset, you can safely ignore this email. "
+                + "Your account will remain secure.\n\n"
+                + "For security reasons, please do not share this link with anyone.\n\n"
+                + "Warm regards,\n"
+                + "HR & People Operations\n"
+                + "DALOFT AEROSPACE PRIVATE LIMITED";
 
         send(employee, "DALOFT AEROSPACE | Password Reset", body);
     }
@@ -85,18 +93,18 @@ public class BrevoEmailService {
         Employee emp = new Employee();
         emp.setEmail(email);
         emp.setName(name);
-        String body =
-                "Dear " + name + ",\n\n" +
-                "Welcome to DALOFT AEROSPACE! Your account has been created.\n\n" +
-                "Account Details:\n" +
-                "------------------------------\n" +
-                "Employee ID : " + employeeId + "\n" +
-                "Role        : " + role + "\n" +
-                "Password    : " + password + "\n\n" +
-                "Please log in and update your password at your earliest convenience.\n\n" +
-                "Warm regards,\n" +
-                "HR & People Operations\n" +
-                "DALOFT AEROSPACE PRIVATE LIMITED";
+        String body
+                = "Dear " + name + ",\n\n"
+                + "Welcome to DALOFT AEROSPACE! Your account has been created.\n\n"
+                + "Account Details:\n"
+                + "------------------------------\n"
+                + "Employee ID : " + employeeId + "\n"
+                + "Role        : " + role + "\n"
+                + "Password    : " + password + "\n\n"
+                + "Please log in and update your password at your earliest convenience.\n\n"
+                + "Warm regards,\n"
+                + "HR & People Operations\n"
+                + "DALOFT AEROSPACE PRIVATE LIMITED";
         send(emp, "DALOFT AEROSPACE | Account Created", body);
     }
 }

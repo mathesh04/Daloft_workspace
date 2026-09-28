@@ -56,7 +56,7 @@ async function handle(response) {
       (typeof data === "string" && data.trim()) ||
       (data && data.message) ||
       `Request failed (${response.status})`;
-   
+
     if (
       typeof message === "string" &&
       /could not initialize proxy|no session|hibernate|nullpointer|stacktrace|\.model\.|exception/i.test(
@@ -475,6 +475,15 @@ const api = {
       `/admin/daily-reports/export/date-wise?${new URLSearchParams({ ...(date ? { date } : {}), ...(from ? { from } : {}), ...(to ? { to } : {}) })}`,
       `daily-work-report-${date || "range"}.xlsx`,
     ),
+
+  locationFraudAll: () => get("/system-admin/location-fraud"),
+  locationFraudUnreviewed: () => get("/system-admin/location-fraud/unreviewed"),
+  locationFraudUnreviewedList: () =>
+    get("/system-admin/location-fraud/unreviewed/list"),
+  locationFraudByEmployee: (employeeId) =>
+    get(`/system-admin/location-fraud/employee/${employeeId}`),
+  reviewLocationFraud: (id, adminNotes) =>
+    put(`/system-admin/location-fraud/${id}/review`, { adminNotes }),
 };
 
 export default api;

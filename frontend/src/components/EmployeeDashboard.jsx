@@ -122,7 +122,15 @@ export default function EmployeeDashboard() {
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const { latitude, longitude, accuracy } = position.coords;
+          const {
+            latitude,
+            longitude,
+            accuracy,
+            altitude,
+            altitudeAccuracy,
+            heading,
+            speed,
+          } = position.coords;
           if (
             !Number.isFinite(latitude) ||
             !Number.isFinite(longitude) ||
@@ -131,7 +139,33 @@ export default function EmployeeDashboard() {
             reject(new Error("Could not read a valid current location."));
             return;
           }
-          resolve({ latitude, longitude, accuracy });
+
+          const locationData = {
+            latitude,
+            longitude,
+            accuracy,
+            altitude: altitude != null ? altitude : null,
+            altitudeAccuracy: altitudeAccuracy != null ? altitudeAccuracy : null,
+            heading: heading != null ? heading : null,
+            speed: speed != null ? speed : null,
+            locationTimestamp: position.timestamp,
+            mockDetected: false,
+          };
+
+       
+          if (accuracy === 0) {
+            locationData.mockDetected = true;
+          }
+          
+          if (
+            altitude === null &&
+            altitudeAccuracy === null &&
+            accuracy < 20
+          ) {
+            locationData.mockDetected = true;
+          }
+
+          resolve(locationData);
         },
         (error) => {
           const messages = {
