@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
 
@@ -35,18 +37,22 @@ public class AttendanceController {
     }
 
     @PostMapping("/api/attendance/check-in")
-    public ResponseEntity<?> checkIn(Authentication auth, @Valid @RequestBody(required = false) AttendanceLocationRequest location) {
+    public ResponseEntity<?> checkIn(Authentication auth, @Valid @RequestBody(required = false) AttendanceLocationRequest location, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(attendanceService.checkIn(auth.getName(), location));
+            String clientIp = extractClientIp(request);
+            String userAgent = request.getHeader("User-Agent");
+            return ResponseEntity.ok(attendanceService.checkIn(auth.getName(), location, clientIp, userAgent));
         } catch (IllegalStateException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
     @PostMapping("/api/attendance/check-out")
-    public ResponseEntity<?> checkOut(Authentication auth, @Valid @RequestBody(required = false) AttendanceLocationRequest location) {
+    public ResponseEntity<?> checkOut(Authentication auth, @Valid @RequestBody(required = false) AttendanceLocationRequest location, HttpServletRequest request) {
         try {
-            return ResponseEntity.ok(attendanceService.checkOut(auth.getName(), location));
+            String clientIp = extractClientIp(request);
+            String userAgent = request.getHeader("User-Agent");
+            return ResponseEntity.ok(attendanceService.checkOut(auth.getName(), location, clientIp, userAgent));
         } catch (IllegalStateException | IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
@@ -107,5 +113,12 @@ public class AttendanceController {
     @GetMapping("/api/admin/attendance/today")
     public List<Attendance> todayAttendance() {
         return attendanceService.getTodayAttendance();
+    }
+    private String extractClientIp(HttpServletRequest request) {
+        String xff = request.getHeader("X-Forwarded-For");
+        if (xff != null && !xff.isBlank()) return xff.split(",")[0].trim();
+        String realIp = request.getHeader("X-Real-IP");
+        if (realIp != null && !realIp.isBlank()) return realIp;
+        return request.getRemoteAddr();
     }
 }

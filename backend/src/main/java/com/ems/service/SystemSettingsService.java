@@ -20,11 +20,13 @@ import com.ems.repository.SystemSettingRepository;
 public class SystemSettingsService {
     private static final Set<String> BOOLEAN_KEYS = Set.of(
             "ATTENDANCE_ENABLED", "CHECK_IN_ENABLED", "CHECK_OUT_ENABLED", "GEOFENCE_ENABLED",
-            "MAINTENANCE_MODE", "EMPLOYEE_LOGIN_ENABLED", "INTERN_LOGIN_ENABLED", "MANAGER_LOGIN_ENABLED", "HR_ADMIN_LOGIN_ENABLED", "ADMIN_LOGIN_ENABLED"
+            "MAINTENANCE_MODE", "EMPLOYEE_LOGIN_ENABLED", "INTERN_LOGIN_ENABLED", "MANAGER_LOGIN_ENABLED", "HR_ADMIN_LOGIN_ENABLED", "ADMIN_LOGIN_ENABLED",
+            "GEOFENCE_IP_CHECK_ENABLED", "GEOFENCE_BLOCK_IP_MISMATCH", "GEOFENCE_BLOCK_MOCK", "GEOFENCE_TELEPORTATION_CHECK"
     );
     private static final Set<String> INTEGER_KEYS = Set.of(
             "GEOFENCE_RADIUS", "LATE_GRACE_MINUTES", "MIN_WORK_MINUTES", "MAX_GPS_ACCURACY",
-            "MAX_LOGIN_ATTEMPTS", "ACCOUNT_LOCK_MINUTES", "SESSION_TIMEOUT_MINUTES", "LEAVE_CASUAL_DAYS", "LEAVE_SICK_DAYS", "LEAVE_EARNED_DAYS"
+            "MAX_LOGIN_ATTEMPTS", "ACCOUNT_LOCK_MINUTES", "SESSION_TIMEOUT_MINUTES", "LEAVE_CASUAL_DAYS", "LEAVE_SICK_DAYS", "LEAVE_EARNED_DAYS",
+            "MAX_IP_GPS_MISMATCH_KM"
     );
     private static final Map<String, String> DEFAULTS = Map.ofEntries(
             Map.entry("ATTENDANCE_ENABLED", "true"),
@@ -48,7 +50,10 @@ public class SystemSettingsService {
             Map.entry("WORKING_DAYS", "MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY"),
             Map.entry("WORK_START_TIME", "09:00"),
             Map.entry("WORK_END_TIME", "18:00"),
-            Map.entry("LEAVE_CASUAL_DAYS", "12"), Map.entry("LEAVE_SICK_DAYS", "12"), Map.entry("LEAVE_EARNED_DAYS", "15")
+            Map.entry("LEAVE_CASUAL_DAYS", "12"), Map.entry("LEAVE_SICK_DAYS", "12"), Map.entry("LEAVE_EARNED_DAYS", "15"),
+            Map.entry("GEOFENCE_IP_CHECK_ENABLED", "true"), Map.entry("MAX_IP_GPS_MISMATCH_KM", "100"),
+            Map.entry("GEOFENCE_BLOCK_IP_MISMATCH", "false"), Map.entry("GEOFENCE_BLOCK_MOCK", "true"),
+            Map.entry("GEOFENCE_TELEPORTATION_CHECK", "true")
     );
 
     private final SystemSettingRepository repository;
@@ -161,6 +166,7 @@ public class SystemSettingsService {
             catch (Exception ex) { throw new IllegalArgumentException(key.replace('_', ' ') + " must be a valid number"); }
             if (key.equals("GEOFENCE_RADIUS") && (value < 1 || value > 50000)) throw new IllegalArgumentException("Geofence radius must be between 1 and 50,000 meters");
             if (key.equals("MAX_GPS_ACCURACY") && (value < 1 || value > 5000)) throw new IllegalArgumentException("Maximum GPS accuracy must be between 1 and 5,000 meters");
+            if (key.equals("MAX_IP_GPS_MISMATCH_KM") && (value < 10 || value > 5000)) throw new IllegalArgumentException("Maximum IP-GPS mismatch must be between 10 and 5,000 km");
             if (key.equals("LATE_GRACE_MINUTES") && (value < 0 || value > 1440)) throw new IllegalArgumentException("Late grace period must be between 0 and 1,440 minutes");
             if (key.equals("MIN_WORK_MINUTES") && (value < 0 || value > 1440)) throw new IllegalArgumentException("Minimum work duration must be between 0 and 1,440 minutes");
             if (key.equals("MAX_LOGIN_ATTEMPTS") && (value < 1 || value > 20)) throw new IllegalArgumentException("Maximum login attempts must be between 1 and 20");
